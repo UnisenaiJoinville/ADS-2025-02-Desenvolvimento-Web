@@ -1,0 +1,95 @@
+name: Validar estrutura de envio
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    name: Validar pastas alteradas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Buscar branch base
+        run: git fetch origin "${{ github.base_ref }}" --depth=1
+
+      - name: Validar estrutura das pastas
+        shell: bash
+        run: |
+          set -e
+
+          BASE="origin/${{ github.base_ref }}"
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+
+          if [ -z "$CHANGED" ]; then
+            echo "Nenhum arquivo alterado neste PR."
+            exit 0
+          fi
+
+          echo "## Arquivos alterados neste PR" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "$CHANGED" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          MATERIAS="BANCO-DE-DADOS NODEJS DOCKER PROJETO-INDIVIDUAL"
+          STUDENTS_FILE=".github/alunos.txt"
+
+          if [ ! -f "$STUDENTS_FILE" ]; then
+            echo "::error::Arquivo $STUDENTS_FILE não encontrado no repositório."
+            exit 1
+          fi
+
+          FAIL=0
+          SUBPASTA_REF=""
+
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+
+            materia=$(echo "$file" | cut -d/ -f1)
+            subpasta=$(echo "$file" | cut -d/ -f2)
+
+            match=0
+            for m in $MATERIAS; do
+              [ "$materia" = "$m" ] && match=1
+            done
+
+            if [ "$match" -eq 0 ]; then
+              echo "::error file=$file::Arquivo fora das pastas permitidas ($MATERIAS)."
+              FAIL=1
+              continue
+            fi
+
+            if [ -z "$subpasta" ] || [ "$subpasta" = "README.md" ]; then
+              echo "::error file=$file::Não é permitido alterar arquivos direto em '$materia/' — coloque seus arquivos dentro da sua subpasta de aluno."
+              FAIL=1
+              continue
+            fi
+
+            if ! grep -Fxq "$subpasta" "$STUDENTS_FILE"; then
+              echo "::error file=$file::A subpasta '$subpasta' não corresponde a nenhum aluno cadastrado em $STUDENTS_FILE. Confira se o nome da pasta está exatamente igual à sua subpasta oficial."
+              FAIL=1
+              continue
+            fi
+
+            if [ -z "$SUBPASTA_REF" ]; then
+              SUBPASTA_REF="$subpasta"
+            elif [ "$subpasta" != "$SUBPASTA_REF" ]; then
+              echo "::error file=$file::Este Pull Request altera mais de uma subpasta de aluno ('$SUBPASTA_REF' e '$subpasta'). Cada PR deve conter só a sua própria subpasta."
+              FAIL=1
+            fi
+          done <<< "$CHANGED"
+
+          if [ "$FAIL" -eq 1 ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ **Este Pull Request não segue a estrutura esperada.** Veja os erros acima, ajuste e envie novamente." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ **Estrutura válida.** Alterações restritas à subpasta: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Estrutura válida! Alterações restritas à subpasta: $SUBPASTA_REF"

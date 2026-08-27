@@ -35,4 +35,6 @@ git push origin envio-<sua-subpasta>
 
 5. Abra um **Pull Request**: entre no seu fork no GitHub, clique em **Compare & pull request**, confira se o destino é `UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web` branch `main`, e envie.
 
+Assim que o PR é aberto, um **check automático** (GitHub Actions) confere se os arquivos estão dentro da sua subpasta de aluno e se o PR não mexe em pasta de outra pessoa. Se o check falhar, veja a mensagem de erro no próprio PR, corrija e dê push de novo na mesma branch.
+
 > Cada pasta de matéria (`BANCO-DE-DADOS/`, `NODEJS/`, `DOCKER/`, `PROJETO-INDIVIDUAL/`) também tem seu próprio README com esse passo a passo já com os comandos ajustados para aquela pasta.
