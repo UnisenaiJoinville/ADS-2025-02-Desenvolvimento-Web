@@ -4,16 +4,20 @@ Pasta destinada aos projetos de Node.js dos alunos.
 
 ## Como enviar sua atividade
 
-1. Clone o repositório (só na primeira vez):
+Este repositório exige **Pull Request** para qualquer alteração na `main`, e os alunos não têm permissão de escrita direta — por isso o envio é feito via **fork** (uma cópia do repositório na sua própria conta do GitHub).
+
+1. Faça um fork: abra [github.com/UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web](https://github.com/UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web) e clique em **Fork** (canto superior direito).
+
+2. Clone o **seu fork** (troque `<seu-usuario>` pelo seu usuário do GitHub):
 
 ```
-git clone https://github.com/UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web.git
+git clone https://github.com/<seu-usuario>/ADS-2025-02-Desenvolvimento-Web.git
 cd ADS-2025-02-Desenvolvimento-Web
 ```
 
-2. Procure, aqui dentro de `NODEJS/`, a **subpasta com o seu nome** (ex.: `NODEJS/Ana-Carolina-da-Silveira/`) e coloque os arquivos da sua atividade dentro dela.
+3. Procure, aqui dentro de `NODEJS/`, a **subpasta com o seu nome** (ex.: `NODEJS/Ana-Carolina-da-Silveira/`) e coloque os arquivos da sua atividade dentro dela.
 
-3. Copie e cole os comandos abaixo no terminal (dentro da pasta do repositório), trocando `<SUA-SUBPASTA>` pelo nome exato da sua subpasta e a mensagem do commit pelo seu nome:
+4. Copie e cole os comandos abaixo no terminal (dentro da pasta do repositório), trocando `<SUA-SUBPASTA>` pelo nome exato da sua subpasta e a mensagem do commit pelo seu nome:
 
 ```
 git checkout -b envio-<sua-subpasta>
@@ -22,4 +26,4 @@ git commit -m "Envio da atividade de Node.js - <seu nome>"
 git push origin envio-<sua-subpasta>
 ```
 
-4. Depois do push, entre no GitHub e abra um **Pull Request** da sua branch para a `main`.
+5. Abra um **Pull Request**: entre no seu fork no GitHub, clique em **Compare & pull request**, confira se o destino é `UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web` branch `main`, e envie.
