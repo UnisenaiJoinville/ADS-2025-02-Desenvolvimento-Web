@@ -7,6 +7,7 @@ Repositório da turma de Desenvolvimento Web — 2º semestre de 2025 (ADS, turm
 - [`BANCO-DE-DADOS/`](BANCO-DE-DADOS/) — projetos de Banco de Dados
 - [`NODEJS/`](NODEJS/) — projetos de Node.js
 - [`DOCKER/`](DOCKER/) — projetos de Docker
+- [`PROJETO-INDIVIDUAL/`](PROJETO-INDIVIDUAL/) — Projeto Individual
 
 ## Como enviar seu projeto
 
