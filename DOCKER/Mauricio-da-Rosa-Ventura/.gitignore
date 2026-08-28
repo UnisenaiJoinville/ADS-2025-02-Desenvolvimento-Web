@@ -1,0 +1,11 @@
+# Nunca versionar .env reais (so os .env.example ficam no repositorio)
+**/.env
+
+# Dependencias instaladas pelo npm dentro de cada mini-app dos cenarios
+**/node_modules/
+
+# Build TypeScript da atividade 23 (multi-stage)
+**/dist/
+
+# Arquivos de backup gerados pela atividade 27 (step-by-step)
+step-by-step/at27-backup-volumes/backup.tar

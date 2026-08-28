@@ -1,0 +1,16 @@
+{
+  "name": "cenario-3-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend do Cenario 3 - Vue 3 + Vite, consome a API Fastify (health/status/eventos).",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@vitejs/plugin-vue": "^5.1.0"
+  }
+}
