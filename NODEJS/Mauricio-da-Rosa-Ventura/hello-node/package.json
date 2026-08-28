@@ -12,5 +12,13 @@
   },
   "keywords": [],
   "author": "Mauricio da Rosa Ventura",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.23"
+  }
 }
