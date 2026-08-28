@@ -37,12 +37,6 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
           MATERIAS="BANCO-DE-DADOS NODEJS DOCKER PROJETO-INDIVIDUAL"
-          STUDENTS_FILE=".github/alunos.txt"
-
-          if [ ! -f "$STUDENTS_FILE" ]; then
-            echo "::error::Arquivo $STUDENTS_FILE não encontrado no repositório."
-            exit 1
-          fi
 
           FAIL=0
           SUBPASTA_REF=""
@@ -52,6 +46,7 @@ jobs:
 
             materia=$(echo "$file" | cut -d/ -f1)
             subpasta=$(echo "$file" | cut -d/ -f2)
+            profundidade=$(echo "$file" | awk -F/ '{print NF}')
 
             match=0
             for m in $MATERIAS; do
@@ -64,14 +59,8 @@ jobs:
               continue
             fi
 
-            if [ -z "$subpasta" ] || [ "$subpasta" = "README.md" ]; then
-              echo "::error file=$file::Não é permitido alterar arquivos direto em '$materia/' — coloque seus arquivos dentro da sua subpasta de aluno."
-              FAIL=1
-              continue
-            fi
-
-            if ! grep -Fxq "$subpasta" "$STUDENTS_FILE"; then
-              echo "::error file=$file::A subpasta '$subpasta' não corresponde a nenhum aluno cadastrado em $STUDENTS_FILE. Confira se o nome da pasta está exatamente igual à sua subpasta oficial."
+            if [ -z "$subpasta" ] || [ "$profundidade" -lt 3 ]; then
+              echo "::error file=$file::Não é permitido alterar arquivos direto em '$materia/' — coloque seus arquivos dentro da sua subpasta (com o seu nome)."
               FAIL=1
               continue
             fi
