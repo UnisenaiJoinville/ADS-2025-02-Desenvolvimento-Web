@@ -1,0 +1,9 @@
+CONTAINER ID / NAME — identifica qual container é aquela linha.
+CPU % — porcentagem de CPU sendo usada agora. Pode passar de 100% se o container usa mais de um núcleo (ex: 150% = 1,5 núcleos).
+MEM USAGE / LIMIT — quanto de memória RAM o container está usando, e qual o limite máximo dele (ex: 120MiB / 512MiB — se você limitou com -m 512m na Atividade 22, é aqui que aparece).
+MEM % — a mesma informação de memória, mas em porcentagem do limite.
+NET I/O — quantos dados o container recebeu e enviou pela rede desde que começou (entrada / saída).
+BLOCK I/O — quantos dados foram lidos e escritos em disco (leitura / escrita).
+PIDS — quantos processos estão rodando dentro do container.
+
+Para que serve na prática: é a ferramenta de monitoramento em tempo real do Docker — útil para identificar containers consumindo recursos demais (ex: um container travado em loop infinito, com CPU% muito alto), ou confirmar que os limites de memória/CPU definidos (como na Atividade 22) estão de fato sendo respeitados.
