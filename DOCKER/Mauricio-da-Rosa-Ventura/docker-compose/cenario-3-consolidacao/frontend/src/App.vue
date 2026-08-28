@@ -4,7 +4,7 @@ import { ref, onMounted } from "vue";
 // Frontend minimo do Cenario 3: testa a API (health/status) e permite
 // disparar um evento (POST /eventos), que a API grava no Postgres e publica
 // no RabbitMQ para o worker processar de forma assincrona.
-const API = "http://localhost:3000";
+const API = "http://localhost:3001";
 
 const status = ref(null);
 const erro = ref(null);

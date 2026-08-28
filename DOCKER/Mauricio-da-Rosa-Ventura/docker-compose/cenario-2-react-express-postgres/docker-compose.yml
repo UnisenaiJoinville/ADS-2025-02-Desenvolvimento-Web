@@ -63,7 +63,7 @@ services:
   rabbitmq:
     image: rabbitmq:4-management
     ports:
-      - "15672:15672"
+      - "15673:15672"  # porta 15672 do host ja e usada pelo Cenario 1; so o lado do host muda aqui
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}

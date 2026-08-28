@@ -19,6 +19,13 @@ uma rede compartilhada entre eles, como nas atividades 13/14, sem precisar de
 que sustenta os Cenários 1, 2 e 3 do material de Docker Compose desta
 disciplina.
 
+> Nota: como a atividade 09 também publica a porta 8080 e fica rodando, o
+> `run.sh` remove o container `at09-nginx` antes de subir este Compose, só
+> para liberar a porta quando as atividades rodam em sequência. Pelo mesmo
+> motivo, ao final o `run.sh` faz `docker compose down` deste stack — o
+> Cenário 2 do material de Docker Compose também publica a porta 8080 e
+> roda mais adiante, na mesma sequência de entrega.
+
 ## Como gerar a evidência
 
 Com o Docker (Desktop ou Engine) aberto na sua máquina, rode, dentro desta pasta:

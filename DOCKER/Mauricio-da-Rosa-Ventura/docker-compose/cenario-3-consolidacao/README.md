@@ -75,9 +75,9 @@ Todas as imagens usadas (`node:22-alpine`, `postgres:17-alpine`, `redis:7.4-alpi
 
 | Serviço | URL/porta local |
 |---|---|
-| frontend (Vue/Vite) | http://localhost:5173 |
-| api (Fastify) | http://localhost:3000/health, /status, /eventos |
-| rabbitmq (painel) | http://localhost:15672 |
+| frontend (Vue/Vite) | http://localhost:5174 (5173 já é usada pelo Cenário 1) |
+| api (Fastify) | http://localhost:3001/health, /status, /eventos (3000 já é usada pelo Cenário 1) |
+| rabbitmq (painel) | http://localhost:15674 (15672 já é usada pelo Cenário 1) |
 | postgres / redis | **não publicadas** (só acessíveis dentro da rede `app_net`, ver "Arquitetura escolhida") |
 
 ## Diagnóstico e troubleshooting
@@ -97,7 +97,7 @@ Erros comuns (ver também Módulo 0, seção 15, e o material de Docker Compose,
 | Sintoma | Causa provável | Ação |
 |---|---|---|
 | `api` fica `unhealthy` | Postgres/RabbitMQ ainda inicializando | O `depends_on: condition: service_healthy` já espera isso; se persistir, `docker compose logs postgres`/`rabbitmq`. |
-| Porta já em uso | Outro processo usando 3000/5173/15672 no host | Trocar o mapeamento em `docker-compose.yml` ou encerrar o processo conflitante. |
+| Porta já em uso | Outro processo (ou o Cenário 1, que fica rodando) usando 3001/5174/15674 no host | Trocar o mapeamento em `docker-compose.yml` ou encerrar o processo conflitante. |
 | `worker` não atualiza o Postgres | RabbitMQ ainda não estava pronto no primeiro consumo | O worker tenta reconectar 10x com espera de 3s; ver `docker compose logs worker`. |
 
 ## Análise crítica — o que seria diferente em produção?

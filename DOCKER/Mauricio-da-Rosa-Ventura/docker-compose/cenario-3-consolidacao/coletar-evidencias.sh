@@ -53,20 +53,20 @@ fi
   echo "## 3. Healthcheck e comunicação entre serviços (\`GET /health\`, \`GET /status\`)"
   echo
   echo '```'
-  echo "$ curl -sS http://localhost:3000/health"
-  curl -sS http://localhost:3000/health
+  echo "$ curl -sS http://localhost:3001/health"
+  curl -sS http://localhost:3001/health
   echo
   echo
-  echo "$ curl -sS http://localhost:3000/status"
-  curl -sS http://localhost:3000/status
+  echo "$ curl -sS http://localhost:3001/status"
+  curl -sS http://localhost:3001/status
   echo '```'
 
   echo
   echo "## 4. Disparando um evento de ponta a ponta (\`POST /eventos\`)"
   echo
   echo '```'
-  echo '$ curl -sS -X POST http://localhost:3000/eventos -H "Content-Type: application/json" -d '"'"'{"tipo":"evento-de-teste"}'"'"
-  curl -sS -X POST http://localhost:3000/eventos -H "Content-Type: application/json" -d '{"tipo":"evento-de-teste"}'
+  echo '$ curl -sS -X POST http://localhost:3001/eventos -H "Content-Type: application/json" -d '"'"'{"tipo":"evento-de-teste"}'"'"
+  curl -sS -X POST http://localhost:3001/eventos -H "Content-Type: application/json" -d '{"tipo":"evento-de-teste"}'
   echo
   echo '```'
   sleep 3
@@ -95,4 +95,4 @@ fi
 } > EVIDENCIAS.md 2>&1
 
 echo "Evidências gravadas em $(pwd)/EVIDENCIAS.md"
-echo "Frontend: http://localhost:5173  |  RabbitMQ: http://localhost:15672"
+echo "Frontend: http://localhost:5174  |  RabbitMQ: http://localhost:15674"

@@ -51,7 +51,7 @@ Ou, para subir tudo (inclusive o pgAdmin) e já coletar as evidências das ativi
 |---|---|
 | aplicação (via proxy Nginx) | http://localhost:8080 |
 | API (via proxy) | http://localhost:8080/api/health e /api/status |
-| rabbitmq (painel) | http://localhost:15672 |
+| rabbitmq (painel) | http://localhost:15673 (porta 15672 do host já é usada pelo Cenário 1) |
 | pgadmin (com `--profile tools`) | http://localhost:5050 |
 
 `frontend`, `api` e `postgres` **não** publicam porta para o host de propósito — ver `ATIVIDADES-PARCIAIS.md`.

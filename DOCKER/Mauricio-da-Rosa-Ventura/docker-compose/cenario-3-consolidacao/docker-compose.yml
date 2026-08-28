@@ -5,7 +5,7 @@ services:
     build: ./frontend
     command: npm run dev -- --host 0.0.0.0
     ports:
-      - "5173:5173"
+      - "5174:5173"  # 5173 do host ja e usado pelo Cenario 1, que fica rodando
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
@@ -17,7 +17,7 @@ services:
     build: ./backend
     command: npm run dev
     ports:
-      - "3000:3000"
+      - "3001:3000"  # 3000 do host ja e usado pelo Cenario 1, que fica rodando
     env_file: .env
     volumes:
       - ./backend:/app
@@ -72,7 +72,7 @@ services:
   rabbitmq:
     image: rabbitmq:4-management
     ports:
-      - "15672:15672"
+      - "15674:15672"  # 15672 do host ja e usado pelo Cenario 1, que fica rodando
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}

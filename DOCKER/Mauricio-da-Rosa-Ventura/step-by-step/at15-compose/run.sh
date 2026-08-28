@@ -10,6 +10,11 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
+# A atividade 09 tambem publica a porta 8080 e fica rodando em segundo plano;
+# libera a porta antes de subir o Compose, para nao dar conflito quando as
+# atividades rodam em sequencia (executar-todas.sh).
+docker rm -f at09-nginx >/dev/null 2>&1 || true
+
 {
   echo "# Evidencia de execucao - Atividade 15: Usando Docker Compose"
   echo
@@ -33,8 +38,14 @@ fi
   printf '%s\n' '$ docker compose ps'
   docker compose ps
   echo
+  printf '%s\n' '$ docker compose down'
+  docker compose down
+  echo
   echo '```'
   echo
 } > EVIDENCIA.md 2>&1
 
 echo "Evidencia gravada em $(pwd)/EVIDENCIA.md"
+# Encerra o stack ao final (docker compose down acima) para nao deixar a porta
+# 8080 ocupada -- o Cenario 2 (docker-compose/cenario-2-...) tambem publica
+# 8080 no host e roda depois, nesta mesma sequencia de atividades.
