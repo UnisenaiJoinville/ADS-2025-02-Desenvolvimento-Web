@@ -1,0 +1,11 @@
+{
+  "name": "helpdesk-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node worker.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.5"
+  }
+}

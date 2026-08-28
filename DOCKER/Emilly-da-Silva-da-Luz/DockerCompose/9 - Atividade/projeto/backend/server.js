@@ -1,0 +1,7 @@
+import express from'express'; import mysql from'mysql2/promise'; import Redis from'ioredis'; import amqp from'amqplib';
+const app=express(); app.use(express.json()); const db=mysql.createPool({host:process.env.DB_HOST,user:process.env.MYSQL_USER,password:process.env.MYSQL_PASSWORD,database:process.env.MYSQL_DATABASE}); const redis=new Redis({host:process.env.REDIS_HOST});
+app.get('/health',(_q,r)=>r.json({status:'ok',db:process.env.DB_HOST,cache:process.env.REDIS_HOST}));
+app.get('/tickets',async(_q,r)=>{const[rows]=await db.query('SELECT * FROM tickets ORDER BY id'); r.json(rows)});
+app.get('/cache-status',async(_q,r)=>{await redis.set('helpdesk:ping','ok','EX',15);r.json({redis:await redis.get('helpdesk:ping')})});
+app.post('/tickets',async(q,r)=>{const s=String(q.body.subject||'').trim(); if(!s)return r.status(400).json({error:'subject required'}); const[x]=await db.execute('INSERT INTO tickets(subject) VALUES(?)',[s]); try{const c=await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}`); const ch=await c.createChannel();await ch.assertQueue('ticket.created',{durable:true});ch.sendToQueue('ticket.created',Buffer.from(JSON.stringify({id:x.insertId,subject:s})),{persistent:true});setTimeout(()=>c.close(),100)}catch(e){console.error(e.message)} r.status(201).json({id:x.insertId,subject:s})});
+app.listen(3000,'0.0.0.0',()=>console.log('helpdesk-api ready'));

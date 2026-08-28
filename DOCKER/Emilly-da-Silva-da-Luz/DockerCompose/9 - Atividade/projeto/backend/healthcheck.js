@@ -1,0 +1,1 @@
+import http from'node:http'; const q=http.get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1));q.on('error',()=>process.exit(1));

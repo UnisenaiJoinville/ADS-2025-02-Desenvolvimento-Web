@@ -1,0 +1,86 @@
+name: catalogo-livros
+services:
+  frontend:
+    build: ./frontend
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./frontend:/app
+      - catalog_front_node_modules:/app/node_modules
+    depends_on:
+      - api
+    networks: [catalog_net]
+
+  api:
+    build: ./backend
+    command: npm run dev
+    ports:
+      - "3001:3000"
+    env_file: .env
+    volumes:
+      - ./backend:/app
+      - catalog_api_node_modules:/app/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks: [catalog_net]
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - catalog_mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [catalog_net]
+
+  redis:
+    image: redis:7.4-alpine
+    volumes:
+      - catalog_redis_data:/data
+    networks: [catalog_net]
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [catalog_net]
+
+  worker:
+    build: ./worker
+    command: npm run worker
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks: [catalog_net]
+
+networks:
+  catalog_net:
+
+volumes:
+  catalog_mysql_data:
+  catalog_redis_data:
+  catalog_front_node_modules:
+  catalog_api_node_modules:
