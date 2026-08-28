@@ -1,0 +1,16 @@
+ATIVIDADE 11 — INSPECIONANDO UM CONTAINER
+
+Comando utilizado:
+docker inspect bd95c721fa84
+
+Explicação:
+O comando docker inspect foi utilizado para visualizar informações
+detalhadas sobre um container Docker.
+
+O resultado foi apresentado em formato JSON e mostrou diversas
+configurações do container, como seu identificador, imagem utilizada,
+estado de execução, configurações de rede, volumes, sistema operacional
+e arquitetura.
+
+Esse comando é útil para analisar a configuração de um container e
+também para auxiliar no diagnóstico de problemas.

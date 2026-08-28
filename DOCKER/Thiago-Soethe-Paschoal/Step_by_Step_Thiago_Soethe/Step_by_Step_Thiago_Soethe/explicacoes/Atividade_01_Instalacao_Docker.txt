@@ -1,0 +1,13 @@
+ATIVIDADE 1 — INSTALAÇÃO DO DOCKER
+
+Comando utilizado:
+docker --version
+
+Resultado obtido:
+Docker version 27.4.0, build bde2b89
+
+Explicação:
+O comando docker --version foi utilizado para verificar se o Docker estava
+instalado e reconhecido pelo terminal. O retorno exibiu a versão 27.4.0 do
+Docker, confirmando que a instalação está funcionando corretamente.
+

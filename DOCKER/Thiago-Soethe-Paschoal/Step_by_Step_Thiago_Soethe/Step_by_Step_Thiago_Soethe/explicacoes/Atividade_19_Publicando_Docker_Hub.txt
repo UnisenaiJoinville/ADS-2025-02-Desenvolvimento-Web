@@ -1,0 +1,23 @@
+ATIVIDADE 19 — PUBLICANDO UMA IMAGEM NO DOCKER HUB
+
+Comandos utilizados:
+docker login
+docker tag minha-imagem:v1 thiagopaschoal/minha-imagem:v1
+docker push thiagopaschoal/minha-imagem:v1
+
+Explicação:
+Primeiro foi utilizado o comando docker login para autenticar a conta
+do Docker Hub.
+
+Depois, a imagem local minha-imagem:v1 recebeu uma nova tag contendo
+o nome do usuário do Docker Hub:
+thiagopaschoal/minha-imagem:v1
+
+Por fim, o comando docker push foi utilizado para enviar a imagem para
+o Docker Hub.
+
+Durante o envio, as camadas da imagem foram transferidas e o processo
+foi concluído com sucesso, apresentando o digest da imagem.
+
+Dessa forma, a imagem passou a estar armazenada no Docker Hub e pode
+ser baixada em outros computadores utilizando o comando docker pull.

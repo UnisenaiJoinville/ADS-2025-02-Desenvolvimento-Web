@@ -1,0 +1,24 @@
+ATIVIDADE 14 — CONECTANDO CONTAINERS À REDE
+
+Comandos utilizados:
+docker run -d --network minha-rede --name container1 nginx
+docker run -d --network minha-rede --name container2 nginx
+docker exec container1 getent hosts container2
+
+Explicação:
+Foram criados dois containers Nginx chamados container1 e container2,
+ambos conectados à rede Docker chamada minha-rede.
+
+A opção --network minha-rede conectou os dois containers à mesma rede,
+permitindo a comunicação entre eles.
+
+Para testar essa comunicação, foi executado o comando:
+docker exec container1 getent hosts container2
+
+O resultado apresentou o endereço IP 172.18.0.3 associado ao nome
+container2, comprovando que o container1 conseguiu localizar o
+container2 através da rede Docker.
+
+Ao tentar criar novamente containers com os mesmos nomes, o Docker
+informou que os nomes já estavam em uso, pois container1 e container2
+já haviam sido criados anteriormente.

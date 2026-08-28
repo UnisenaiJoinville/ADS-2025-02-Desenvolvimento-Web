@@ -1,0 +1,16 @@
+ATIVIDADE 3 — LISTANDO CONTAINERS
+
+Comando utilizado:
+docker ps -a
+
+Explicação:
+O comando docker ps -a foi utilizado para listar todos os containers
+existentes no Docker, incluindo containers em execução e containers
+que já foram finalizados.
+
+Na listagem apresentada, os containers com status "Exited" estavam
+parados.
+
+O comando docker ps, sem a opção -a, mostra somente os containers
+que estão em execução. Já docker ps -a mostra todos os containers,
+inclusive os que estão parados.
