@@ -1,0 +1,16 @@
+{
+  "name": "hello-node",
+  "version": "1.0.0",
+  "description": "Projeto hello-node do Modulo 0 - ambiente profissional Node.js/TypeScript (ADS Unisenai)",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "Mauricio da Rosa Ventura",
+  "license": "MIT"
+}
