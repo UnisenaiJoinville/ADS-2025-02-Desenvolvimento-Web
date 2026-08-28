@@ -1,0 +1,18 @@
+ATIVIDADE 9 — EXPONDO PORTAS
+
+Comando utilizado:
+docker run -d -p 8080:80 nginx
+
+Endereço acessado:
+http://localhost:8080
+
+Explicação:
+O comando docker run -d -p 8080:80 nginx foi utilizado para criar e
+executar um container Nginx em segundo plano.
+
+A opção -p 8080:80 realizou o mapeamento da porta 8080 do computador
+para a porta 80 do container, que é a porta utilizada pelo Nginx.
+
+Ao acessar http://localhost:8080 no navegador, foi exibida a página
+"Welcome to nginx!", confirmando que o container estava funcionando
+e que o redirecionamento de portas foi realizado corretamente.

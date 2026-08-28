@@ -1,0 +1,37 @@
+ATIVIDADE 15 — USANDO DOCKER COMPOSE
+
+Arquivo criado:
+docker-compose.yml
+
+Conteúdo utilizado:
+version: '3'
+
+services:
+  web:
+    image: nginx
+    ports:
+      - "8080:80"
+
+Comando utilizado:
+docker compose up
+
+Endereço acessado:
+http://localhost:8080
+
+Explicação:
+Nesta atividade foi criado um arquivo docker-compose.yml para definir
+um serviço chamado web utilizando a imagem Nginx.
+
+O mapeamento de portas 8080:80 direcionou a porta 8080 do computador
+para a porta 80 do container.
+
+O comando docker compose up leu as configurações do arquivo e criou
+e iniciou automaticamente o serviço definido nele.
+
+Ao acessar http://localhost:8080 no navegador, foi exibida a página
+"Welcome to nginx!", confirmando que o serviço configurado pelo
+Docker Compose estava funcionando corretamente.
+
+O Docker Compose facilita a criação e o gerenciamento de containers,
+pois suas configurações ficam descritas em um arquivo em vez de
+depender apenas de comandos docker run.

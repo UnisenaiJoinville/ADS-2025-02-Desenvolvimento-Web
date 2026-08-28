@@ -1,0 +1,20 @@
+ATIVIDADE 16 — PARANDO SERVIÇOS COM DOCKER COMPOSE
+
+Comandos utilizados:
+docker compose down
+docker ps -a
+
+Explicação:
+O comando docker compose down foi utilizado para parar e remover os
+recursos criados pelo Docker Compose.
+
+Durante a execução, o container do serviço web foi removido e a rede
+criada automaticamente pelo Compose também foi removida.
+
+O arquivo docker-compose.yml e a imagem nginx permaneceram disponíveis,
+pois o comando down remove os containers e a rede do projeto, mas não
+remove os arquivos de configuração nem as imagens utilizadas.
+
+O Docker também apresentou um aviso informando que o atributo version
+do arquivo docker-compose.yml é considerado obsoleto nas versões atuais
+do Docker Compose. Esse aviso não impediu a execução da atividade.

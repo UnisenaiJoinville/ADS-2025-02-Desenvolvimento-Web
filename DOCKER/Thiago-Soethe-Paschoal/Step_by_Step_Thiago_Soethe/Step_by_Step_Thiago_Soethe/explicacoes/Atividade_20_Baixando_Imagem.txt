@@ -1,0 +1,18 @@
+ATIVIDADE 20 — BAIXANDO UMA IMAGEM DO DOCKER HUB
+
+Comandos utilizados:
+docker pull nginx
+docker images
+
+Explicação:
+O comando docker pull nginx foi utilizado para baixar a imagem Nginx
+do Docker Hub.
+
+Como a imagem Nginx já estava disponível no computador e atualizada,
+o Docker informou "Image is up to date for nginx:latest".
+
+Depois, o comando docker images foi utilizado para listar as imagens
+armazenadas localmente e confirmou a presença da imagem nginx:latest.
+
+O comando docker pull também pode ser utilizado para verificar e baixar
+uma versão mais recente de uma imagem caso exista atualização disponível.

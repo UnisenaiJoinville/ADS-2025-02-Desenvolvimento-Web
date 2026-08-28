@@ -1,0 +1,19 @@
+ATIVIDADE 8 — CRIANDO UM CONTAINER EM SEGUNDO PLANO
+
+Comandos utilizados:
+docker run -d nginx
+docker ps
+
+Explicação:
+O comando docker run -d nginx foi utilizado para criar e executar um
+container utilizando a imagem Nginx.
+
+Como a imagem Nginx ainda não estava disponível localmente, o Docker
+realizou o download automaticamente.
+
+A opção -d executa o container em modo detached, ou seja, em segundo plano,
+permitindo continuar utilizando o terminal normalmente.
+
+Depois, o comando docker ps foi utilizado para verificar os containers em
+execução. O container Nginx apareceu com o status Up, confirmando que estava
+ativo e rodando em segundo plano.

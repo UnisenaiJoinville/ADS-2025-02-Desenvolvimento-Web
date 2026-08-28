@@ -1,0 +1,20 @@
+ATIVIDADE 30 — LIMPEZA DE RECURSOS DOCKER
+
+Comandos utilizados:
+docker container prune
+docker image prune
+docker ps
+docker images
+
+Explicação:
+O comando docker container prune foi utilizado para remover containers
+que estavam parados e não eram mais necessários.
+
+Em seguida, o comando docker image prune foi utilizado para remover
+imagens Docker não utilizadas.
+
+Os comandos docker ps e docker images foram utilizados posteriormente
+para verificar os containers e imagens restantes.
+
+A limpeza de recursos ajuda a liberar espaço em disco e mantém o
+ambiente Docker mais organizado.

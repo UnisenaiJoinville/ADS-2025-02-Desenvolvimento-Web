@@ -1,0 +1,20 @@
+ATIVIDADE 28 — RESTAURANDO VOLUME
+
+Comando utilizado:
+docker run --rm -v meu-volume:/data -v "${PWD}:/backup" ubuntu bash -c "tar xvf /backup/backup.tar -C /data"
+
+Explicação:
+Nesta atividade foi utilizado o arquivo backup.tar criado anteriormente
+para restaurar os dados no volume meu-volume.
+
+O volume foi montado no diretório /data dentro de um container Ubuntu
+temporário.
+
+A pasta atual do computador foi disponibilizada em /backup para que o
+container pudesse acessar o arquivo backup.tar.
+
+O comando tar extraiu o conteúdo do backup para o diretório /data,
+restaurando os dados no volume Docker.
+
+A opção --rm removeu automaticamente o container temporário após
+a conclusão do processo.
