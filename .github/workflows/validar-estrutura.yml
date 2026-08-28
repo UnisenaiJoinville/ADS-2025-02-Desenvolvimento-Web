@@ -24,7 +24,7 @@ jobs:
           set -e
 
           BASE="origin/${{ github.base_ref }}"
-          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          CHANGED=$(git -c core.quotepath=false diff --name-only "$BASE"...HEAD)
 
           if [ -z "$CHANGED" ]; then
             echo "Nenhum arquivo alterado neste PR."
