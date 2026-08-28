@@ -23,6 +23,10 @@ jobs:
         run: |
           set -e
 
+          # Evita que o git coloque em aspas/escape nomes de arquivo com acentos
+          # (ex.: "Espírito"), o que quebrava o parsing com cut -d/ abaixo.
+          git config core.quotepath off
+
           BASE="origin/${{ github.base_ref }}"
           CHANGED=$(git diff --name-only "$BASE"...HEAD)
 
