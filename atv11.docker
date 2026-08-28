@@ -1,0 +1,29 @@
+Identidade
+
+Id: ac7e32200ad9... — identificador único do container (as versões curtas que você usa nos comandos, tipo ac7e32200ad9, são só o começo desse ID longo).
+Name: /stoic_easley — nome dado automaticamente pelo Docker (você não especificou um com --name).
+Created: quando o container foi criado.
+
+Estado atual
+
+Status: running — está rodando agora.
+Pid: 3402 — o número do processo dentro da máquina host.
+ExitCode: 0 — não indica erro (esse campo só importa quando parado).
+
+O que ele está rodando
+
+Image: veio da imagem nginx.
+Cmd: nginx -g "daemon off;" — o comando que mantém o Nginx rodando em primeiro plano (é por isso que o container não encerra sozinho).
+Entrypoint: /docker-entrypoint.sh — script que roda antes do comando principal, faz configurações iniciais do Nginx.
+
+Rede
+
+IPAddress: 172.17.0.2 — o IP interno do container dentro da rede Docker.
+ExposedPorts: 80/tcp — a porta 80 (padrão do Nginx) está disponível internamente.
+Ports: aparece null/vazio — isso significa que essa porta não foi publicada para fora (você não usou -p ao rodar o container, então só é acessível de dentro da rede Docker, não do seu navegador).
+
+Configuração de reinício
+
+RestartPolicy: "no" — se o container cair, o Docker não vai reiniciá-lo automaticamente.
+
+Resumindo: é um container Nginx rodando normalmente, mas sem porta exposta para você acessar via navegador — para isso, precisaria ter rodado com -p 8080:80, como na Atividade 9.
