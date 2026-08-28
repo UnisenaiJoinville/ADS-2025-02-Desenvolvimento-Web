@@ -1,0 +1,27 @@
+ATIVIDADE 6 — CRIANDO UMA IMAGEM DOCKER
+
+Arquivo criado:
+Dockerfile
+
+Conteúdo utilizado:
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl
+
+Comandos utilizados:
+docker build -t minha-imagem .
+docker images
+
+Explicação:
+Nesta atividade foi criado um arquivo Dockerfile contendo as instruções
+necessárias para construir uma nova imagem Docker.
+
+A instrução FROM ubuntu definiu a imagem Ubuntu como base.
+
+A instrução RUN apt-get update && apt-get install -y curl atualizou a
+lista de pacotes e instalou o programa curl durante a construção da imagem.
+
+O comando docker build -t minha-imagem . foi utilizado para construir
+a imagem e atribuir a ela o nome minha-imagem.
+
+Por fim, o comando docker images confirmou que a nova imagem foi criada
+e estava disponível localmente no Docker.

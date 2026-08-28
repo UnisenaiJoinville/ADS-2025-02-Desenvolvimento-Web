@@ -1,0 +1,34 @@
+ATIVIDADE 4 — CRIANDO UM CONTAINER INTERATIVO
+
+Comandos utilizados:
+docker run -it ubuntu bash
+apt-get update
+apt-get install -y curl
+curl --version
+exit
+docker ps -a
+
+Explicação:
+O comando docker run -it ubuntu bash foi utilizado para criar e iniciar
+um container usando a imagem Ubuntu e abrir um terminal Bash interativo.
+
+Como a imagem Ubuntu ainda não estava disponível localmente, o Docker
+realizou o download antes de criar o container.
+
+Dentro do container, o comando apt-get update atualizou a lista de pacotes
+disponíveis nos repositórios do Ubuntu.
+
+Depois, o comando apt-get install -y curl instalou o programa curl dentro
+do container. O parâmetro -y confirmou automaticamente a instalação.
+
+O comando curl --version confirmou que o curl foi instalado corretamente,
+apresentando a versão 8.18.0.
+
+Após utilizar o comando exit, o terminal Bash foi encerrado. Em seguida,
+o comando docker ps -a foi utilizado para verificar o estado do container,
+que apareceu como Exited, indicando que ele não estava mais em execução.
+
+Conclusão:
+A atividade demonstrou como criar um container interativo, executar comandos
+Linux dentro dele, instalar um programa e verificar o estado do container
+após encerrar sua execução.
