@@ -1,0 +1,61 @@
+=== BLOCO 6: Atividades 21 a 25 ===
+
+--- Ativ 21: Variaveis de ambiente ---
+$ docker run -e "MY_VAR=Hello" ubuntu env
+MY_VAR=Hello
+
+--- Ativ 22: Limitando recursos ---
+$ docker run -m 512m --cpus=1.0 ubuntu
+memoria limite (bytes):
+536870912
+
+EXPLICACAO: -m 512m limita a memoria RAM que o container pode usar e
+--cpus=1.0 limita a um nucleo. Serve para um container nao consumir a
+maquina inteira e derrubar os outros servicos. Em producao isso evita
+que um vazamento de memoria em um servico afete o resto.
+
+--- Ativ 23: Dockerfile multi-stage ---
+FROM node:24-alpine AS build
+WORKDIR /app
+RUN echo "console.log('app compilado')" > app.js
+
+FROM node:24-alpine
+WORKDIR /app
+COPY --from=build /app/app.js .
+CMD ["node", "app.js"]
+build OK
+app compilado
+Tamanho comparado:
+REPOSITORY                 SIZE
+minha-imagem-multi         235MB
+minha-imagem               259MB
+minha-imagem               259MB
+
+--- Ativ 24: Monitorando containers ---
+$ docker stats --no-stream
+NAME                             CPU %     MEM USAGE / LIMIT
+cenario3-postgres-1              0.03%     35.52MiB / 7.629GiB
+cenario3-redis-1                 0.81%     4.375MiB / 7.629GiB
+cenario2-pgadmin-1               0.04%     173.9MiB / 7.629GiB
+cenario2-nginx-1                 0.00%     7.098MiB / 7.629GiB
+cenario2-postgres-1              0.00%     40.11MiB / 7.629GiB
+cenario2-app-1                   0.00%     8.094MiB / 7.629GiB
+cenario1-api-1                   0.00%     27.95MiB / 7.629GiB
+
+EXPLICACAO das metricas:
+  CPU %    - quanto do processador o container esta usando
+  MEM USAGE - memoria usada / limite definido (se nao tem limite, mostra o total da maquina)
+  NET I/O  - trafego de rede que entrou e saiu
+  BLOCK I/O - leitura e escrita em disco
+Serve para achar qual container esta pesando antes de culpar a maquina.
+
+--- Ativ 25: Container com script de inicializacao ---
+FROM alpine
+WORKDIR /app
+COPY init.sh .
+RUN chmod +x init.sh
+CMD ["./init.sh"]
+build OK
+$ docker run --rm lab-init
+script de inicializacao rodou
+data: Fri Aug 28 23:39:15 UTC 2026
