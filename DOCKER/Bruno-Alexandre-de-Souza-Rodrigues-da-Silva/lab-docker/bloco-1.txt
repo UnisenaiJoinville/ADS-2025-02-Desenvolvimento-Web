@@ -1,0 +1,70 @@
+=== LABORATORIO DOCKER - 30 ATIVIDADES ===
+Aluno: Bruno Silva
+Data: 28/08/2026
+
+=== BLOCO 1: Atividades 1 a 5 ===
+
+--- Ativ 1: Instalacao do Docker ---
+$ docker --version
+Docker version 28.5.1, build e180ab8
+
+--- Ativ 2: Primeiro container ---
+$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pulling fs layer
+4f55086f7dd0: Download complete
+4f55086f7dd0: Pull complete
+Digest: sha256:5dd0d3e6e255913fc30f90b9f2b1d359cc2cbdb48090cc4b65f1676e203243cc
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+
+EXPLICACAO: o Docker nao achou a imagem localmente, baixou do Docker Hub,
+criou um container a partir dela, executou o programa que imprime a mensagem
+e o container encerrou.
+
+--- Ativ 3: Listando containers ---
+$ docker ps -a
+CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS                        PORTS                                         NAMES
+4c4f5f78484a   hello-world                     "/hello"                 19 seconds ago   Exited (0) 18 seconds ago                                                   clever_lamarr
+f883969978db   nginx:alpine                    "/docker-entrypoint.…"   2 weeks ago      Up About a minute             0.0.0.0:81->80/tcp, [::]:81->80/tcp           site-unibf-nginx-1
+e4d4f8fed52a   phpmyadmin:latest               "/docker-entrypoint.…"   2 weeks ago      Up About a minute             0.0.0.0:8081->80/tcp, [::]:8081->80/tcp       site-unibf-phpmyadmin-1
+d767a589ea5a   site-unibf-app                  "entrypoint.sh"          2 weeks ago      Up About a minute             9000/tcp                                      site-unibf-app-1
+
+EXPLICACAO: 'docker ps' mostra so os containers em execucao. Com '-a' aparecem
+tambem os parados. O hello-world aparece como Exited porque ele imprime a
+mensagem e termina - container nao fica de pe se o processo dele acabou.
+
+--- Ativ 4: Container interativo ---
+$ docker run -it ubuntu bash  (executado com apt-get update dentro)
+Get:17 http://archive.ubuntu.com/ubuntu resolute-backports/universe amd64 Packages [3306 B]
+Fetched 25.7 MB in 36s (719 kB/s)
+Reading package lists...
+
+$ docker ps -a --filter name=lab-ubuntu
+NAMES        STATUS
+lab-ubuntu   Up 37 seconds
+
+EXPLICACAO: instalei pacote dentro do container. Ao sair, o container para,
+mas continua existindo ate ser removido.
+
+--- Ativ 5: Removendo um container ---
+$ docker rm -f lab-ubuntu
+lab-ubuntu
+4c4f5f78484a
+Container removido.
+
+=== BLOCO 2: Atividades 6 a 9 ===
+
+--- Ativ 6: Criando uma imagem ---
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl
+$ docker build -t minha-imagem .
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/44w6e4yhqiflpd3niyl5bxpp9
