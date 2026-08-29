@@ -21,3 +21,12 @@ RUN chmod +x /usr/local/bin/init.sh
 
 # Define o script como o ENTRYPOINT do container
 ENTRYPOINT ["/usr/local/bin/init.sh"]
+
+
+FROM ubuntu:latest
+
+COPY init.sh /init.sh
+
+RUN chmod +x /init.sh
+
+CMD ["/init.sh"]
