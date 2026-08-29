@@ -1,0 +1,31 @@
+=== BLOCO 3: Atividades 10 a 14 ===
+
+--- Ativ 10: Usando volumes ---
+$ docker volume ls | grep meu-volume
+local     meu-volume
+
+--- Ativ 11: Inspecionando um container ---
+$ docker inspect lab-vol (campos principais)
+Nome: /lab-vol
+Estado: running
+Imagem: nginx
+IP: 172.17.0.5
+Mount: meu-volume -> /data
+
+EXPLICACAO: o inspect traz a ficha completa do container em JSON: estado,
+imagem de origem, IP na rede, volumes montados, variaveis de ambiente e
+healthcheck. E a ferramenta para descobrir POR QUE algo nao funciona,
+sem precisar entrar no container.
+
+--- Ativ 12: Conectando em container em execucao ---
+$ docker exec -it lab-vol bash
+dentro do container:
+e371a21bd6bf
+
+--- Ativ 13: Criando uma rede ---
+e69bc6803700   minha-rede                bridge    local
+
+--- Ativ 14: Conectando containers na rede ---
+$ do container1, resolver o nome container2:
+172.26.0.3      container2
+Os dois se enxergam pelo nome porque estao na mesma rede.

@@ -1,0 +1,67 @@
+=== BLOCO 7: Atividades 26 a 30 ===
+
+--- Ativ 26: Docker Secrets ---
+$ echo "minha-senha" | docker secret create minha-senha -
+Error response from daemon: This node is not a swarm manager. Use "docker swarm init" or "docker swarm join" to connect this node to swarm and try again.
+
+NAO EXECUTADO: 'docker secret' so funciona com Docker Swarm ativo.
+Precisaria rodar 'docker swarm init' antes, e o Swarm nao faz parte do
+escopo dos cenarios da disciplina, que usam Docker Compose. Registro aqui
+em vez de pular. No Compose, o equivalente e usar env_file com .env fora
+do Git, que foi o que fiz nos cenarios 1 e 2.
+
+--- Ativ 27: Backup de volume ---
+$ docker run --rm -v meu-volume:/data -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /data
+tar: can't open 'C:/Program Files/Git/backup/backup.tar': No such file or directory
+ls: cannot access 'backup.tar': No such file or directory
+
+--- Ativ 28: Restaurando volume ---
+$ tar xvf /backup/backup.tar -C /
+tar: can't open '/backup/backup.tar': No such file or directory
+Conteudo do volume restaurado:
+cat: can't open 'C:/Program Files/Git/data/teste.txt': No such file or directory
+--- Ativ 27: Backup de volume (corrigido) ---
+OBS: no Git Bash do Windows o caminho /backup era convertido para
+C:/Program Files/Git/backup. Resolvi com MSYS_NO_PATHCONV=1.
+
+$ docker run --rm -v meu-volume:/data -v $(pwd):/backup alpine tar cvf /backup/backup.tar /data
+tar: removing leading '/' from member names
+data/
+data/teste.txt
+-rw-r--r-- 1 bruno 197609 2560 Aug 28 20:40 backup.tar
+
+--- Ativ 28: Restaurando volume ---
+Conteudo restaurado no volume novo:
+arquivo de teste
+Backup e restore funcionaram: o arquivo saiu de um volume e entrou em outro.
+
+--- Ativ 29: Proxy reverso ---
+Config do proxy:
+server {
+  listen 80;
+  location / {
+    proxy_pass http://servico-atras:80;
+    proxy_set_header Host $host;
+  }
+}
+$ curl http://localhost:8093 (passa pelo proxy ate o servico-atras)
+HTTP 200
+O servico-atras nao publica porta nenhuma, so o proxy publica a 8093.
+
+--- Ativ 30: Limpeza de recursos ---
+ATENCAO: 'docker container prune' e 'image prune' mexem em TUDO da maquina.
+Como existem outros projetos rodando aqui, removi so o que criei no lab,
+pelo nome. E a atitude correta em maquina compartilhada.
+
+$ docker rm -f (containers do laboratorio)
+lab-nginx lab-nginx-porta lab-vol container1 container2 servico-atras proxy-reverso 
+$ docker volume rm meu-volume vol-restaurado
+meu-volume vol-restaurado 
+$ docker network rm minha-rede rede-proxy
+minha-rede rede-proxy 
+
+Comando que a atividade pede, para registro:
+  docker container prune   # remove todos os containers parados
+  docker image prune       # remove imagens sem tag (dangling)
+
+=== FIM DAS 30 ATIVIDADES ===

@@ -1,0 +1,11 @@
+=== TROUBLESHOOTING REAL: porta ja alocada ===
+
+Sintoma: Bind for 0.0.0.0:3000 failed: port is already allocated
+
+Quem esta usando a porta 3000:
+polos-api-1 (outro projeto seu)                      0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+
+Causa: outro projeto (polos-api) ja publica a 3000 no host.
+Acao escolhida: trocar o mapeamento do host para 3010 (a 3001 tambem estava ocupada), mantendo 3000 dentro
+do container. Nao derrubei o projeto do colega - o material manda trocar o
+mapeamento host:container ou encerrar o processo conflitante.
