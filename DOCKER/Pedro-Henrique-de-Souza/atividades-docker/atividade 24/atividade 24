@@ -1,0 +1,1 @@
+Mostra em tempo real, por container: uso de CPU (%), memória usada/limite e % de memória, tráfego de rede (entrada/saída), leitura/escrita em disco e número de processos ativos (PIDS). É o equivalente a um top/htop, só que por container em vez de por processo do sistema.
