@@ -2,7 +2,7 @@
 
 #RUN apt-get update && apt-get install -y curl wget
 
-#-----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------#----------------------
 #FROM ubuntu:latest AS etapa1
 
 ##RUN apt-get update && apt-get install -y curl
