@@ -1,0 +1,10 @@
+São os que estão rodando agora, com processo ativo dentro deles. No seu caso:
+
+projeto-guiado-worker-1, projeto-guiado-rabbitmq-1, projeto-guiado-api-1, projeto-guiado-redis-1, projeto-guiado-mysql-1 — todos com STATUS = Up X minutes.
+Repare que mysql e rabbitmq aparecem como Up ... (healthy) — isso é o healthcheck que você configurou no Passo 8/7 confirmando que o serviço não só "existe", mas está realmente pronto para receber conexões (não é a mesma coisa que só estar "Up").
+Containers parados (Exited)
+
+O processo principal terminou (com sucesso ou com erro) e o container fica ali "guardado", mas não está mais consumindo CPU nem respondendo a nada:
+
+hello-world com Exited (0) — código 0 = terminou com sucesso. É o comportamento esperado dele: ele só imprime uma mensagem e encerra.
+Vários projeto-api com Exited (137) — código 137 = o processo foi morto à força (geralmente um docker stop/docker compose down, ou o container ficou sem memória). Esses são containers de tentativas antigas, de antes de você ter passado a usar docker compose up — hoje quem sobe a API é o projeto-guiado-api-1, via Compose.
