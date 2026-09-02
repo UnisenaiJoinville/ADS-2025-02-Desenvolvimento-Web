@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  leitor-secret:
+    image: alpine:3.21
+    command: >
+      sh -c 'echo "Serviço iniciado.";
+      echo "Conteúdo do secret:";
+      cat /run/secrets/minha-senha;
+      echo;
+      sleep 3600'
+    secrets:
+      - minha-senha
+secrets:
+  minha-senha:
+    external: true

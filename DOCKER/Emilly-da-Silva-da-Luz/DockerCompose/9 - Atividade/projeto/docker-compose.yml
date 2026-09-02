@@ -1,0 +1,76 @@
+name: helpdesk-compose
+services:
+  proxy:
+    image: nginx:1.27-alpine
+    ports: ["8090:80"]
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks: [helpdesk_net]
+  frontend:
+    build: ./frontend
+    expose: ["5173"]
+    networks: [helpdesk_net]
+  api:
+    build: ./backend
+    env_file: .env
+    expose: ["3000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [helpdesk_net]
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - helpdesk_mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [helpdesk_net]
+  redis:
+    image: redis:7.4-alpine
+    networks: [helpdesk_net]
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports: ["15675:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [helpdesk_net]
+  worker:
+    build: ./worker
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks: [helpdesk_net]
+networks:
+  helpdesk_net:
+volumes:
+  helpdesk_mysql_data:

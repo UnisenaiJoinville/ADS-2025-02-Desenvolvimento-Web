@@ -1,0 +1,20 @@
+ATIVIDADE 22 — LIMITANDO RECURSOS DO CONTAINER
+
+Comando utilizado:
+docker run -m 512m --cpus="1.0" ubuntu
+
+Explicação:
+O comando foi utilizado para criar e executar um container Ubuntu
+com limites de recursos definidos.
+
+A opção -m 512m limita a quantidade máxima de memória RAM que o
+container pode utilizar a 512 MB.
+
+A opção --cpus="1.0" limita o processamento do container ao
+equivalente a uma CPU.
+
+O container foi iniciado e encerrado automaticamente, pois nenhum
+programa foi definido para permanecer em execução.
+
+Esses limites ajudam a impedir que um container consuma recursos
+excessivos do computador.

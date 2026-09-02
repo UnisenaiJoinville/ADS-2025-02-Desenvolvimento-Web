@@ -1,0 +1,13 @@
+{
+  "name": "cenario3-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Victor Cesar Silva",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "redis": "^4.7.0"
+  }
+}

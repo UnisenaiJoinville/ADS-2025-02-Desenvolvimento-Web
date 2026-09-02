@@ -1,0 +1,15 @@
+ATIVIDADE 21 — CRIANDO UM CONTAINER COM VARIÁVEL DE AMBIENTE
+
+Comando utilizado:
+docker run -e "MY_VAR=Hello" ubuntu env
+
+Explicação:
+O comando foi utilizado para criar um container Ubuntu contendo uma
+variável de ambiente chamada MY_VAR com o valor Hello.
+
+A opção -e permite definir variáveis de ambiente durante a criação
+do container.
+
+O comando env exibiu as variáveis disponíveis dentro do container e
+foi possível visualizar MY_VAR=Hello, confirmando que a variável foi
+configurada corretamente.

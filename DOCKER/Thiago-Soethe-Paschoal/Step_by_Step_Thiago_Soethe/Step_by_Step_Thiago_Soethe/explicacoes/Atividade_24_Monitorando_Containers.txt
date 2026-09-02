@@ -1,0 +1,24 @@
+ATIVIDADE 24 — MONITORANDO CONTAINERS
+
+Comando utilizado:
+docker stats
+
+Explicação:
+O comando docker stats foi utilizado para acompanhar em tempo real o
+consumo de recursos dos containers que estavam em execução.
+
+A coluna CPU % apresenta o uso do processador.
+
+A coluna MEM USAGE / LIMIT mostra a quantidade de memória RAM utilizada
+pelo container e o limite disponível.
+
+A coluna MEM % apresenta a porcentagem de memória utilizada.
+
+NET I/O mostra a quantidade de dados recebidos e enviados pela rede.
+
+BLOCK I/O apresenta informações de leitura e gravação em disco.
+
+PIDS indica a quantidade de processos em execução dentro do container.
+
+O comando docker stats é útil para acompanhar o desempenho e identificar
+containers que estejam consumindo muitos recursos.

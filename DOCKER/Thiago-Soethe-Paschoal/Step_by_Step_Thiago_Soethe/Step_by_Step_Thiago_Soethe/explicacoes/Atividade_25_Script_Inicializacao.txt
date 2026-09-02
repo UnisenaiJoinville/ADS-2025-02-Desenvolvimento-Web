@@ -1,0 +1,25 @@
+ATIVIDADE 25 — CRIANDO UM CONTAINER COM SCRIPT DE INICIALIZAÇÃO
+
+Arquivos criados:
+Atividade_25_Init\Dockerfile
+Atividade_25_Init\init.sh
+
+Comandos utilizados:
+docker build --no-cache -t imagem-init ".\Atividade_25_Init"
+docker run --rm imagem-init
+
+Explicação:
+Nesta atividade foi criado um script chamado init.sh para ser executado
+automaticamente quando o container fosse iniciado.
+
+O Dockerfile copiou o arquivo init.sh para dentro da imagem e utilizou
+o comando chmod +x para conceder permissão de execução ao script.
+
+Depois, a imagem imagem-init foi construída e executada.
+
+Durante a execução do container foram exibidas as mensagens:
+"Container iniciado pelo script init.sh"
+"Atividade 25 executada com sucesso"
+
+Isso confirmou que o script de inicialização foi executado corretamente
+quando o container foi iniciado.

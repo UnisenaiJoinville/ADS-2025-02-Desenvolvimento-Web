@@ -1,0 +1,318 @@
+=== LABORATORIO DOCKER - 30 ATIVIDADES ===
+Aluno: Bruno Silva
+Data: 28/08/2026
+
+=== BLOCO 1: Atividades 1 a 5 ===
+
+--- Ativ 1: Instalacao do Docker ---
+$ docker --version
+Docker version 28.5.1, build e180ab8
+
+--- Ativ 2: Primeiro container ---
+$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pulling fs layer
+4f55086f7dd0: Download complete
+4f55086f7dd0: Pull complete
+Digest: sha256:5dd0d3e6e255913fc30f90b9f2b1d359cc2cbdb48090cc4b65f1676e203243cc
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+
+EXPLICACAO: o Docker nao achou a imagem localmente, baixou do Docker Hub,
+criou um container a partir dela, executou o programa que imprime a mensagem
+e o container encerrou.
+
+--- Ativ 3: Listando containers ---
+$ docker ps -a
+CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS                        PORTS                                         NAMES
+4c4f5f78484a   hello-world                     "/hello"                 19 seconds ago   Exited (0) 18 seconds ago                                                   clever_lamarr
+f883969978db   nginx:alpine                    "/docker-entrypoint.…"   2 weeks ago      Up About a minute             0.0.0.0:81->80/tcp, [::]:81->80/tcp           site-unibf-nginx-1
+e4d4f8fed52a   phpmyadmin:latest               "/docker-entrypoint.…"   2 weeks ago      Up About a minute             0.0.0.0:8081->80/tcp, [::]:8081->80/tcp       site-unibf-phpmyadmin-1
+d767a589ea5a   site-unibf-app                  "entrypoint.sh"          2 weeks ago      Up About a minute             9000/tcp                                      site-unibf-app-1
+
+EXPLICACAO: 'docker ps' mostra so os containers em execucao. Com '-a' aparecem
+tambem os parados. O hello-world aparece como Exited porque ele imprime a
+mensagem e termina - container nao fica de pe se o processo dele acabou.
+
+--- Ativ 4: Container interativo ---
+$ docker run -it ubuntu bash  (executado com apt-get update dentro)
+Get:17 http://archive.ubuntu.com/ubuntu resolute-backports/universe amd64 Packages [3306 B]
+Fetched 25.7 MB in 36s (719 kB/s)
+Reading package lists...
+
+$ docker ps -a --filter name=lab-ubuntu
+NAMES        STATUS
+lab-ubuntu   Up 37 seconds
+
+EXPLICACAO: instalei pacote dentro do container. Ao sair, o container para,
+mas continua existindo ate ser removido.
+
+--- Ativ 5: Removendo um container ---
+$ docker rm -f lab-ubuntu
+lab-ubuntu
+4c4f5f78484a
+Container removido.
+
+=== BLOCO 2: Atividades 6 a 9 ===
+
+--- Ativ 6: Criando uma imagem ---
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl
+$ docker build -t minha-imagem .
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/44w6e4yhqiflpd3niyl5bxpp9
+
+--- Ativ 6: Criando uma imagem Docker ---
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl
+$ docker build -t minha-imagem .
+$ docker images minha-imagem
+REPOSITORY     TAG       SIZE
+minha-imagem   latest    257MB
+
+--- Ativ 7: Executando a imagem ---
+$ docker run minha-imagem
+(sem saida: a imagem so instalou o curl, nao tem CMD proprio)
+
+EXPLICACAO: a imagem parte do ubuntu e instala o curl. Como nao defini um
+CMD, ela usa o comando padrao do ubuntu (bash), que sem terminal interativo
+encerra na hora. A imagem serve de base para outra, nao para rodar sozinha.
+
+--- Ativ 8: Container em segundo plano ---
+$ docker run -d nginx
+NAMES       STATUS
+lab-nginx   Up Less than a second
+
+--- Ativ 9: Expondo portas ---
+$ docker run -d -p 8091:80 nginx
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:8091
+HTTP 200
+=== BLOCO 3: Atividades 10 a 14 ===
+
+--- Ativ 10: Usando volumes ---
+$ docker volume ls | grep meu-volume
+local     meu-volume
+
+--- Ativ 11: Inspecionando um container ---
+$ docker inspect lab-vol (campos principais)
+Nome: /lab-vol
+Estado: running
+Imagem: nginx
+IP: 172.17.0.5
+Mount: meu-volume -> /data
+
+EXPLICACAO: o inspect traz a ficha completa do container em JSON: estado,
+imagem de origem, IP na rede, volumes montados, variaveis de ambiente e
+healthcheck. E a ferramenta para descobrir POR QUE algo nao funciona,
+sem precisar entrar no container.
+
+--- Ativ 12: Conectando em container em execucao ---
+$ docker exec -it lab-vol bash
+dentro do container:
+e371a21bd6bf
+
+--- Ativ 13: Criando uma rede ---
+e69bc6803700   minha-rede                bridge    local
+
+--- Ativ 14: Conectando containers na rede ---
+$ do container1, resolver o nome container2:
+172.26.0.3      container2
+Os dois se enxergam pelo nome porque estao na mesma rede.
+=== BLOCO 4: Atividades 15 e 16 ===
+
+--- Ativ 15: Usando Docker Compose ---
+services:
+  web:
+    image: nginx:1.27-alpine
+    ports:
+      - "8092:80"
+$ docker compose up -d
+ Container ativ-15-web-1  Starting
+ Container ativ-15-web-1  Started
+$ curl http://localhost:8092
+HTTP 200
+
+--- Ativ 16: Parando com Compose ---
+$ docker compose down
+ Network ativ-15_default  Removing
+ Network ativ-15_default  Removed
+$ docker compose ps -a
+SERVICE   STATUS
+(vazio: containers removidos)
+
+OBS: usei a versao fixa nginx:1.27-alpine em vez de 'image: nginx' e
+removi a linha 'version: 3' do exemplo original, que esta obsoleta no
+Compose v2.
+=== BLOCO 5: Atividades 17 a 20 ===
+
+--- Ativ 17: Atualizando uma imagem ---
+Alterei o Dockerfile para instalar tambem o jq:
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl jq
+$ docker build -t minha-imagem .
+build concluido
+REPOSITORY     TAG       SIZE
+minha-imagem   latest    259MB
+jq-1.8.1
+
+--- Ativ 18: Tagging de imagens ---
+$ docker tag minha-imagem minha-imagem:v1
+REPOSITORY     TAG       IMAGE ID
+minha-imagem   latest    62835986e2ab
+minha-imagem   v1        62835986e2ab
+As duas tags apontam para o MESMO ID: tag e apelido, nao copia.
+
+--- Ativ 19: Publicando no Docker Hub ---
+$ docker login && docker push minha-imagem:v1
+f3db1cd94078: Waiting
+push access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+
+NAO EXECUTADO ATE O FIM: publicar exige conta no Docker Hub e a imagem
+precisa ser renomeada para usuario/minha-imagem:v1. Registro aqui em vez
+de pular sem explicacao. O comando correto seria:
+  docker tag minha-imagem:v1 brunosilva/minha-imagem:v1
+  docker push brunosilva/minha-imagem:v1
+
+--- Ativ 20: Baixando imagem do Docker Hub ---
+$ docker pull nginx:1.27-alpine
+Status: Image is up to date for nginx:1.27-alpine
+docker.io/library/nginx:1.27-alpine
+REPOSITORY   TAG           SIZE
+nginx        latest        238MB
+nginx        alpine        92.7MB
+nginx        1.27-alpine   73.6MB
+=== BLOCO 6: Atividades 21 a 25 ===
+
+--- Ativ 21: Variaveis de ambiente ---
+$ docker run -e "MY_VAR=Hello" ubuntu env
+MY_VAR=Hello
+
+--- Ativ 22: Limitando recursos ---
+$ docker run -m 512m --cpus=1.0 ubuntu
+memoria limite (bytes):
+536870912
+
+EXPLICACAO: -m 512m limita a memoria RAM que o container pode usar e
+--cpus=1.0 limita a um nucleo. Serve para um container nao consumir a
+maquina inteira e derrubar os outros servicos. Em producao isso evita
+que um vazamento de memoria em um servico afete o resto.
+
+--- Ativ 23: Dockerfile multi-stage ---
+FROM node:24-alpine AS build
+WORKDIR /app
+RUN echo "console.log('app compilado')" > app.js
+
+FROM node:24-alpine
+WORKDIR /app
+COPY --from=build /app/app.js .
+CMD ["node", "app.js"]
+build OK
+app compilado
+Tamanho comparado:
+REPOSITORY                 SIZE
+minha-imagem-multi         235MB
+minha-imagem               259MB
+minha-imagem               259MB
+
+--- Ativ 24: Monitorando containers ---
+$ docker stats --no-stream
+NAME                             CPU %     MEM USAGE / LIMIT
+cenario3-postgres-1              0.03%     35.52MiB / 7.629GiB
+cenario3-redis-1                 0.81%     4.375MiB / 7.629GiB
+cenario2-pgadmin-1               0.04%     173.9MiB / 7.629GiB
+cenario2-nginx-1                 0.00%     7.098MiB / 7.629GiB
+cenario2-postgres-1              0.00%     40.11MiB / 7.629GiB
+cenario2-app-1                   0.00%     8.094MiB / 7.629GiB
+cenario1-api-1                   0.00%     27.95MiB / 7.629GiB
+
+EXPLICACAO das metricas:
+  CPU %    - quanto do processador o container esta usando
+  MEM USAGE - memoria usada / limite definido (se nao tem limite, mostra o total da maquina)
+  NET I/O  - trafego de rede que entrou e saiu
+  BLOCK I/O - leitura e escrita em disco
+Serve para achar qual container esta pesando antes de culpar a maquina.
+
+--- Ativ 25: Container com script de inicializacao ---
+FROM alpine
+WORKDIR /app
+COPY init.sh .
+RUN chmod +x init.sh
+CMD ["./init.sh"]
+build OK
+$ docker run --rm lab-init
+script de inicializacao rodou
+data: Fri Aug 28 23:39:15 UTC 2026
+=== BLOCO 7: Atividades 26 a 30 ===
+
+--- Ativ 26: Docker Secrets ---
+$ echo "minha-senha" | docker secret create minha-senha -
+Error response from daemon: This node is not a swarm manager. Use "docker swarm init" or "docker swarm join" to connect this node to swarm and try again.
+
+NAO EXECUTADO: 'docker secret' so funciona com Docker Swarm ativo.
+Precisaria rodar 'docker swarm init' antes, e o Swarm nao faz parte do
+escopo dos cenarios da disciplina, que usam Docker Compose. Registro aqui
+em vez de pular. No Compose, o equivalente e usar env_file com .env fora
+do Git, que foi o que fiz nos cenarios 1 e 2.
+
+--- Ativ 27: Backup de volume ---
+$ docker run --rm -v meu-volume:/data -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /data
+tar: can't open 'C:/Program Files/Git/backup/backup.tar': No such file or directory
+ls: cannot access 'backup.tar': No such file or directory
+
+--- Ativ 28: Restaurando volume ---
+$ tar xvf /backup/backup.tar -C /
+tar: can't open '/backup/backup.tar': No such file or directory
+Conteudo do volume restaurado:
+cat: can't open 'C:/Program Files/Git/data/teste.txt': No such file or directory
+--- Ativ 27: Backup de volume (corrigido) ---
+OBS: no Git Bash do Windows o caminho /backup era convertido para
+C:/Program Files/Git/backup. Resolvi com MSYS_NO_PATHCONV=1.
+
+$ docker run --rm -v meu-volume:/data -v $(pwd):/backup alpine tar cvf /backup/backup.tar /data
+tar: removing leading '/' from member names
+data/
+data/teste.txt
+-rw-r--r-- 1 bruno 197609 2560 Aug 28 20:40 backup.tar
+
+--- Ativ 28: Restaurando volume ---
+Conteudo restaurado no volume novo:
+arquivo de teste
+Backup e restore funcionaram: o arquivo saiu de um volume e entrou em outro.
+
+--- Ativ 29: Proxy reverso ---
+Config do proxy:
+server {
+  listen 80;
+  location / {
+    proxy_pass http://servico-atras:80;
+    proxy_set_header Host $host;
+  }
+}
+$ curl http://localhost:8093 (passa pelo proxy ate o servico-atras)
+HTTP 200
+O servico-atras nao publica porta nenhuma, so o proxy publica a 8093.
+
+--- Ativ 30: Limpeza de recursos ---
+ATENCAO: 'docker container prune' e 'image prune' mexem em TUDO da maquina.
+Como existem outros projetos rodando aqui, removi so o que criei no lab,
+pelo nome. E a atitude correta em maquina compartilhada.
+
+$ docker rm -f (containers do laboratorio)
+lab-nginx lab-nginx-porta lab-vol container1 container2 servico-atras proxy-reverso 
+$ docker volume rm meu-volume vol-restaurado
+meu-volume vol-restaurado 
+$ docker network rm minha-rede rede-proxy
+minha-rede rede-proxy 
+
+Comando que a atividade pede, para registro:
+  docker container prune   # remove todos os containers parados
+  docker image prune       # remove imagens sem tag (dangling)
+
+=== FIM DAS 30 ATIVIDADES ===

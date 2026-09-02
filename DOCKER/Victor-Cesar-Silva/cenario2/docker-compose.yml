@@ -1,0 +1,58 @@
+name: cenario2
+
+services:
+  # Unico servico com porta publicada: o Nginx e a porta de entrada da pilha.
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8082:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks: [web_net]
+
+  app:
+    build: ./app
+    # Sem "ports": o app usa expose (no Dockerfile) e so o Nginx o alcanca,
+    # pela rede interna, em http://app:80.
+    expose:
+      - "80"
+    networks: [web_net]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Nao publica porta: nada fora da rede Docker fala com o banco.
+    networks: [web_net]
+
+  # Ferramenta opcional: so sobe com "docker compose --profile tools up -d".
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    profiles: [tools]
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [web_net]
+
+networks:
+  web_net:
+
+volumes:
+  postgres_data:
