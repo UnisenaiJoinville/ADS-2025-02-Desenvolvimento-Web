@@ -1,0 +1,26 @@
+
+--- Ativ 6: Criando uma imagem Docker ---
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl
+$ docker build -t minha-imagem .
+$ docker images minha-imagem
+REPOSITORY     TAG       SIZE
+minha-imagem   latest    257MB
+
+--- Ativ 7: Executando a imagem ---
+$ docker run minha-imagem
+(sem saida: a imagem so instalou o curl, nao tem CMD proprio)
+
+EXPLICACAO: a imagem parte do ubuntu e instala o curl. Como nao defini um
+CMD, ela usa o comando padrao do ubuntu (bash), que sem terminal interativo
+encerra na hora. A imagem serve de base para outra, nao para rodar sozinha.
+
+--- Ativ 8: Container em segundo plano ---
+$ docker run -d nginx
+NAMES       STATUS
+lab-nginx   Up Less than a second
+
+--- Ativ 9: Expondo portas ---
+$ docker run -d -p 8091:80 nginx
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:8091
+HTTP 200

@@ -1,0 +1,24 @@
+ATIVIDADE 29 — CONFIGURANDO UM PROXY REVERSO
+
+Arquivos criados:
+Atividade_29_Proxy\Dockerfile
+Atividade_29_Proxy\nginx.conf
+
+Explicação:
+Nesta atividade foi configurado um container Nginx para funcionar como
+proxy reverso.
+
+Foi criada uma rede chamada proxy-rede e dois containers foram conectados
+a ela.
+
+O container backend-proxy funcionou como serviço de destino.
+
+O container proxy-reverso recebeu as requisições pela porta 8081 do
+computador e encaminhou essas requisições para o container backend-proxy
+através da rede Docker.
+
+A configuração proxy_pass http://backend-proxy:80 permitiu que o proxy
+localizasse o outro container pelo nome.
+
+Ao acessar http://localhost:8081 foi exibida a página do Nginx,
+confirmando que o proxy reverso estava funcionando corretamente.

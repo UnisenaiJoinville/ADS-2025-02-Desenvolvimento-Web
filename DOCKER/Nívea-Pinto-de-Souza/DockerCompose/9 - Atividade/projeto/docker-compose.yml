@@ -1,0 +1,65 @@
+name: ads-cenario-3
+services:
+  proxy:
+    image: nginx:1.27-alpine
+    ports: ["8080:80"]
+    volumes: ["./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"]
+    depends_on: [frontend, api]
+    networks: [app_net]
+  frontend:
+    build: ./frontend
+    command: npm run dev -- --host 0.0.0.0
+    volumes: ["./frontend:/app", "react_node_modules:/app/node_modules"]
+    expose: ["5173"]
+    networks: [app_net]
+  api:
+    build: ./backend
+    command: npm run dev
+    env_file: .env
+    volumes: ["./backend:/app", "api_node_modules:/app/node_modules"]
+    expose: ["3000"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_started}
+      rabbitmq: {condition: service_healthy}
+    networks: [app_net]
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: ["postgres_data:/var/lib/postgresql/data", "./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [app_net]
+  redis:
+    image: redis:7.4-alpine
+    networks: [app_net]
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports: ["15672:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [app_net]
+  worker:
+    build: ./worker
+    command: npm run worker
+    env_file: .env
+    depends_on:
+      rabbitmq: {condition: service_healthy}
+    networks: [app_net]
+networks: {app_net: {}}
+volumes:
+  postgres_data: {}
+  react_node_modules: {}
+  api_node_modules: {}

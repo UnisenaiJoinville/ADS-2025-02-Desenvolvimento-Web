@@ -1,0 +1,18 @@
+ATIVIDADE 7 — EXECUTANDO UMA IMAGEM
+
+Comandos utilizados:
+docker run minha-imagem
+docker ps -a
+
+Explicação:
+O comando docker run minha-imagem foi utilizado para criar e executar
+um container a partir da imagem personalizada criada na atividade anterior.
+
+A imagem utiliza o Ubuntu como base e possui o programa curl instalado.
+
+Após a execução, o container foi finalizado automaticamente. O comando
+docker ps -a confirmou a criação do container e mostrou o status
+Exited (0), indicando que sua execução terminou normalmente e sem erros.
+
+O container não permaneceu em execução porque a imagem não possui uma
+aplicação ou comando personalizado configurado para permanecer ativo.

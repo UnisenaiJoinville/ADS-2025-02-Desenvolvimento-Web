@@ -1,0 +1,4 @@
+Em execução (Up): o processo principal ainda está rodando, consumindo recursos. Aparece em docker ps.
+Parado (Exited): o processo terminou (por erro, docker stop, ou porque a tarefa acabou), mas o container ainda existe no disco. Só aparece com docker ps -a.
+
+Parar ≠ remover: um container parado ainda pode ser reiniciado (docker start) ou apagado de vez (docker rm).
