@@ -1,0 +1,12 @@
+ATIVIDADE 2 — EXECUTANDO O PRIMEIRO CONTAINER
+
+Comando:
+docker run hello-world
+
+Explicação:
+Ao executar o comando docker run hello-world, o Docker procura a imagem
+hello-world no computador. Caso ela ainda não esteja disponível localmente,
+o Docker faz o download da imagem e cria um container a partir dela.
+Em seguida, o container é executado e exibe a mensagem "Hello from Docker!",
+confirmando que o Docker consegue baixar imagens e executar containers.
+

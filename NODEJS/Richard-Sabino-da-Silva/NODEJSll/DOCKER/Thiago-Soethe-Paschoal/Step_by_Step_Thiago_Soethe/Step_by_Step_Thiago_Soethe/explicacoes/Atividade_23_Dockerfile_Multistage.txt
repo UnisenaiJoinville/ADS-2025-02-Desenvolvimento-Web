@@ -1,0 +1,27 @@
+ATIVIDADE 23 — DOCKERFILE MULTI-STAGE
+
+Arquivo criado:
+Atividade_23_Multistage\Dockerfile
+
+Comandos utilizados:
+docker build -t minha-imagem-multi ".\Atividade_23_Multistage"
+docker run --rm minha-imagem-multi
+
+Explicação:
+Nesta atividade foi criado um Dockerfile com múltiplas etapas de construção.
+
+Na primeira etapa, chamada builder, foi utilizada a imagem Alpine e criado
+o arquivo resultado.txt.
+
+Na segunda etapa, foi utilizada novamente a imagem Alpine e o arquivo
+resultado.txt foi copiado da etapa builder para a imagem final utilizando
+a instrução COPY --from=builder.
+
+Depois, a imagem foi construída com o nome minha-imagem-multi.
+
+Ao executar o container, foi exibida a mensagem
+"Arquivo criado na etapa de build", confirmando que o processo multi-stage
+funcionou corretamente.
+
+O uso de multi-stage permite separar etapas de construção e manter na
+imagem final apenas os arquivos necessários.

@@ -1,0 +1,28 @@
+ATIVIDADE 17 — ATUALIZANDO UMA IMAGEM
+
+Arquivo alterado:
+Dockerfile
+
+Conteúdo atualizado:
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl nano
+
+Comandos utilizados:
+docker build -t minha-imagem .
+docker images
+
+Explicação:
+Nesta atividade o Dockerfile foi atualizado para adicionar um novo
+pacote à imagem.
+
+Além do curl, o pacote nano também passou a ser instalado durante o
+processo de construção.
+
+O comando docker build -t minha-imagem . foi executado novamente para
+reconstruir a imagem com as novas instruções.
+
+Depois, o comando docker images confirmou que a imagem
+minha-imagem:latest estava disponível.
+
+A nova construção substituiu a versão latest anterior da imagem pelo
+novo conteúdo definido no Dockerfile.

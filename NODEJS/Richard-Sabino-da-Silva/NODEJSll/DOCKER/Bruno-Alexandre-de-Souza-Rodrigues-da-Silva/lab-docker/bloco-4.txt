@@ -1,0 +1,25 @@
+=== BLOCO 4: Atividades 15 e 16 ===
+
+--- Ativ 15: Usando Docker Compose ---
+services:
+  web:
+    image: nginx:1.27-alpine
+    ports:
+      - "8092:80"
+$ docker compose up -d
+ Container ativ-15-web-1  Starting
+ Container ativ-15-web-1  Started
+$ curl http://localhost:8092
+HTTP 200
+
+--- Ativ 16: Parando com Compose ---
+$ docker compose down
+ Network ativ-15_default  Removing
+ Network ativ-15_default  Removed
+$ docker compose ps -a
+SERVICE   STATUS
+(vazio: containers removidos)
+
+OBS: usei a versao fixa nginx:1.27-alpine em vez de 'image: nginx' e
+removi a linha 'version: 3' do exemplo original, que esta obsoleta no
+Compose v2.

@@ -1,0 +1,38 @@
+=== BLOCO 5: Atividades 17 a 20 ===
+
+--- Ativ 17: Atualizando uma imagem ---
+Alterei o Dockerfile para instalar tambem o jq:
+FROM ubuntu
+RUN apt-get update && apt-get install -y curl jq
+$ docker build -t minha-imagem .
+build concluido
+REPOSITORY     TAG       SIZE
+minha-imagem   latest    259MB
+jq-1.8.1
+
+--- Ativ 18: Tagging de imagens ---
+$ docker tag minha-imagem minha-imagem:v1
+REPOSITORY     TAG       IMAGE ID
+minha-imagem   latest    62835986e2ab
+minha-imagem   v1        62835986e2ab
+As duas tags apontam para o MESMO ID: tag e apelido, nao copia.
+
+--- Ativ 19: Publicando no Docker Hub ---
+$ docker login && docker push minha-imagem:v1
+f3db1cd94078: Waiting
+push access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+
+NAO EXECUTADO ATE O FIM: publicar exige conta no Docker Hub e a imagem
+precisa ser renomeada para usuario/minha-imagem:v1. Registro aqui em vez
+de pular sem explicacao. O comando correto seria:
+  docker tag minha-imagem:v1 brunosilva/minha-imagem:v1
+  docker push brunosilva/minha-imagem:v1
+
+--- Ativ 20: Baixando imagem do Docker Hub ---
+$ docker pull nginx:1.27-alpine
+Status: Image is up to date for nginx:1.27-alpine
+docker.io/library/nginx:1.27-alpine
+REPOSITORY   TAG           SIZE
+nginx        latest        238MB
+nginx        alpine        92.7MB
+nginx        1.27-alpine   73.6MB

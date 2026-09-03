@@ -1,0 +1,9 @@
+{
+  "name": "cenario-3-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Bruno Silva",
+  "license": "MIT",
+  "scripts": { "worker": "node worker.js" },
+  "dependencies": { "amqplib": "^0.10.5" }
+}
