@@ -4,6 +4,8 @@ import {
   getActiveServicesSummary,
   listActiveServices,
   listServices,
+  listServicesSortedByPrice,
+  searchServicesByName,
 } from "./modules/services/service-service.js";
 
 const servicesToCreate = [
@@ -50,3 +52,17 @@ try {
 } catch (error) {
   console.error("Erro esperado (duração inválida):", error.message);
 }
+
+console.log("\n--- Desafio profissional ---");
+console.log(
+  "Busca por 'de':",
+  searchServicesByName("de").map((service) => service.name),
+);
+console.log(
+  "Ordenado por price:",
+  listServicesSortedByPrice().map((service) => `${service.name} (${service.price})`),
+);
+console.log(
+  "Ordem original preservada:",
+  listServices().map((service) => service.name),
+);

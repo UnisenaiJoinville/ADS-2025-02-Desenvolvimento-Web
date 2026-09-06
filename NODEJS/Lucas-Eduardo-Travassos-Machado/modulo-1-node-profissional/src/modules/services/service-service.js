@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { deactivate, findAll, findByName, save } from "./service-repository.js";
-import { validateServiceInput } from "./service-validator.js";
+import { normalizeName, validateServiceInput } from "./service-validator.js";
 
 export function createService(input) {
   const data = validateServiceInput(input);
@@ -43,4 +43,15 @@ export function getActiveServicesSummary() {
     count: active.length,
     averagePrice: active.length ? totalPrice / active.length : 0,
   };
+}
+
+export function searchServicesByName(term) {
+  const normalizedTerm = normalizeName(term ?? "").toLocaleLowerCase("pt-BR");
+  return listServices().filter((service) =>
+    service.name.toLocaleLowerCase("pt-BR").includes(normalizedTerm),
+  );
+}
+
+export function listServicesSortedByPrice() {
+  return [...listServices()].sort((a, b) => a.price - b.price);
 }
