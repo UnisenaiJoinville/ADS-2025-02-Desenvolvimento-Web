@@ -1,0 +1,3 @@
+Esse comando testa se sua instalação do Docker está OK. Ele confirma que o Docker consegue baixar imagens, 
+criar containers e executá-los. Quando vemos a mensagem  "Hello from Docker!", 
+está tudo funcionando corretamente.

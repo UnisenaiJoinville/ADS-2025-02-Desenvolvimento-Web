@@ -1,0 +1,1 @@
+{"name":"cenario1-worker","version":"1.0.0","type":"module","scripts":{"worker":"node worker.js"},"dependencies":{"amqplib":"^0.10.9","mysql2":"^3.14.4"}}

@@ -1,0 +1,3 @@
+-m 512m — limita o container a usar no máximo 512 MB de memória RAM. Se o processo dentro do container tentar usar mais que isso, o Docker mata o processo (erro "OOM Killed" — Out Of Memory).
+--cpus="1.0" — limita o container a usar no máximo 1 núcleo de CPU inteiro (equivalente). Se você tem uma máquina com 8 núcleos, esse container não vai conseguir usar mais que 1, mesmo que os outros 7 estejam livres.
+ubuntu — a imagem usada, sem comando explícito, então o container abre e fecha rápido (como vimos na Atividade 7).

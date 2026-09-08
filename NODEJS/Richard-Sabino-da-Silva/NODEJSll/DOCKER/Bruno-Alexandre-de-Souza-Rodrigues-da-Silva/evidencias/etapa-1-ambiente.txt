@@ -1,0 +1,32 @@
+=== ETAPA 1 - VALIDACAO DO AMBIENTE ===
+Data: 28/08/2026 19:56
+
+$ node -v
+v22.21.0
+
+$ npm -v
+10.9.4
+
+$ docker --version
+Docker version 28.5.1, build e180ab8
+
+$ docker compose version
+Docker Compose version v2.40.3-desktop.1
+
+$ git --version
+git version 2.50.1.windows.1
+
+$ ls -al ~/.ssh
+total 42
+drwxr-xr-x 1 bruno 197609    0 May 27 20:49 .
+drwxr-xr-x 1 bruno 197609    0 Aug 28 19:46 ..
+-rw-r--r-- 1 bruno 197609  411 Mar 25 16:32 id_ed25519
+-rw-r--r-- 1 bruno 197609  102 Mar 25 16:32 id_ed25519.pub
+-rw-r--r-- 1 bruno 197609 2282 May 27 20:49 known_hosts
+-rw-r--r-- 1 bruno 197609 3026 May  7 01:38 known_hosts.old
+
+$ ssh -T git@github.com
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+git@github.com: Permission denied (publickey).
+
+Chave ed25519 ja existia, nao foi necessario gerar nova.

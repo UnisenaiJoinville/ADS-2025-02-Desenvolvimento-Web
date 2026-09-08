@@ -1,0 +1,18 @@
+ATIVIDADE 18 — TAGGING DE IMAGENS
+
+Comandos utilizados:
+docker tag minha-imagem minha-imagem:v1
+docker images
+
+Explicação:
+O comando docker tag foi utilizado para criar uma nova identificação
+para a imagem minha-imagem.
+
+A tag v1 foi adicionada utilizando o nome minha-imagem:v1.
+
+Depois, o comando docker images foi utilizado para verificar as imagens
+disponíveis.
+
+Foi possível visualizar as tags latest e v1 associadas à imagem.
+A criação de uma tag permite identificar versões diferentes de uma
+imagem Docker sem necessariamente duplicar todo o seu conteúdo.

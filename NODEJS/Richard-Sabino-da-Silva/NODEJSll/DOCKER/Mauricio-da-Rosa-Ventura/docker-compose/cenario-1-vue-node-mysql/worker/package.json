@@ -1,0 +1,12 @@
+{
+  "name": "cenario-1-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Worker minimo do Cenario 1 - consome a fila publicada pela API para provar mensageria assincrona via RabbitMQ.",
+  "scripts": {
+    "worker": "node src/worker.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.4"
+  }
+}

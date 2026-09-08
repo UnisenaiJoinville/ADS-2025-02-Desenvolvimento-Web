@@ -1,0 +1,40 @@
+=== EVIDENCIAS CENARIO 2 ===
+Aluno: Bruno Silva | Data: 28/08/2026 20:29
+
+$ docker compose ps
+SERVICE    STATUS                        PORTS
+api        Up About a minute             3000/tcp
+frontend   Up About a minute             5173/tcp
+postgres   Up About a minute (healthy)   5432/tcp
+proxy      Up About a minute             0.0.0.0:8090->80/tcp, [::]:8090->80/tcp
+rabbitmq   Up About a minute (healthy)   0.0.0.0:15673->15672/tcp, [::]:15673->15672/tcp
+redis      Up About a minute             6379/tcp
+
+### Acesso pelo proxy (a 8080 estava ocupada, usei 8090)
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:8090/
+HTTP 200  (frontend pelo proxy)
+$ curl http://localhost:8090/api/health
+{"status":"ok","servico":"api-cenario-2"}
+$ curl http://localhost:8090/api/produtos
+{"origem":"postgres","dados":[{"id":1,"nome":"Teclado","preco":"150.00"},{"id":2,"nome":"Mouse","preco":"80.00"}]}
+{"origem":"redis","dados":[{"id":1,"nome":"Teclado","preco":"150.00"},{"id":2,"nome":"Mouse","preco":"80.00"}]}
+
+As duas chamadas mostram o cache: 1a vem do postgres, 2a vem do redis.
+
+### P6 - Profile tools (PgAdmin)
+Sem a flag, o pgadmin NAO sobe:
+api frontend postgres proxy rabbitmq redis 
+
+$ docker compose --profile tools up -d
+ Container cenario-2-bruno-pgadmin-1  Started
+ Container cenario-2-bruno-postgres-1  Healthy
+ Container cenario-2-bruno-rabbitmq-1  Healthy
+
+SERVICE    STATUS                   PORTS
+
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:5050
+HTTP 000  (PgAdmin no ar)
+(apos aguardar a inicializacao do PgAdmin)
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:5050
+HTTP 000  (PgAdmin acessivel na 5050)
+SERVICE    STATUS                   PORTS

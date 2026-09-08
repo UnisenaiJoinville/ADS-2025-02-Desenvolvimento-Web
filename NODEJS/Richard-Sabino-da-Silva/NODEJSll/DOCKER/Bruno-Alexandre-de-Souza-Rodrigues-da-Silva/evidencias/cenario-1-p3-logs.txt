@@ -1,0 +1,86 @@
+=== EVIDENCIAS CENARIO 1 ===
+Aluno: Bruno Silva | Data: 28/08/2026 20:19
+
+### P3 - Subir a pilha e coletar logs
+
+$ docker compose ps
+SERVICE    STATUS                   PORTS
+api        Up 43 seconds            0.0.0.0:3010->3000/tcp, [::]:3010->3000/tcp
+mysql      Up 2 minutes (healthy)   3306/tcp, 33060/tcp
+rabbitmq   Up 2 minutes (healthy)   0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp
+redis      Up 2 minutes             6379/tcp
+worker     Up 2 minutes             
+
+--- logs da api ---
+api-1  | > cenario-1-api@1.0.0 dev
+api-1  | > node server.js
+api-1  | 
+api-1  | Redis conectado
+api-1  | RabbitMQ conectado
+api-1  | API rodando na porta 3000
+
+--- logs do mysql ---
+mysql-1  | 2026-08-28T23:17:31.250747Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+mysql-1  | 2026-08-28T23:17:31.257322Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysql-1  | 2026-08-28T23:17:31.294856Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+mysql-1  | 2026-08-28T23:17:31.295093Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.11'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+
+--- logs do rabbitmq ---
+rabbitmq-1  | 2026-08-28 23:17:42.892274+00:00 [info] <0.1034.0> connection 172.24.0.6:53558 -> 172.24.0.3:5672: user 'projeto_mq' authenticated and granted access to vhost '/'[0m
+rabbitmq-1  | 2026-08-28 23:19:05.767070+00:00 [info] <0.1074.0> accepting AMQP connection 172.24.0.5:57406 -> 172.24.0.3:5672[0m
+rabbitmq-1  | 2026-08-28 23:19:05.770813+00:00 [info] <0.1074.0> User 'projeto_mq' authenticated successfully[0m
+rabbitmq-1  | 2026-08-28 23:19:05.815134+00:00 [info] <0.1074.0> connection 172.24.0.5:57406 -> 172.24.0.3:5672: user 'projeto_mq' authenticated and granted access to vhost '/'[0m
+
+--- logs do worker (consumiu a mensagem publicada pela api) ---
+worker-1  | > cenario-1-worker@1.0.0 worker
+worker-1  | > node worker.js
+worker-1  | 
+worker-1  | Worker no ar, esperando mensagens na fila "tarefas"
+worker-1  | Mensagem recebida: acesso ao /status
+
+### P4 - Executar comando dentro da api
+$ docker compose exec api sh -c '...'
+hostname: 6cafec976af7
+node: v24.20.0
+DB_HOST=mysql REDIS_HOST=redis
+--- ping no mysql pelo nome do servico ---
+172.24.0.4        mysql  mysql
+
+### P7 - Healthcheck mostrando healthy
+SERVICE    STATUS
+api        Up About a minute
+mysql      Up 2 minutes (healthy)
+rabbitmq   Up 2 minutes (healthy)
+redis      Up 2 minutes
+worker     Up 2 minutes
+
+### P5 - Perder o container sem perder o volume
+Dados antes:
+3
+Inserindo um registro novo para provar a persistencia:
+4
+Agora: docker compose down (derruba containers, MANTEM volume)
+ Container cenario-1-bruno-rabbitmq-1  Removed
+ Network cenario-1-bruno_app_net  Removing
+ Network cenario-1-bruno_app_net  Removed
+
+Containers apos o down:
+SERVICE   STATUS
+
+Volume continua existindo:
+VOLUME NAME                  DRIVER
+cenario-1-bruno_mysql_data   local
+cenario-1-bruno_redis_data   local
+
+Subindo de novo:
+ Container cenario-1-bruno-worker-1  Started
+ Container cenario-1-bruno-api-1  Started
+
+Dados DEPOIS do down + up (containers foram destruidos e recriados):
+4
+
+RESULTADO: continuam 4 registros, incluindo o que inseri antes do down.
+O container foi destruido, o dado nao. Isso e o volume nomeado funcionando.
+
+$ curl /health apos recriar:
+{"status":"ok","servico":"api-cenario-1"}

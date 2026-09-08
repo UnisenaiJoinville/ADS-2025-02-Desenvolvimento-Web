@@ -1,0 +1,30 @@
+ATIVIDADE 12 — CONECTANDO-SE A UM CONTAINER EM EXECUÇÃO
+
+Comandos utilizados:
+docker ps
+docker exec -it bd95c721fa84 bash
+apt-get update
+apt-get install -y nano
+nano --version
+exit
+docker ps
+
+Explicação:
+O comando docker exec -it foi utilizado para abrir um terminal Bash
+dentro de um container Nginx que já estava em execução.
+
+Dentro do container, o comando apt-get update atualizou a lista de
+pacotes disponíveis.
+
+Em seguida, o pacote nano foi instalado com o comando
+apt-get install -y nano.
+
+O comando nano --version confirmou que a instalação foi realizada
+corretamente, apresentando a versão 8.4.
+
+Após utilizar o comando exit, o terminal do container foi encerrado.
+O comando docker ps foi executado novamente e mostrou que o container
+Nginx continuava com status Up.
+
+Isso demonstra que sair de uma sessão aberta com docker exec não
+interrompe o processo principal do container.

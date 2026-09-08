@@ -1,0 +1,22 @@
+ATIVIDADE 10 — USANDO VOLUMES
+
+Comandos utilizados:
+docker volume create meu-volume
+docker run -d -v meu-volume:/data nginx
+docker volume ls
+
+Explicação:
+O comando docker volume create meu-volume foi utilizado para criar um
+volume chamado meu-volume.
+
+Volumes são utilizados para armazenar dados de forma independente dos
+containers, permitindo que os dados continuem disponíveis mesmo que um
+container seja removido.
+
+Depois, o comando docker run -d -v meu-volume:/data nginx criou um
+container Nginx em segundo plano e conectou o volume meu-volume ao
+diretório /data dentro do container.
+
+Por fim, o comando docker volume ls foi utilizado para verificar os
+volumes existentes, confirmando que o volume meu-volume foi criado
+corretamente.

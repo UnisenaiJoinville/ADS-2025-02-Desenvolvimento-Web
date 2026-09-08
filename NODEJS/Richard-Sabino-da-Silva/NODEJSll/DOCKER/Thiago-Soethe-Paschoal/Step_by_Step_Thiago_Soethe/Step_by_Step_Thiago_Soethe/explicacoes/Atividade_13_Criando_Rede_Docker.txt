@@ -1,0 +1,18 @@
+ATIVIDADE 13 — CRIANDO UMA REDE DOCKER
+
+Comandos utilizados:
+docker network create minha-rede
+docker network ls
+
+Explicação:
+O comando docker network create minha-rede foi utilizado para criar
+uma rede Docker chamada minha-rede.
+
+Depois, o comando docker network ls foi utilizado para listar as redes
+existentes no Docker.
+
+A rede minha-rede apareceu na listagem utilizando o driver bridge,
+confirmando que ela foi criada corretamente.
+
+As redes Docker permitem que containers conectados à mesma rede possam
+se comunicar entre si.

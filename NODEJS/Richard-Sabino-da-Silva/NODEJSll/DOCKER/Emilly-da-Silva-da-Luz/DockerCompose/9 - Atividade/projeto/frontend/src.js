@@ -1,0 +1,1 @@
+import{createApp}from'vue';createApp({template:`<main><h1>Central de chamados</h1><p>Ambiente de consolidação Docker Compose.</p><a href="/api/health">Ver healthcheck</a></main>`}).mount('#app')

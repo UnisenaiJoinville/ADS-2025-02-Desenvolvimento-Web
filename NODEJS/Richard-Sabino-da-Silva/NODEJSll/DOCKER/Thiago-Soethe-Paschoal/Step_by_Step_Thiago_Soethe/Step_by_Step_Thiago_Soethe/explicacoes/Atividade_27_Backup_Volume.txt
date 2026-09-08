@@ -1,0 +1,26 @@
+ATIVIDADE 27 — BACKUP DE VOLUME
+
+Comando utilizado:
+docker run --rm -v meu-volume:/data -v "${PWD}:/backup" ubuntu tar cvf /backup/backup.tar /data
+
+Verificação:
+Get-Item .\backup.tar
+
+Explicação:
+Nesta atividade foi realizado o backup do volume Docker chamado
+meu-volume.
+
+O volume foi montado no diretório /data de um container temporário
+Ubuntu.
+
+A pasta atual do computador foi montada em /backup dentro do
+container.
+
+O comando tar criou o arquivo backup.tar contendo os dados presentes
+no volume.
+
+A opção --rm remove automaticamente o container temporário após
+a conclusão do processo.
+
+Por fim, foi verificado que o arquivo backup.tar foi criado na pasta
+do projeto.

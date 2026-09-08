@@ -1,0 +1,15 @@
+{
+  "name": "cenario-2-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API minima do Cenario 2 (Express) - so prova a estrutura de containers (postgres, redis, rabbitmq atras de um proxy Nginx), sem regra de negocio.",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "pg": "^8.13.0",
+    "ioredis": "^5.4.1",
+    "amqplib": "^0.10.4"
+  }
+}

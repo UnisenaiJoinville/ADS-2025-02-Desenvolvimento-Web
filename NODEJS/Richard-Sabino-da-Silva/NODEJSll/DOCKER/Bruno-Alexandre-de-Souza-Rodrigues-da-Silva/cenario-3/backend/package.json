@@ -1,0 +1,14 @@
+{
+  "name": "cenario-3-api",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Bruno Silva",
+  "license": "MIT",
+  "scripts": { "dev": "node server.js" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "redis": "^4.7.0",
+    "amqplib": "^0.10.5"
+  }
+}

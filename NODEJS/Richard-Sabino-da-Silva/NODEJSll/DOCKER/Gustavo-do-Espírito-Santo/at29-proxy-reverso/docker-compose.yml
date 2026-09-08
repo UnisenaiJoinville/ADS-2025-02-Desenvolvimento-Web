@@ -1,0 +1,21 @@
+# Atividade 29 - proxy reverso com Nginx
+#
+#   navegador --> localhost:8090 --> [container proxy] --proxy_pass--> [container app]:80
+#
+# Somente o "proxy" publica porta para o host. O "app" fica acessivel
+# apenas dentro da rede interna do Compose.
+services:
+  app:
+    image: nginx
+    volumes:
+      - ./app-content:/usr/share/nginx/html:ro
+    # sem 'ports': nao e exposto diretamente ao host
+
+  proxy:
+    image: nginx
+    depends_on:
+      - app
+    ports:
+      - "8090:80"
+    volumes:
+      - ./proxy.conf:/etc/nginx/conf.d/default.conf:ro

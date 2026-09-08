@@ -1,0 +1,10 @@
+import express from 'express';
+import pg from 'pg';
+import { createClient } from 'redis';
+const {Pool}=pg;
+const app=express();
+const db=new Pool({host:process.env.DB_HOST||'postgres',user:process.env.POSTGRES_USER,password:process.env.POSTGRES_PASSWORD,database:process.env.POSTGRES_DB});
+const redis=createClient({url:`redis://${process.env.REDIS_HOST||'redis'}:6379`}); await redis.connect();
+app.get('/health', async (_req,res)=>{try{await db.query('SELECT 1');await redis.ping();res.json({status:'ok',postgres:'ok',redis:'ok'});}catch(e){res.status(500).json({status:'error',error:e.message});}});
+app.get('/notes', async(_req,res)=>{const {rows}=await db.query('SELECT * FROM notes ORDER BY id');res.json(rows);});
+app.listen(3000,'0.0.0.0',()=>console.log('API cenário 2 na porta 3000'));

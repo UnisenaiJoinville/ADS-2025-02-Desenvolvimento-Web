@@ -1,0 +1,15 @@
+{
+  "name": "cenario-3-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API minima do Cenario 3 (consolidacao) - Fastify + Postgres + Redis + RabbitMQ.",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "fastify": "^4.28.0",
+    "pg": "^8.13.0",
+    "ioredis": "^5.4.1",
+    "amqplib": "^0.10.4"
+  }
+}

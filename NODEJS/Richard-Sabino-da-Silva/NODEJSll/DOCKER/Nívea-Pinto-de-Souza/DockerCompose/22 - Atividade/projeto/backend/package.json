@@ -1,0 +1,1 @@
+{"name":"cenario1-api","version":"1.0.0","type":"module","scripts":{"dev":"node server.js"},"dependencies":{"express":"^5.1.0","mysql2":"^3.14.4","redis":"^5.8.2","amqplib":"^0.10.9"}}

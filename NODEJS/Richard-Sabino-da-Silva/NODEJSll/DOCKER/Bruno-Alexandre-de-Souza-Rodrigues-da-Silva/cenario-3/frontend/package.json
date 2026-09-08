@@ -1,0 +1,9 @@
+{
+  "name": "cenario-3-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Bruno Silva",
+  "license": "MIT",
+  "scripts": { "dev": "vite --host 0.0.0.0" },
+  "devDependencies": { "vite": "^6.0.7" }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "cenario-1-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend minimo do Cenario 1 - so prova que o container do Vite/Vue sobe e fala com a API, sem telas de negocio.",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@vitejs/plugin-vue": "^5.1.0"
+  }
+}

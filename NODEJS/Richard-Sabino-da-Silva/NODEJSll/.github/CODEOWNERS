@@ -1,0 +1,3 @@
+# Exige revisão do professor em todo Pull Request, quando
+# "Require review from Code Owners" estiver ativado na regra da main.
+* @UchoaMaster
