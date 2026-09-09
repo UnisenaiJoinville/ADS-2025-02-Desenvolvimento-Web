@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Consulta",
+    "price": 150,
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Retorno",
+    "price": 80,
+    "active": false
+  },
+  {
+    "id": 3,
+    "name": "Avaliação",
+    "price": 120,
+    "active": true
+  }
+]
