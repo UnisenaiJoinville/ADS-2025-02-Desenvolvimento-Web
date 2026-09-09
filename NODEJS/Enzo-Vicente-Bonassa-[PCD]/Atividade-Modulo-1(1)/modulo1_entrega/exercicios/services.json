@@ -1,0 +1,5 @@
+[
+  { "id": 1, "name": "Consulta", "durationMinutes": 45, "price": 150, "active": true },
+  { "id": 2, "name": "Retorno", "durationMinutes": 30, "price": 80, "active": false },
+  { "id": 3, "name": "Avaliação", "durationMinutes": 60, "price": 120, "active": true }
+]
