@@ -1,0 +1,280 @@
+MÓDULO 1 - RESPOSTAS DAS ATIVIDADES
+
+As partes práticas estão nos arquivos atividades.js e src/app.js.
+
+ATIVIDADE 3 - BACKEND E RESPONSABILIDADES
+
+1) Backend é a parte que recebe os dados e aplica as regras do sistema. API é a forma usada para outros sistemas ou telas se comunicarem com o backend. Banco de dados é onde as informações ficam armazenadas.
+
+2) Três regras importantes em um sistema de agendamentos:
+- não permitir dois horários ao mesmo tempo para o mesmo profissional;
+- não permitir agendamento de um serviço desativado;
+- não aceitar duração menor ou igual a zero.
+
+3) Classificação:
+- e-mail sem @: validação sintática;
+- preço negativo: validação sintática;
+- conflito de horário: regra de negócio;
+- CPF com quantidade errada de dígitos: validação sintática;
+- serviço desativado sendo agendado: regra de negócio.
+
+Desafio: compra em uma loja virtual.
+1. O cliente confirma a compra.
+2. A tela envia os dados ao backend.
+3. O backend valida cliente, produtos e pagamento.
+4. O estoque é conferido.
+5. O pedido é salvo no banco de dados.
+6. O resultado é devolvido para a tela.
+
+ATIVIDADE 4 - RUNTIME
+
+1) O console.log existe nos dois ambientes porque tanto o navegador quanto o Node.js oferecem uma implementação dele. A linguagem é a mesma, mas cada ambiente possui suas próprias APIs.
+
+2) process.version mostra a versão do Node.js que está executando o projeto. process.platform informa o sistema operacional, como win32 para Windows ou linux para Linux. Os valores reais podem ser vistos ao executar o arquivo.
+
+3) Três recursos comuns do Node.js são leitura e escrita de arquivos, criação de servidores e acesso a variáveis de ambiente.
+
+ATIVIDADE 6 - VARIÁVEIS E ESCOPO
+
+O exemplo foi refeito com const para valores que não são reatribuídos e let para a quantidade de horários disponíveis, que pode mudar. Um objeto declarado com const ainda pode ter suas propriedades alteradas. O que não pode é atribuir outro objeto à mesma constante.
+
+ATIVIDADE 7 - TIPOS E COMPARAÇÕES
+
+O operador == converte os tipos antes de comparar. Por isso 0 == "0" e false == 0 resultam em true. O operador === compara valor e tipo, então esses mesmos exemplos resultam em false. null == undefined também é true por causa da regra de coerção do operador ==. Em validações é mais seguro usar ===.
+
+O valor 0 foi aceito para desconto porque a verificação rejeita somente null e undefined. Number("abc") gera NaN, confirmado com Number.isNaN.
+
+ATIVIDADE 8 - STRINGS E CONVERSÕES
+
+Number("19.90") converte todo o texto para número. O toFixed(2) mostra duas casas decimais. parseInt("10min", 10) lê a parte numérica inicial e retorna 10. Number("10min") tenta converter o texto inteiro e retorna NaN.
+
+ATIVIDADE 9 - OPERADORES
+
+O optional chaining devolve undefined quando contact não existe, sem interromper o programa. O resultado de 0 || 20 é 20, enquanto 0 ?? 20 é 0. Isso acontece porque || considera 0 como falso e ?? só usa o valor alternativo para null ou undefined.
+
+A versão com if/else ficou mais legível do que um ternário aninhado, principalmente porque cada condição aparece em um bloco separado.
+
+ATIVIDADE 10 - CONTROLE DE FLUXO
+
+As funções usam retorno antecipado quando encontram um serviço inativo, uma duração inválida, um usuário ausente ou um horário indisponível. Assim o código evita vários ifs dentro de outros ifs.
+
+ATIVIDADE 11 - FUNÇÕES
+
+calculateEndTime não depende de variável externa e formatService devolve uma nova string sem alterar o objeto recebido. As duas são simples de testar. calculateEndTime é um pouco mais direta porque recebe e devolve apenas números.
+
+ATIVIDADE 12 - CLOSURES E ESTADO
+
+A função createSequence mantém o valor atual guardado no escopo em que foi criada. Quando o processo do Node.js é encerrado, esse estado é perdido. Duas instâncias do backend também não compartilham o contador, pois cada processo possui sua própria memória.
+
+ATIVIDADE 13 - ARRAYS
+
+Foram usados filter, map, some e reduce para trabalhar com os serviços. A paginação calcula a posição inicial da página e usa slice para devolver somente os itens solicitados. O teste foi feito com 25 itens.
+
+ATIVIDADE 14 - OBJETOS
+
+O destructuring foi usado para retirar name e price. O spread criou um novo objeto com outro preço, sem mudar o original. A propriedade internalNote foi retirada com rest antes de montar o objeto público.
+
+ATIVIDADE 15 - JSON
+
+O objeto com serviço e profissional foi convertido com JSON.stringify. O JSON inválido foi tratado com try/catch. Funções e undefined não fazem parte dos tipos aceitos pelo formato JSON, por isso normalmente são ignorados em objetos durante a conversão.
+
+ATIVIDADE 16 - ES MODULES
+
+math.js exporta as funções sum e subtract. atividades.js importa essas funções e também usa node:path para identificar a extensão de um caminho. A validação de serviços ficou em um módulo separado da regra de cadastro.
+
+ATIVIDADE 17 - TRATAMENTO DE ERROS
+
+validatePrice lança um Error quando o preço é negativo ou não é um número finito. O erro é capturado e transformado em uma mensagem compreensível. Um erro de programação, como acessar uma variável que não existe, não deve ser ignorado silenciosamente, pois precisa ser identificado e corrigido.
+
+ATIVIDADE 18 - ASYNC/AWAIT
+
+O arquivo services.json é lido com node:fs/promises. Existe tratamento para arquivo inexistente e uma função async que espera Promise.resolve(42) e devolve 84.
+
+ATIVIDADE 19 - PROCESSO E CONFIGURAÇÃO
+
+O script recebe name e durationMinutes por process.argv e lê APP_ENV de process.env, usando development como padrão. process.env.PORT é string porque variáveis de ambiente são recebidas como texto pelo sistema operacional. Para usar a porta como número é necessário convertê-la com Number.
+
+ATIVIDADE 20 - CLEAN CODE
+
+Os nomes saleValue e commissionPercentage deixam claro o cálculo realizado. A validação de duração foi extraída para validatePositiveDuration e pode ser reutilizada. Em vez de escrever um comentário repetindo que o serviço está ativo, foi usado o nome activeServiceName.
+
+ATIVIDADE 21 - VALIDAÇÃO
+
+O formato de name, price e durationMinutes é verificado em service-validator.js. A duplicidade de nome é verificada em service-service.js, porque depende dos serviços já cadastrados e é uma regra de negócio. Cinco entradas inválidas foram testadas em atividades.js.
+
+ATIVIDADE 23 - MINIPROJETO
+
+O catálogo está em src/modules/services. Ele cadastra, lista, desativa, busca, ordena e calcula a média dos serviços ativos. O app.js cria oito serviços e provoca três erros de propósito. O array fica protegido dentro do repositório e não é acessado diretamente pelo app.js.
+
+ATIVIDADES 26.1 E 26.2 - DIAGNÓSTICO E REFATORAÇÃO
+
+ATIVIDADE 26.1 - PROBLEMAS ENCONTRADOS
+
+1. Uso de var
+Trecho: var x = []; var contador = 1;
+Problema: var possui escopo de função e permite redeclaração, o que pode causar confusão.
+Correção: usar const para referências que não mudam e let somente quando houver reatribuição.
+
+2. Nomes pouco claros
+Trecho: x, a, b, c, obj e fazer.
+Problema: esses nomes não mostram o que cada valor representa.
+Correção: usar nomes como services, name, durationMinutes, price, service e createService.
+
+3. Estado global mutável
+Trecho: var x = [];
+Problema: qualquer parte do arquivo pode alterar diretamente a lista de serviços.
+Correção: manter o array dentro do repositório e permitir acesso somente por funções.
+
+4. Comparações com coerção de tipo
+Trecho: a == undefined, x[i].id == id e servico != null.
+Problema: == e != convertem tipos automaticamente e podem aceitar valores inesperados.
+Correção: converter os dados na entrada e utilizar === ou !==.
+
+5. Validações muito aninhadas
+Trecho: if dentro de else, seguido de outro if dentro de else.
+Problema: o excesso de níveis deixa a leitura mais difícil.
+Correção: validar uma condição por vez e lançar o erro assim que um dado inválido for encontrado.
+
+6. Duração sem conversão e validação correta
+Trecho: fazer("Consulta", "45", 150).
+Problema: a duração "45" continua como string. O código também aceita duração negativa, pois verifica apenas se b está vazio.
+Correção: converter com Number e exigir um número inteiro maior que zero.
+
+7. Preço validado apenas como negativo
+Trecho: if (c < 0).
+Problema: valores como "abc", null ou undefined não são tratados corretamente.
+Correção: converter o valor e verificar com Number.isFinite, além de impedir preço negativo.
+
+8. Estado ativo representado por texto
+Trecho: ativo: "sim" e ativo = "nao".
+Problema: existem várias formas de escrever o mesmo estado e isso aumenta a chance de erro.
+Correção: usar boolean, com active: true ou active: false.
+
+9. Serviços duplicados
+Trecho: fazer("Consulta", ...) e fazer("consulta", ...).
+Problema: o cadastro não verifica se já existe um serviço com o mesmo nome.
+Correção: normalizar o nome e impedir duplicidade ignorando maiúsculas e minúsculas.
+
+10. Retorno direto do array interno
+Trecho: return x;
+Problema: quem recebe o array pode alterar os dados do repositório sem usar as funções corretas.
+Correção: retornar um novo array com cópias dos objetos.
+
+11. Tratamento de erros insuficiente
+Trecho: console.log("erro"), console.log("deu erro") e catch (e) { }.
+Problema: as mensagens não explicam a falha e o catch vazio esconde o erro.
+Correção: lançar Error com uma mensagem específica e tratar somente onde for possível apresentar ou resolver a falha.
+
+12. Responsabilidades concentradas no mesmo arquivo
+Trecho: fazer valida, cria e salva, enquanto app.js também contém busca, listagem, configuração e execução.
+Problema: o código fica difícil de testar e manter.
+Correção: separar validação, regra de cadastro, repositório e entrada da aplicação.
+
+ATIVIDADE 26.2 - REFATORAÇÃO
+
+Estrutura utilizada:
+
+src/
+|-- app.js
+`-- modules/
+    `-- services/
+        |-- service-validator.js
+        |-- service-repository.js
+        `-- service-service.js
+
+PRINCIPAIS TRECHOS ANTES E DEPOIS
+
+1. Validação de nome
+
+Antes:
+if (a == undefined || a == "") {
+  console.log("erro");
+  return;
+}
+
+Depois:
+if (typeof input.name !== "string") {
+  throw new Error("O nome deve ser um texto");
+}
+
+const name = normalizeName(input.name);
+
+if (!name) {
+  throw new Error("O nome do serviço é obrigatório");
+}
+
+Justificativa: a entrada é validada no início e o erro informa exatamente o problema.
+
+2. Criação do serviço
+
+Antes:
+var obj = {
+  id: contador,
+  nome: a,
+  duracao: b,
+  preco: c,
+  ativo: "sim"
+};
+
+Depois:
+const service = {
+  id: randomUUID(),
+  ...data,
+  active: true,
+  createdAt: new Date().toISOString(),
+};
+
+Justificativa: os nomes ficaram claros, o estado ativo virou boolean e o ID não depende de contador global.
+
+3. Busca por nome
+
+Antes:
+for (var i = 0; i < x.length; i++) {
+  if (x[i].nome.toLowerCase() == n.toLowerCase()) {
+    achou = x[i];
+  }
+}
+
+Depois:
+const service = services.find(
+  (item) => item.name.toLocaleLowerCase("pt-BR") === normalizedName,
+);
+
+Justificativa: find mostra melhor a intenção e encerra a busca quando encontra o primeiro item.
+
+4. Listagem
+
+Antes:
+function listar() {
+  return x;
+}
+
+Depois:
+export function findAll() {
+  return services.map((service) => ({ ...service }));
+}
+
+Justificativa: a cópia impede que o código externo altere diretamente o array e seus objetos.
+
+5. Organização
+
+Antes:
+Todas as funções e o array estavam dentro de app.js.
+
+Depois:
+service-validator.js valida e normaliza os dados.
+service-repository.js guarda e consulta os serviços.
+service-service.js aplica as regras do cadastro.
+app.js executa os casos de uso e apresenta os resultados.
+
+Justificativa: cada arquivo ficou com uma responsabilidade fácil de explicar e testar.
+
+RESULTADO
+
+A versão refatorada converte os dados de entrada, impede nomes duplicados, usa boolean para o estado, protege o array do repositório e trata os erros com mensagens específicas. As responsabilidades também foram separadas em arquivos pequenos.
+
+ATIVIDADE 26.3 - AGENDAMENTOS
+
+A função scheduleAppointment foi criada no módulo de agendamentos. Ela valida os dados e impede a sobreposição de horários do mesmo profissional.
+
+A regra de conflito deve ficar no serviço, porque é uma decisão do sistema. O repositório deve apenas guardar e consultar os dados. Com duas requisições simultâneas, somente a memória não garante que ambas enxerguem o mesmo estado no momento certo. Quando o PostgreSQL for usado, o repositório e o controle de concorrência deverão mudar, mas a regra principal pode continuar no serviço.
