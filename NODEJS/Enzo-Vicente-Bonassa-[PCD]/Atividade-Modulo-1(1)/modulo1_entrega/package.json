@@ -1,0 +1,13 @@
+{
+  "name": "node-profissional-modulo1",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "exercicios": "node exercicios/app.js",
+    "cli": "node exercicios/cli.js",
+    "atividade26": "node atividade26/refatorado/src/app.js"
+  }
+}
