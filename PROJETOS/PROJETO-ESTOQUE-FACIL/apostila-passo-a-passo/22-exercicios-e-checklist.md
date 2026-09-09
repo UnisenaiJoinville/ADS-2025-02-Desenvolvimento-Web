@@ -1,15 +1,15 @@
-# Aula 22 — Exercícios e checklist
+# Etapa 22 — Exercícios e checklist
 
-📋 **Tipo:** material de fixação e avaliação
+📋 **Tipo:** exercícios e checklist de revisão
 
 ---
 
 ## Como usar
 
-- **Nível 1** — para fazer em sala, logo após o projeto
-- **Nível 2** — trabalho para casa ou em dupla
-- **Nível 3** — projeto final ou trabalho de conclusão do módulo
-- **Diagnóstico** — avaliação individual, no formato da Atividade 26.1
+- **Nível 1** — fixação, logo após concluir o projeto
+- **Nível 2** — evoluções que exigem mexer em várias camadas
+- **Nível 3** — extensões maiores, no nível de um projeto próprio
+- **Diagnóstico** — leitura crítica de um código cheio de problemas
 
 ---
 
@@ -82,7 +82,7 @@ Mostre o **preço médio de venda** dos produtos ativos.
 
 Troque o `window.confirm` da exclusão por um modal no padrão visual do sistema.
 
-**Dica:** reaproveite a estrutura do modal de produtos (Aula 17), com um texto e dois botões.
+**Dica:** reaproveite a estrutura do modal de produtos (Etapa 17), com um texto e dois botões.
 
 ---
 
@@ -94,7 +94,7 @@ Em vez de apagar o produto, marque `active = false`.
 
 **Perguntas para discutir antes de codificar:**
 
-1. O que acontece hoje com as movimentações quando apagamos um produto? (releia o `ON DELETE CASCADE` da Aula 06)
+1. O que acontece hoje com as movimentações quando apagamos um produto? (releia o `ON DELETE CASCADE` da Etapa 06)
 2. Isso é aceitável em um sistema que precisa de auditoria?
 3. Se o produto for só desativado, ele deve aparecer na listagem? E no dashboard?
 
@@ -126,8 +126,8 @@ Implemente `?page=1&perPage=20` na listagem de produtos.
 
 - SQL: `LIMIT ? OFFSET ?`, onde `offset = (page - 1) * perPage`
 - Faça uma segunda consulta com `COUNT(*)` para o total
-- Use `Promise.all` para as duas consultas (Aula 14!)
-- Limite o `perPage` a um máximo (Aula 13!)
+- Use `Promise.all` para as duas consultas (Etapa 14!)
+- Limite o `perPage` a um máximo (Etapa 13!)
 
 ⚠️ **Atenção:** isso **quebra** o front-end, que hoje espera um array. Você terá que ajustar o `produtos.js`.
 
@@ -237,13 +237,13 @@ Adicione um gráfico de barras com entradas e saídas dos últimos 7 dias.
 
 - SQL: `GROUP BY DATE(created_at)` com `WHERE created_at >= CURRENT_DATE - INTERVAL 7 DAY`
 - ⚠️ Dias sem movimentação **não aparecem** no resultado — preencha os buracos no JavaScript
-- Você pode fazer com `div` e Tailwind, como as barras da Aula 16
+- Você pode fazer com `div` e Tailwind, como as barras da Etapa 16
 
 ---
 
 # Exercício de diagnóstico
 
-> No formato da **Atividade 26.1** do Módulo 1.
+> Leitura crítica: encontre os problemas antes de abrir o gabarito.
 
 O código abaixo foi escrito por um "colega". Ele **funciona**, mas tem pelo menos **10 problemas**.
 
@@ -274,7 +274,7 @@ export async function store(req, res) {
 ```
 
 <details>
-<summary>📝 Gabarito sugerido (para o professor)</summary>
+<summary>📝 Gabarito sugerido</summary>
 
 | # | Problema | Por quê | Correção |
 |---|---|---|---|
@@ -366,7 +366,7 @@ Use como roteiro de revisão ou como base para a prova.
 - [ ] **Transações: `BEGIN`, `COMMIT`, `ROLLBACK`**
 - [ ] `SELECT ... FOR UPDATE` contra race condition
 
-## JavaScript (Módulo 1 aplicado)
+## JavaScript aplicado
 
 - [ ] `const` como padrão, `let` só quando necessário
 - [ ] Comparação estrita (`===`)
@@ -400,16 +400,11 @@ Use como roteiro de revisão ou como base para a prova.
 
 ---
 
-# 🎯 Sugestão de avaliação
+# 🎯 Autoavaliação
 
-| Instrumento | Peso | O que avalia |
-|---|---|---|
-| Projeto funcionando (checklist da Aula 20) | 40% | Execução |
-| Exercício de diagnóstico | 20% | Análise crítica |
-| Dois exercícios de Nível 1 | 20% | Aplicação |
-| Um exercício de Nível 2 | 20% | Autonomia |
+Se você consegue responder às perguntas abaixo sem consultar o código, dominou o projeto.
 
-### Perguntas para arguição oral
+### Perguntas de revisão
 
 1. Explique o caminho de uma requisição, do clique até o banco.
 2. Por que o repository não decide regra de negócio?
@@ -438,9 +433,9 @@ Use como roteiro de revisão ou como base para a prova.
 
 ## 🏆 Encerramento
 
-Você começou o Módulo 1 com um array em memória que se perdia ao fechar o programa.
+Você começou com um array em memória que se perdia ao fechar o programa.
 
-Termina o Módulo 2 com uma aplicação que:
+Termina com uma aplicação que:
 
 - guarda dados em um banco relacional em container;
 - expõe uma API REST organizada em camadas;

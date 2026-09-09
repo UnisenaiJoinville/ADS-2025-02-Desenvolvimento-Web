@@ -1,19 +1,18 @@
-# Aula 12 — CRUD de Produtos
+# Etapa 12 — CRUD de Produtos
 
-⏱️ **Tempo estimado:** 50 minutos
 📋 **Tipo:** prática (código JavaScript)
 
 ---
 
 ## Objetivo
 
-Construir o módulo de produtos: **o mesmo padrão** da aula anterior, agora com mais campos, mais validações e **filtros de busca**.
+Construir o módulo de produtos: **o mesmo padrão** da etapa anterior, agora com mais campos, mais validações e **filtros de busca**.
 
 ---
 
 ## Antes de começar
 
-- [ ] Aula 11 concluída (CRUD de categorias funcionando)
+- [ ] Etapa 11 concluída (CRUD de categorias funcionando)
 
 ---
 
@@ -118,10 +117,10 @@ Salve.
 
 ### 🧩 Funções auxiliares em vez de `if` repetido
 
-Compare com o código problemático do Módulo 1:
+Compare com a abordagem problemática:
 
 ```javascript
-// ❌ Módulo 1: if dentro de if dentro de if
+// ❌ Abordagem problemática: if dentro de if dentro de if
 if (a == undefined || a == "") {
   console.log("erro");
 } else {
@@ -680,7 +679,7 @@ Boolean("false")   // true  😱 !!!
 
 Se escrevêssemos `Boolean(lowStock)`, o filtro ficaria ligado mesmo com `?lowStock=false`.
 
-> 📌 Este é exatamente o tipo de bug de coerção que estudamos no Módulo 1. A solução é sempre a mesma: **comparação estrita e conversão explícita**.
+> 📌 Este é exatamente o tipo clássico de bug de coerção. A solução é sempre a mesma: **comparação estrita e conversão explícita**.
 
 ---
 
@@ -849,6 +848,6 @@ curl -i -X DELETE http://localhost:3000/api/products/8
 
 ## ➡️ Próximo passo
 
-Agora vem a aula mais importante do curso: fazer o estoque somar e subtrair **com segurança**.
+Agora vem a etapa mais importante do projeto: fazer o estoque somar e subtrair **com segurança**.
 
-**[Aula 13 — Movimentações e Transações](13-movimentacoes-transacoes.md)** ⭐
+**[Etapa 13 — Movimentações e Transações](13-movimentacoes-transacoes.md)** ⭐

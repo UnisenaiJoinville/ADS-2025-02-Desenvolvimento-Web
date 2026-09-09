@@ -1,6 +1,5 @@
-# Aula 07 — Configuração da aplicação
+# Etapa 07 — Configuração da aplicação
 
-⏱️ **Tempo estimado:** 25 minutos
 📋 **Tipo:** prática (código JavaScript)
 
 ---
@@ -16,7 +15,7 @@ Escrever os dois primeiros arquivos JavaScript do projeto:
 
 ## Antes de começar
 
-- [ ] Aula 06 concluída (`database/init.sql` criado)
+- [ ] Etapa 06 concluída (`database/init.sql` criado)
 
 ---
 
@@ -68,7 +67,7 @@ Salve.
 
 ### O problema que ele resolve
 
-No Módulo 1 vimos este código problemático:
+Veja este código problemático:
 
 ```javascript
 var porta = process.env.PORT || 3000;
@@ -313,7 +312,7 @@ export async function connectWithRetry(attempts = 10, delayMs = 3000) {
 Porque é uma **segunda camada de proteção**. O healthcheck cobre a subida normal; o retry cobre casos como:
 
 - o banco reiniciar sozinho enquanto a API está no ar;
-- a máquina do aluno estar muito lenta;
+- a máquina estar muito lenta;
 - alguém rodar a API fora do Compose.
 
 **Como funciona:** tenta pegar uma conexão. Se falhar, avisa no console, **espera 3 segundos** e tenta de novo, até 10 vezes. Só então desiste.
@@ -339,7 +338,7 @@ Pegamos uma conexão só para testar e **devolvemos imediatamente**.
 
 > ⚠️ **Regra de ouro do pool:** toda conexão pega com `getConnection()` **precisa** ser devolvida com `release()`. Se você esquecer, ela fica presa para sempre. Depois de 10 esquecimentos, a aplicação trava por completo.
 >
-> Vamos ver esse cuidado de novo, com o `finally`, na Aula 13.
+> Vamos ver esse cuidado de novo, com o `finally`, na Etapa 13.
 
 ---
 
@@ -363,7 +362,7 @@ Marque:
 - [ ] Todos os imports terminam com `.js` (ex.: `"./env.js"`)
 - [ ] O VS Code não mostra erros vermelhos
 
-> ⚠️ **Ainda não dá para testar.** Estes arquivos não fazem nada sozinhos — são bibliotecas. Vamos usá-los na Aula 09.
+> ⚠️ **Ainda não dá para testar.** Estes arquivos não fazem nada sozinhos — são bibliotecas. Vamos usá-los na Etapa 09.
 
 ---
 
@@ -372,7 +371,7 @@ Marque:
 | Erro | Causa | Solução |
 |---|---|---|
 | `Cannot find module './env'` | Faltou a extensão | Em ES Modules o `.js` é **obrigatório**: `"./env.js"` |
-| `Cannot use import statement` | Faltou `"type": "module"` | Confira o `package.json` da Aula 02 |
+| `Cannot use import statement` | Faltou `"type": "module"` | Confira o `package.json` da Etapa 02 |
 | VS Code sublinha `mysql2` | A dependência não está instalada localmente | **É normal!** Ela será instalada dentro do container |
 | `env is not defined` | Erro de digitação no import | Use `import { env } from "./env.js";` com chaves |
 
@@ -384,4 +383,4 @@ Marque:
 
 Configuração pronta. Vamos criar a base de tratamento de erros.
 
-**[Aula 08 — Tratamento de erros](08-tratamento-de-erros.md)**
+**[Etapa 08 — Tratamento de erros](08-tratamento-de-erros.md)**

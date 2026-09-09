@@ -1,6 +1,5 @@
-# Aula 15 — Base do front-end
+# Etapa 15 — Base do front-end
 
-⏱️ **Tempo estimado:** 30 minutos
 📋 **Tipo:** prática (JavaScript do navegador)
 
 ---
@@ -18,7 +17,7 @@ E entender como o Tailwind CSS entra no projeto.
 
 ## Antes de começar
 
-- [ ] Aula 14 concluída (API completa, `/api/dashboard` respondendo)
+- [ ] Etapa 14 concluída (API completa, `/api/dashboard` respondendo)
 
 ---
 
@@ -220,7 +219,7 @@ if (!response.ok) {
 | 200, 201, 204 | `true` |
 | 400, 404, 409, 500 | `false` |
 
-E como nosso backend **sempre** responde `{ "error": "mensagem" }` (lembra do `errorHandler` da Aula 08?), a mensagem real chega até a tela do usuário.
+E como nosso backend **sempre** responde `{ "error": "mensagem" }` (lembra do `errorHandler` da Etapa 08?), a mensagem real chega até a tela do usuário.
 
 > 🎯 **Repare no encaixe:** o backend padroniza a resposta de erro, e o front-end padroniza a leitura dela. Um combinado com o outro.
 
@@ -234,7 +233,7 @@ if (response.status === 204) {
 
 Nosso `DELETE` responde 204 (No Content). Se tentássemos `.json()` numa resposta vazia, daria erro de parse.
 
-> 📌 Aqui você vê por que os detalhes do backend importam: a decisão da Aula 11 (`response.status(204).send()`) tem consequência direta aqui.
+> 📌 Aqui você vê por que os detalhes do backend importam: a decisão da Etapa 11 (`response.status(204).send()`) tem consequência direta aqui.
 
 ### O `.catch(() => ({}))`
 
@@ -453,7 +452,7 @@ container.innerHTML = `<td>${escapeHtml(product.name)}</td>`;
 
 Isso se chama **XSS** (*Cross-Site Scripting*). Em um sistema real, um atacante usaria isso para roubar a sessão de quem abrisse a tela.
 
-> 🎯 **O paralelo que fecha o curso:**
+> 🎯 **O paralelo que fecha o projeto:**
 >
 > | Camada | Ameaça | Proteção |
 > |---|---|---|
@@ -582,4 +581,4 @@ Você deve ver o objeto do dashboard. Se aparecer, os arquivos estão sendo serv
 
 Base pronta. Vamos montar a primeira tela: o dashboard com os cards.
 
-**[Aula 16 — Tela do Dashboard](16-front-dashboard.md)**
+**[Etapa 16 — Tela do Dashboard](16-front-dashboard.md)**

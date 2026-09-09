@@ -1,6 +1,5 @@
-# Aula 01 — Preparando o ambiente
+# Etapa 01 — Preparando o ambiente
 
-⏱️ **Tempo estimado:** 20 minutos
 📋 **Tipo:** prática (terminal)
 
 ---
@@ -9,7 +8,7 @@
 
 Confirmar que o Node.js e o Docker estão instalados e funcionando. Ao final, os quatro comandos de verificação devem responder sem erro.
 
-> ⚠️ **Não pule esta aula.** 90% dos problemas nas aulas seguintes vêm de ambiente mal preparado.
+> ⚠️ **Não pule esta etapa.** 90% dos problemas nas etapas seguintes vêm de ambiente mal preparado.
 
 ---
 
@@ -38,7 +37,7 @@ Use o **Git Bash** (instalado junto com o Git). Para abrir:
 2. Digite `Git Bash`
 3. Aperte **Enter**
 
-> **Por que Git Bash e não o Prompt de Comando?** Os comandos desta apostila (`mkdir -p`, `cp`, `curl`) são do padrão Unix. No Git Bash eles funcionam igual ao Mac e Linux, então a apostila serve para a turma inteira.
+> **Por que Git Bash e não o Prompt de Comando?** Os comandos desta apostila (`mkdir -p`, `cp`, `curl`) são do padrão Unix. No Git Bash eles funcionam igual ao Mac e Linux, então os comandos funcionam igual em qualquer sistema.
 
 ### No Mac ou Linux
 
@@ -125,7 +124,7 @@ Docker Compose version v2.31.0-desktop.2
 
 ### ⚠️ Se aparecer "Cannot connect to the Docker daemon"
 
-Este é **o erro mais comum do curso inteiro**. Ele significa uma coisa só: **o Docker Desktop não está aberto**.
+Este é **o erro mais comum do projeto inteiro**. Ele significa uma coisa só: **o Docker Desktop não está aberto**.
 
 Volte ao Passo 3, abra o programa, espere a baleia parar e teste de novo.
 
@@ -161,18 +160,18 @@ Se você viu **"Hello from Docker!"**, está tudo certo. 🎉
 
 ## Entendendo o que fizemos
 
-### Por que usar Docker nesta disciplina?
+### Por que usar Docker neste projeto?
 
-Imagine a aula **sem** Docker. Cada aluno teria que:
+Imagine este projeto **sem** Docker. Cada pessoa teria que:
 
 1. Baixar e instalar o MySQL
 2. Configurar usuário e senha
 3. Criar o banco na mão
-4. Torcer para a versão ser a mesma da do professor
+4. Torcer para a versão ser a mesma usada no restante do projeto
 
-Resultado: metade da aula vira suporte técnico.
+Resultado: boa parte do tempo vira suporte técnico.
 
-**Com Docker**, um único comando sobe o banco já configurado, **idêntico** para todo mundo. E, ao terminar o curso, outro comando remove tudo sem deixar sujeira na máquina.
+**Com Docker**, um único comando sobe o banco já configurado, **idêntico** para todo mundo. E, ao terminar o projeto, outro comando remove tudo sem deixar sujeira na máquina.
 
 ### Os três conceitos que você vai usar sempre
 
@@ -182,7 +181,7 @@ Resultado: metade da aula vira suporte técnico.
 | **Container** | Uma instância em execução de uma imagem | O bolo assado |
 | **Volume** | Um espaço em disco que sobrevive à morte do container | O congelador, que continua cheio mesmo depois de você lavar a forma |
 
-Guarde esta frase, ela vai fazer sentido total na Aula 20:
+Guarde esta frase, ela vai fazer sentido total na Etapa 20:
 
 > **Container é descartável. Volume é onde a informação vive.**
 
@@ -220,4 +219,4 @@ Marque cada item antes de seguir:
 
 Ambiente pronto. Vamos criar a pasta do projeto.
 
-**[Aula 02 — Criando o projeto](02-criando-o-projeto.md)**
+**[Etapa 02 — Criando o projeto](02-criando-o-projeto.md)**

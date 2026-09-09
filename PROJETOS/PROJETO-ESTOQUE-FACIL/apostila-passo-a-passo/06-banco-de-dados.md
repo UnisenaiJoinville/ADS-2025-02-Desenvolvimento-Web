@@ -1,6 +1,5 @@
-# Aula 06 — Banco de dados
+# Etapa 06 — Banco de dados
 
-⏱️ **Tempo estimado:** 30 minutos
 📋 **Tipo:** prática (VS Code) + teoria de modelagem
 
 ---
@@ -13,7 +12,7 @@ Criar o arquivo `database/init.sql` com as três tabelas do sistema e alguns dad
 
 ## Antes de começar
 
-- [ ] Aula 05 concluída (`docker-compose.yml` criado)
+- [ ] Etapa 05 concluída (`docker-compose.yml` criado)
 
 ---
 
@@ -193,7 +192,7 @@ type ENUM('IN', 'OUT') NOT NULL
 
 Esta coluna aceita **exatamente** dois valores: `'IN'` (entrada) ou `'OUT'` (saída). Qualquer outra coisa é rejeitada pelo banco.
 
-Lembra do problema do Módulo 1?
+Lembra do problema de guardar esse dado como texto livre?
 
 ```javascript
 ativo: "sim"   // e se alguém escrever "Sim"? "S"? "yes"? "1"?
@@ -210,7 +209,7 @@ Repare que usamos comportamentos **diferentes** nas duas tabelas. Não é por ac
 | Apagar uma **categoria** | `ON DELETE SET NULL` | Perder a categoria não deve fazer você perder os produtos! Eles apenas ficam "sem categoria" |
 | Apagar um **produto** | `ON DELETE CASCADE` | O histórico de um produto que não existe mais não serve para nada — some junto |
 
-> 💭 **Pergunta para a turma:** e se quiséssemos manter o histórico mesmo após apagar o produto? Aí a solução seria não apagar o produto de verdade, e sim marcá-lo como `active = false`. Isso se chama *soft delete* e está nos exercícios da Aula 22.
+> 💭 **Para pensar:** e se quiséssemos manter o histórico mesmo após apagar o produto? Aí a solução seria não apagar o produto de verdade, e sim marcá-lo como `active = false`. Isso se chama *soft delete* e está nos exercícios da Etapa 22.
 
 ---
 
@@ -252,7 +251,7 @@ Sem dados, todas as telas nascem vazias e fica difícil testar. Vamos plantar um
 
 ```sql
 -- ------------------------------------------------------------
--- Dados de exemplo para a aula
+-- Dados de exemplo
 -- ------------------------------------------------------------
 
 INSERT INTO categories (name) VALUES
@@ -302,7 +301,7 @@ Os números não são aleatórios — foram escolhidos para produzir situações
 
 Assim, o card de alerta do dashboard já nasce mostrando 3 produtos — e a tela fica interessante desde o primeiro dia.
 
-> ⚠️ **Sem acentos nos dados!** Escrevemos "Cafe" e "Informatica" de propósito. Isso evita qualquer problema de codificação de caracteres entre o arquivo, o container e o navegador. Em um projeto real, você configuraria `utf8mb4` com cuidado; em sala, simplificamos.
+> ⚠️ **Sem acentos nos dados!** Escrevemos "Cafe" e "Informatica" de propósito. Isso evita qualquer problema de codificação de caracteres entre o arquivo, o container e o navegador. Em um projeto real, você configuraria `utf8mb4` com cuidado; aqui, simplificamos.
 
 ---
 
@@ -343,7 +342,7 @@ docker compose down -v
 docker compose up -d
 ```
 
-> Guarde esse comando. Você vai precisar dele na Aula 10 se algo sair errado.
+> Guarde esse comando. Você vai precisar dele na Etapa 10 se algo sair errado.
 
 ---
 
@@ -374,7 +373,7 @@ Marque:
 | Esqueci o `;` no final de um comando | — | Cada comando precisa terminar com `;` |
 | O nome ficou `init.sql.txt` | Extensão oculta do Windows | Renomeie no VS Code |
 
-> 💡 Erros neste arquivo só aparecem na Aula 10, quando o banco subir. Se lá as tabelas não existirem, volte aqui e confira com calma.
+> 💡 Erros neste arquivo só aparecem na Etapa 10, quando o banco subir. Se lá as tabelas não existirem, volte aqui e confira com calma.
 
 ---
 
@@ -382,4 +381,4 @@ Marque:
 
 Banco modelado. Vamos escrever o código que lê o `.env` e conecta no MySQL.
 
-**[Aula 07 — Configuração da aplicação](07-configuracao-da-aplicacao.md)**
+**[Etapa 07 — Configuração da aplicação](07-configuracao-da-aplicacao.md)**

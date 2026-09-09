@@ -1,6 +1,5 @@
-# Aula 05 — Docker Compose
+# Etapa 05 — Docker Compose
 
-⏱️ **Tempo estimado:** 30 minutos
 📋 **Tipo:** prática (VS Code)
 
 ---
@@ -13,7 +12,7 @@ Escrever o `docker-compose.yml`, o arquivo que faz **dois containers** (API e ba
 
 ## Antes de começar
 
-- [ ] Aula 04 concluída (`Dockerfile` criado)
+- [ ] Etapa 04 concluída (`Dockerfile` criado)
 
 ---
 
@@ -58,7 +57,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       # host:container - usamos 3308 no host para nao conflitar
-      # com um MySQL ja instalado na maquina do aluno
+      # com um MySQL ja instalado na maquina
       - "${DB_HOST_PORT:-3308}:3306"
     volumes:
       - estoque-db-data:/var/lib/mysql
@@ -109,7 +108,7 @@ volumes:         # os espaços de disco permanentes
   estoque-db-data:
 ```
 
-> 📌 O nome de cada serviço (`db`, `api`) vira o **nome de host** dele dentro da rede do Docker. Lembra do `DB_HOST=db` da Aula 03? É por causa desta linha.
+> 📌 O nome de cada serviço (`db`, `api`) vira o **nome de host** dele dentro da rede do Docker. Lembra do `DB_HOST=db` da Etapa 03? É por causa desta linha.
 
 ---
 
@@ -212,9 +211,9 @@ São **dois tipos diferentes** de volume:
 
 Liga a pasta `database` do seu projeto a uma pasta **especial** da imagem do MySQL.
 
-> 🪄 **A mágica:** todo arquivo `.sql` colocado em `/docker-entrypoint-initdb.d` é executado **automaticamente** na primeira criação do banco. É assim que nossas tabelas vão nascer prontas na Aula 06.
+> 🪄 **A mágica:** todo arquivo `.sql` colocado em `/docker-entrypoint-initdb.d` é executado **automaticamente** na primeira criação do banco. É assim que nossas tabelas vão nascer prontas na Etapa 06.
 
-⚠️ **Repare no "primeira":** se o volume já existir com dados, o script **não** roda de novo. Isso explica um erro clássico que veremos na Aula 10.
+⚠️ **Repare no "primeira":** se o volume já existir com dados, o script **não** roda de novo. Isso explica um erro clássico que veremos na Etapa 10.
 
 ### `healthcheck`
 
@@ -258,7 +257,7 @@ env_file:
   - .env
 ```
 
-Entrega **todas** as variáveis do `.env` para dentro do container. É assim que o `src/config/env.js` (Aula 07) vai encontrá-las em `process.env`.
+Entrega **todas** as variáveis do `.env` para dentro do container. É assim que o `src/config/env.js` (Etapa 07) vai encontrá-las em `process.env`.
 
 ### `ports: "3000:3000"`
 
@@ -379,7 +378,7 @@ Marque:
 - [ ] `docker compose config` não mostrou erro
 - [ ] As variáveis apareceram substituídas pelos valores reais
 
-> ⚠️ **Ainda não rode `docker compose up`!** Falta criar o `init.sql` (Aula 06) e o código da aplicação (Aulas 07-09). Subir agora daria erro.
+> ⚠️ **Ainda não rode `docker compose up`!** Falta criar o `init.sql` (Etapa 06) e o código da aplicação (Etapas 07-09). Subir agora daria erro.
 
 ---
 
@@ -390,7 +389,7 @@ Marque:
 | `yaml: line X: did not find expected key` | Indentação errada | Confira os espaços; **nunca use Tab** |
 | `mapping values are not allowed` | Faltou espaço depois dos dois-pontos | Use `image: mysql:8.0`, não `image:mysql:8.0` |
 | `variable is not set` | Variável faltando no `.env` | Confira se o `.env` existe e tem as 8 variáveis |
-| `services must be a mapping` | Estrutura quebrada | Compare a indentação com o modelo desta aula |
+| `services must be a mapping` | Estrutura quebrada | Compare a indentação com o modelo desta etapa |
 | `no configuration file provided` | Nome errado do arquivo | Deve ser `docker-compose.yml`, na raiz |
 
 > 💡 **Dica para YAML:** instale a extensão **YAML** (da Red Hat) no VS Code. Ela sublinha erros de indentação enquanto você digita.
@@ -401,4 +400,4 @@ Marque:
 
 Containers orquestrados. Vamos modelar as tabelas do banco.
 
-**[Aula 06 — Banco de dados](06-banco-de-dados.md)**
+**[Etapa 06 — Banco de dados](06-banco-de-dados.md)**

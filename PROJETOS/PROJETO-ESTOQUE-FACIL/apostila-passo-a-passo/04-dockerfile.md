@@ -1,6 +1,5 @@
-# Aula 04 — Dockerfile
+# Etapa 04 — Dockerfile
 
-⏱️ **Tempo estimado:** 20 minutos
 📋 **Tipo:** prática (VS Code)
 
 ---
@@ -13,7 +12,7 @@ Escrever o `Dockerfile`, que é a **receita** para construir a imagem da nossa A
 
 ## Antes de começar
 
-- [ ] Aula 03 concluída (`.env` criado)
+- [ ] Etapa 03 concluída (`.env` criado)
 
 ---
 
@@ -151,7 +150,7 @@ Copia os arquivos de dependência da sua máquina para o container.
 | `package*.json` | O `*` é curinga: pega `package.json` **e** `package-lock.json` |
 | `./` | Destino: a pasta atual dentro do container (`/app`) |
 
-**Por que copiar só esses arquivos, e não o projeto inteiro?** Esta é a pergunta mais importante da aula. Veja a seguir.
+**Por que copiar só esses arquivos, e não o projeto inteiro?** Esta é a pergunta mais importante da etapa. Veja a seguir.
 
 ### `RUN npm install`
 
@@ -184,7 +183,7 @@ EXPOSE 3000
 
 **Documenta** que a aplicação usa a porta 3000.
 
-> ⚠️ **Atenção:** esta instrução **não** abre a porta de verdade. É só documentação para quem lê o arquivo. Quem realmente publica a porta é o `docker-compose.yml` (Aula 05).
+> ⚠️ **Atenção:** esta instrução **não** abre a porta de verdade. É só documentação para quem lê o arquivo. Quem realmente publica a porta é o `docker-compose.yml` (Etapa 05).
 
 ### `CMD ["npm", "run", "dev"]`
 
@@ -272,7 +271,7 @@ Marque:
 - [ ] O `COPY . .` vem **depois** do `RUN npm install`
 - [ ] O `.dockerignore` existe e lista `node_modules`
 
-> ⚠️ **Ainda não vamos construir a imagem.** Isso acontece na Aula 10, quando o Compose estiver pronto. Se você tentar `docker build` agora, vai funcionar, mas a API ainda não existe para ser executada.
+> ⚠️ **Ainda não vamos construir a imagem.** Isso acontece na Etapa 10, quando o Compose estiver pronto. Se você tentar `docker build` agora, vai funcionar, mas a API ainda não existe para ser executada.
 
 ---
 
@@ -290,4 +289,4 @@ Marque:
 
 Temos a receita da API. Agora vamos orquestrar API + banco juntos.
 
-**[Aula 05 — Docker Compose](05-docker-compose.md)**
+**[Etapa 05 — Docker Compose](05-docker-compose.md)**

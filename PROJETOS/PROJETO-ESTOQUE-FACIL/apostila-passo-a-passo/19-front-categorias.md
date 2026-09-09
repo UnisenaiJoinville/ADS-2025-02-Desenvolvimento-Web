@@ -1,6 +1,5 @@
-# Aula 19 — Tela de Categorias
+# Etapa 19 — Tela de Categorias
 
-⏱️ **Tempo estimado:** 30 minutos
 📋 **Tipo:** prática (HTML + JavaScript)
 
 ---
@@ -13,13 +12,13 @@ Criar a última tela do sistema. Ela é a **mais simples**, e por isso é uma bo
 
 ## Antes de começar
 
-- [ ] Aula 18 concluída (movimentações funcionando)
+- [ ] Etapa 18 concluída (movimentações funcionando)
 
 ---
 
 ## 🎯 Desafio: tente fazer sozinho primeiro
 
-Você já viu tudo o que precisa nas aulas 15 a 18. Antes de copiar o código, tente construir:
+Você já viu tudo o que precisa nas etapas 15 a 18. Antes de copiar o código, tente construir:
 
 **Requisitos:**
 
@@ -35,7 +34,7 @@ Você já viu tudo o que precisa nas aulas 15 a 18. Antes de copiar o código, t
 - Use **delegação de eventos** no container da tabela
 - Para mostrar/esconder o botão Cancelar, use `classList.add("hidden")` e `classList.remove("hidden")`
 
-> ⏰ Dê 15 minutos a você (ou à turma). Depois compare com a solução abaixo.
+> ⏰ Tente construir por conta própria antes de comparar com a solução abaixo.
 
 ---
 
@@ -325,7 +324,7 @@ function resetForm() {
 if (!window.confirm("Excluir esta categoria? Os produtos ficarao sem categoria.")) return;
 ```
 
-Repare que a mensagem **explica a consequência**. Lembra do `ON DELETE SET NULL` da Aula 06? A interface avisa exatamente o que o banco vai fazer.
+Repare que a mensagem **explica a consequência**. Lembra do `ON DELETE SET NULL` da Etapa 06? A interface avisa exatamente o que o banco vai fazer.
 
 > 💭 Compare com um genérico "Tem certeza?". Uma boa mensagem de confirmação diz **o que vai acontecer**, não só pergunta se você quer.
 
@@ -360,7 +359,7 @@ http://localhost:3000/categorias.html
 
 Os produtos **continuam lá**, agora com "Sem categoria". Nada foi perdido.
 
-> 🎯 Aqui você vê, na tela, a decisão de modelagem que tomamos lá na Aula 06.
+> 🎯 Aqui você vê, na tela, a decisão de modelagem que tomamos lá na Etapa 06.
 
 ---
 
@@ -420,4 +419,4 @@ E veja o menu funcionando, com o item da página atual sempre destacado.
 
 Sistema pronto. Vamos testar tudo junto, do começo ao fim.
 
-**[Aula 20 — Teste final](20-teste-final.md)** 🏁
+**[Etapa 20 — Teste final](20-teste-final.md)** 🏁

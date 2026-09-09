@@ -1,15 +1,14 @@
-# Aula 00 — Visão geral do projeto
+# Etapa 00 — Visão geral do projeto
 
-⏱️ **Tempo estimado:** 15 minutos
-📋 **Tipo:** teórica (nenhum código ainda)
+📋 **Tipo:** leitura (nenhum código ainda)
 
 ---
 
 ## Objetivo
 
-Ao final desta aula você vai saber **o que** vamos construir, **por que** cada peça existe e **como** as partes conversam entre si.
+Ao final desta etapa você vai saber **o que** vamos construir, **por que** cada peça existe e **como** as partes conversam entre si.
 
-Não escreva código ainda. Esta aula é para entender o mapa antes de começar a viagem.
+Não escreva código ainda. Esta etapa é para entender o mapa antes de começar a viagem.
 
 ---
 
@@ -34,7 +33,7 @@ Parece simples. Vamos ver que não é tão simples assim — e é aí que está 
 
 ## 2. Por que este projeto?
 
-No **Módulo 1**, guardamos dados em **memória**:
+Sem um banco de dados, os dados ficam apenas em **memória**:
 
 ```javascript
 const services = [];   // ao fechar o programa, tudo some
@@ -67,7 +66,7 @@ Vamos usar 5 tecnologias. Veja o papel de cada uma:
 
 ## 4. Como uma requisição percorre o sistema
 
-Este desenho é o mais importante do curso. Vamos voltar nele várias vezes.
+Este desenho é o mais importante do projeto. Vamos voltar nele várias vezes.
 
 ```text
     VOCÊ clica em "Salvar" no navegador
@@ -140,7 +139,7 @@ Leia assim:
 - Um **produto** pertence a uma **categoria** (ou a nenhuma).
 - Uma **movimentação** pertence a um **produto**.
 
-### O detalhe que gera a aula mais difícil
+### O detalhe que gera a etapa mais difícil
 
 Repare que existem **duas** informações sobre quantidade:
 
@@ -151,7 +150,7 @@ Repare que existem **duas** informações sobre quantidade:
 
 As duas precisam **sempre** bater. Se gravarmos a movimentação mas falharmos em atualizar o saldo, o sistema passa a mentir.
 
-Resolver isso é o assunto da [Aula 13](13-movimentacoes-transacoes.md), com um recurso chamado **transação**.
+Resolver isso é o assunto da [Etapa 13](13-movimentacoes-transacoes.md), com um recurso chamado **transação**.
 
 ---
 
@@ -199,7 +198,7 @@ modules/products/
 └── product-routes.js       <- define as URLs
 ```
 
-> **Boa notícia:** depois que você entender **um** módulo, os outros três seguem exatamente o mesmo padrão. Por isso começamos pelo mais simples (categorias) na Aula 11.
+> **Boa notícia:** depois que você entender **um** módulo, os outros três seguem exatamente o mesmo padrão. Por isso começamos pelo mais simples (categorias) na Etapa 11.
 
 ---
 
@@ -234,7 +233,7 @@ Marque mentalmente estes objetivos:
 
 ## ✅ Confira se você entendeu
 
-Antes de seguir, responda mentalmente (ou discuta com a turma):
+Antes de seguir, responda mentalmente:
 
 1. Qual camada escreve SQL?
 2. Se eu quiser mudar a mensagem de erro que o usuário vê, em qual camada eu mexo?
@@ -257,4 +256,4 @@ Antes de seguir, responda mentalmente (ou discuta com a turma):
 
 Agora que você tem o mapa, vamos preparar as ferramentas.
 
-**[Aula 01 — Preparando o ambiente](01-preparando-o-ambiente.md)**
+**[Etapa 01 — Preparando o ambiente](01-preparando-o-ambiente.md)**
