@@ -1,6 +1,5 @@
-# Aula 11 — CRUD de Categorias
+# Etapa 11 — CRUD de Categorias
 
-⏱️ **Tempo estimado:** 50 minutos
 📋 **Tipo:** prática (código JavaScript)
 
 ---
@@ -15,7 +14,7 @@ Este módulo é o mais simples de todos, e por isso é o modelo: os outros três
 
 ## Antes de começar
 
-- [ ] Aula 10 concluída (API respondendo em `http://localhost:3000/api/health`)
+- [ ] Etapa 10 concluída (API respondendo em `http://localhost:3000/api/health`)
 - [ ] Containers rodando (`docker compose ps` mostra os dois `Up`)
 
 ---
@@ -182,7 +181,7 @@ Salve.
 
 ---
 
-## 🚨 O ponto mais importante desta aula: SQL Injection
+## 🚨 O ponto mais importante desta etapa: SQL Injection
 
 Repare que **todos** os valores entram por `?`:
 
@@ -222,7 +221,7 @@ pool.query("SELECT * FROM categories WHERE name = ?", [name]);
 
 Com o `?`, o driver envia o **comando** e os **valores** separadamente. O banco monta a consulta sabendo que aquele valor é **dado**, jamais comando. O texto malicioso vira apenas... um nome esquisito de categoria.
 
-> ⚠️ **Regra absoluta do curso:** valor de variável em SQL entra **sempre** por `?`. Sem exceção. Nunca use crase, `+` ou template string para inserir valores.
+> ⚠️ **Regra absoluta:** valor de variável em SQL entra **sempre** por `?`. Sem exceção. Nunca use crase, `+` ou template string para inserir valores.
 
 ---
 
@@ -372,7 +371,7 @@ Compare as duas camadas:
 
 Repare: nenhuma menção a `request`, `response`, `status`. Ele apenas **lança erros**.
 
-Quem traduz `NotFoundError` em status 404 é o `errorHandler` da Aula 08.
+Quem traduz `NotFoundError` em status 404 é o `errorHandler` da Etapa 08.
 
 > 📌 **Vantagem:** esse mesmo service poderia ser usado por um script de linha de comando, por um job agendado ou por testes automatizados — sem nenhuma adaptação.
 
@@ -422,7 +421,7 @@ existing && existing.id !== Number(id)
 Number("5") !== 5   // false (correto) ✅
 ```
 
-> 📌 Este é exatamente o problema de coerção de tipos que estudamos no Módulo 1, aparecendo em um caso real.
+> 📌 Este é exatamente o problema clássico de coerção de tipos, aparecendo em um caso real.
 
 ### A ordem em `updateCategory`
 
@@ -522,7 +521,7 @@ response.status(204).send();
 
 Usamos `.send()` sem argumento, **não** `.json()`. O status 204 significa literalmente "sem conteúdo" — mandar um corpo aí seria contraditório.
 
-> ⚠️ Esse detalhe vai importar no front-end (Aula 15): tentar ler JSON de uma resposta 204 dá erro.
+> ⚠️ Esse detalhe vai importar no front-end (Etapa 15): tentar ler JSON de uma resposta 204 dá erro.
 
 ---
 
@@ -553,7 +552,7 @@ Salve.
 ```javascript
 categoryRoutes.get("/:id", asyncHandler(controller.show));
 //                ^        ^
-//                |        o wrapper da Aula 08
+//                |        o wrapper da Etapa 08
 //                o ":" indica parâmetro variável
 ```
 
@@ -567,7 +566,7 @@ O `/` aqui é **relativo**. Como vamos montar este router em `/api/categories` (
 
 ### Por que todo handler está dentro de `asyncHandler`?
 
-Porque **todos** são `async`. Sem o wrapper, um erro lançado lá dentro sumiria silenciosamente e o navegador ficaria travado (relembre a Aula 08).
+Porque **todos** são `async`. Sem o wrapper, um erro lançado lá dentro sumiria silenciosamente e o navegador ficaria travado (relembre a Etapa 08).
 
 > 📌 **Regra do projeto:** se o handler é `async`, ele vai dentro de `asyncHandler`. Sempre.
 
@@ -700,7 +699,7 @@ curl http://localhost:3000/api/categories/abc
 {"error":"Parametro id invalido: abc"}
 ```
 
-> ✅ Aqui você vê o `parseId` da Aula 08 protegendo a aplicação.
+> ✅ Aqui você vê o `parseId` da Etapa 08 protegendo a aplicação.
 
 ### Excluir
 
@@ -791,4 +790,4 @@ Marque:
 
 Primeiro CRUD pronto! Agora o mesmo padrão, com mais campos e filtros.
 
-**[Aula 12 — CRUD de Produtos](12-crud-produtos.md)**
+**[Etapa 12 — CRUD de Produtos](12-crud-produtos.md)**

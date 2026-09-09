@@ -1,25 +1,24 @@
-# Aula 08 — Tratamento de erros
+# Etapa 08 — Tratamento de erros
 
-⏱️ **Tempo estimado:** 25 minutos
 📋 **Tipo:** prática (código JavaScript)
 
 ---
 
 ## Objetivo
 
-Criar os quatro arquivos que formam a **base de tratamento de erros** do projeto. Depois desta aula, qualquer erro em qualquer parte do sistema vai virar uma resposta HTTP correta e clara.
+Criar os quatro arquivos que formam a **base de tratamento de erros** do projeto. Depois desta etapa, qualquer erro em qualquer parte do sistema vai virar uma resposta HTTP correta e clara.
 
 ---
 
 ## Antes de começar
 
-- [ ] Aula 07 concluída (`config/env.js` e `config/database.js` criados)
+- [ ] Etapa 07 concluída (`config/env.js` e `config/database.js` criados)
 
 ---
 
 ## O problema que vamos resolver
 
-No Módulo 1, o código problemático fazia assim:
+Um código problemático faria assim:
 
 ```javascript
 if (a == undefined || a == "") {
@@ -385,4 +384,4 @@ Marque:
 
 Base de erros pronta. Vamos montar o servidor web.
 
-**[Aula 09 — Servidor Express](09-servidor-express.md)**
+**[Etapa 09 — Servidor Express](09-servidor-express.md)**

@@ -1,6 +1,6 @@
-# Aula 21 — Solução de problemas
+# Etapa 21 — Solução de problemas
 
-📋 **Tipo:** material de consulta (não é uma aula sequencial)
+📋 **Tipo:** material de consulta (não é uma etapa sequencial)
 
 ---
 
@@ -26,7 +26,7 @@ Não leia do começo ao fim. Use o índice abaixo para achar seu problema rapida
 
 **Solução:** abra o Docker Desktop e espere o ícone da baleia parar de se mexer.
 
-> Este é, de longe, o erro mais comum em sala de aula.
+> Este é, de longe, o erro mais comum.
 
 ---
 
@@ -552,7 +552,7 @@ Isso:
 - reconstrói a imagem do zero;
 - recria o banco com o `init.sql`.
 
-> ⚠️ Você perde os dados cadastrados em aula, mas os 7 produtos de exemplo voltam.
+> ⚠️ Você perde os dados que cadastrou, mas os 7 produtos de exemplo voltam.
 
 ---
 
@@ -593,4 +593,4 @@ find src -name "*.js" | sort
 
 ## ➡️ Próximo passo
 
-**[Aula 22 — Exercícios e checklist](22-exercicios-e-checklist.md)**
+**[Etapa 22 — Exercícios e checklist](22-exercicios-e-checklist.md)**

@@ -1,7 +1,6 @@
-# Aula 20 — Teste final 🏁
+# Etapa 20 — Teste final 🏁
 
-⏱️ **Tempo estimado:** 40 minutos
-📋 **Tipo:** prática guiada (roteiro para fazer com a turma)
+📋 **Tipo:** roteiro de verificação ponta a ponta
 
 ---
 
@@ -9,13 +8,13 @@
 
 Percorrer o sistema inteiro, do clique na tela até a gravação no banco, confirmando que **tudo funciona junto**.
 
-Este roteiro também serve como **avaliação prática**: se todos os itens passarem, o projeto está concluído.
+Este roteiro serve como **verificação final**: se todos os itens passarem, o projeto está concluído.
 
 ---
 
 ## Antes de começar
 
-- [ ] Aula 19 concluída (as 4 telas funcionando)
+- [ ] Etapa 19 concluída (as 4 telas funcionando)
 - [ ] `docker compose ps` mostra os dois containers `Up`
 
 ---
@@ -59,9 +58,9 @@ Este roteiro também serve como **avaliação prática**: se todos os itens pass
 
 > 🎓 **O que isso comprova:** transação, `ROLLBACK`, `FOR UPDATE` e a regra de estoque negativo.
 
-### ⭐ O momento-chave da aula
+### ⭐ O momento-chave
 
-Pare no passo 7 e chame a atenção da turma:
+Pare no passo 7 e repare:
 
 > "A tentativa de saída **falhou**. Repare que o histórico não ganhou linha nenhuma e a quantidade não mudou. Isso é a transação: ou as duas gravações acontecem, ou nenhuma acontece. Nunca meio caminho."
 
@@ -137,7 +136,7 @@ curl http://localhost:3000/api/naoexiste
 
 Todas devem devolver **JSON** com uma mensagem clara em português.
 
-> 💭 **Pergunta para a turma:** *"Se a validação já existe no formulário HTML (`required`, `min`, `type=number`), por que precisamos dela no backend também?"*
+> 💭 **Para pensar:** *"Se a validação já existe no formulário HTML (`required`, `min`, `type=number`), por que precisamos dela no backend também?"*
 >
 > **Resposta:** porque qualquer pessoa pode chamar a API direto, sem passar pelo formulário — como acabamos de fazer com o `curl`. Validação no front é **conveniência**; no backend é **segurança**.
 
@@ -188,11 +187,11 @@ docker compose up -d
 
 Aguarde o banco subir (uns 30 segundos) e recarregue o dashboard.
 
-> 💀 **Os dados voltaram aos 7 produtos originais.** A Banana prata, a categoria Hortifruti e todas as movimentações da aula **sumiram**.
+> 💀 **Os dados voltaram aos 7 produtos originais.** A Banana prata, a categoria Hortifruti e todas as movimentações que você registrou **sumiram**.
 
 **Por quê?** O `-v` apagou o volume. Sem volume, o MySQL recriou o banco do zero e rodou o `init.sql` de novo.
 
-### 📌 A conclusão da aula sobre Docker
+### 📌 A conclusão sobre Docker
 
 Escreva isto no quadro:
 
@@ -242,7 +241,7 @@ E percorra mentalmente (ou no quadro) o caminho:
 15. produtos.js       toast("Produto cadastrado") + recarrega a lista
 ```
 
-> 🎓 **Se o aluno consegue explicar esses 15 passos, ele entendeu o curso.**
+> 🎓 **Se você consegue explicar esses 15 passos, você entendeu o projeto.**
 
 E se der erro, o caminho é o mesmo, desviando no passo 8 ou 9:
 
@@ -297,9 +296,9 @@ E se der erro, o caminho é o mesmo, desviando no passo 8 ou 9:
 
 ---
 
-## 🎓 Encerramento sugerido para a aula
+## 🎓 Para fechar
 
-Faça estas perguntas à turma:
+Responda a estas perguntas:
 
 1. **Qual camada escreve SQL?** (repository)
 2. **Onde estão as regras de negócio?** (service)
@@ -313,8 +312,8 @@ Faça estas perguntas à turma:
 
 ## ➡️ Próximos passos
 
-- **[Aula 21 — Solução de problemas](21-solucao-de-problemas.md)** — guarde para consulta
-- **[Aula 22 — Exercícios e checklist](22-exercicios-e-checklist.md)** — para fixar e avaliar
+- **[Etapa 21 — Solução de problemas](21-solucao-de-problemas.md)** — guarde para consulta
+- **[Etapa 22 — Exercícios e checklist](22-exercicios-e-checklist.md)** — para fixar
 
 ---
 

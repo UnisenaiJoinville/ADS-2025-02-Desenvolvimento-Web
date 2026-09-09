@@ -1,6 +1,5 @@
-# Aula 17 — Tela de Produtos
+# Etapa 17 — Tela de Produtos
 
-⏱️ **Tempo estimado:** 50 minutos
 📋 **Tipo:** prática (HTML + JavaScript)
 
 ---
@@ -13,7 +12,7 @@ Construir a tela mais completa do sistema: tabela, filtros, **modal** de cadastr
 
 ## Antes de começar
 
-- [ ] Aula 16 concluída (dashboard funcionando no navegador)
+- [ ] Etapa 16 concluída (dashboard funcionando no navegador)
 
 ---
 
@@ -290,7 +289,7 @@ Este campo invisível é o truque que permite **um formulário servir para criar
 
 O navegador já ajuda: mostra setinhas, aceita só números e permite centavos.
 
-> ⚠️ Isso é conveniência para o usuário, **não** validação de segurança. Qualquer pessoa pode enviar dados direto pela API sem passar pelo formulário — é por isso que o `product-validator.js` da Aula 12 continua sendo essencial.
+> ⚠️ Isso é conveniência para o usuário, **não** validação de segurança. Qualquer pessoa pode enviar dados direto pela API sem passar pelo formulário — é por isso que o `product-validator.js` da Etapa 12 continua sendo essencial.
 
 ---
 
@@ -490,7 +489,7 @@ function statusBadge(product) {
 <span class="font-semibold ${product.lowStock ? "text-rose-600" : "text-slate-800"}">
 ```
 
-Lembra do campo calculado que criamos no `toProduct` (Aula 12)? É aqui que ele rende: o front-end só pergunta `product.lowStock` — não precisa saber a regra.
+Lembra do campo calculado que criamos no `toProduct` (Etapa 12)? É aqui que ele rende: o front-end só pergunta `product.lowStock` — não precisa saber a regra.
 
 #### `statusBadge` com *early return*
 
@@ -605,7 +604,7 @@ rowsContainer.addEventListener("click", async (event) => {
 });
 ```
 
-#### 🎯 Delegação de eventos — o conceito-chave desta aula
+#### 🎯 Delegação de eventos — o conceito-chave desta etapa
 
 Os botões "Editar" e "Excluir" são criados **depois** que a página carrega, dentro do `renderRows`.
 
@@ -820,7 +819,7 @@ http://localhost:3000/produtos.html
 
 ### 🎯 O que observar
 
-- As mensagens de erro em vermelho vêm **do backend**, das validações que você escreveu na Aula 12
+- As mensagens de erro em vermelho vêm **do backend**, das validações que você escreveu na Etapa 12
 - O SKU em maiúsculas é o `.toUpperCase()` do validador
 - A etiqueta vermelha usa o `lowStock` calculado no repository
 
@@ -860,4 +859,4 @@ http://localhost:3000/produtos.html
 
 Falta a tela onde o estoque realmente sobe e desce.
 
-**[Aula 18 — Tela de Movimentações](18-front-movimentacoes.md)**
+**[Etapa 18 — Tela de Movimentações](18-front-movimentacoes.md)**

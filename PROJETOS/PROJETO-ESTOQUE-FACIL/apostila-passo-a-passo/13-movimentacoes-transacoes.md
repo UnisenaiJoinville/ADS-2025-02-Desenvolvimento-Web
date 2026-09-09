@@ -1,6 +1,5 @@
-# Aula 13 — Movimentações e Transações ⭐
+# Etapa 13 — Movimentações e Transações ⭐
 
-⏱️ **Tempo estimado:** 50 minutos
 📋 **Tipo:** prática + conceito fundamental
 
 ---
@@ -9,13 +8,13 @@
 
 Fazer o estoque **somar** nas entradas e **subtrair** nas saídas, garantindo que o sistema **nunca** fique inconsistente.
 
-> ⭐ **Esta é a aula mais importante do curso do ponto de vista de backend.** O conceito de transação aparece em qualquer sistema sério: banco, e-commerce, folha de pagamento.
+> ⭐ **Esta é a etapa mais importante do projeto do ponto de vista de backend.** O conceito de transação aparece em qualquer sistema sério: banco, e-commerce, folha de pagamento.
 
 ---
 
 ## Antes de começar
 
-- [ ] Aula 12 concluída (CRUD de produtos funcionando)
+- [ ] Etapa 12 concluída (CRUD de produtos funcionando)
 
 ---
 
@@ -141,7 +140,7 @@ Se a observação for string vazia, mandamos `null` para o banco. É a diferenç
 
 ---
 
-## Passo 2 — O repositório (a estrela da aula)
+## Passo 2 — O repositório (a estrela da etapa)
 
 Crie `src/modules/movements/movement-repository.js`:
 
@@ -292,7 +291,7 @@ Repare que **não** usamos `pool.query()` aqui, e sim `connection.query()`.
 SELECT id, name, quantity FROM products WHERE id = ? FOR UPDATE
 ```
 
-Este é o conceito mais sofisticado da aula. Vamos com um exemplo concreto.
+Este é o conceito mais sofisticado da etapa. Vamos com um exemplo concreto.
 
 **Cenário:** o produto tem **10 unidades**. Dois vendedores clicam "vender 8" ao mesmo tempo.
 
@@ -563,7 +562,7 @@ routes.use("/movements", movementRoutes);
 
 ---
 
-## Passo 7 — 🧪 O experimento da aula
+## Passo 7 — 🧪 O experimento da etapa
 
 Agora vem a parte divertida. **Faça este roteiro passo a passo** e observe cada resultado.
 
@@ -714,4 +713,4 @@ Este é o conteúdo que separa um CRUD de brinquedo de um sistema real:
 
 Estoque garantido. Agora vamos fazer o banco calcular os totais do dashboard.
 
-**[Aula 14 — Dashboard (API)](14-dashboard-api.md)**
+**[Etapa 14 — Dashboard (API)](14-dashboard-api.md)**

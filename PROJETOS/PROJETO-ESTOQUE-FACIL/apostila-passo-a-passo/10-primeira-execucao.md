@@ -1,15 +1,14 @@
-# Aula 10 — Primeira execução 🚀
+# Etapa 10 — Primeira execução 🚀
 
-⏱️ **Tempo estimado:** 30 minutos
 📋 **Tipo:** prática (terminal)
 
 ---
 
 ## Objetivo
 
-**Subir a aplicação pela primeira vez.** Ao final desta aula, a API estará respondendo no navegador e o banco estará com as tabelas criadas.
+**Subir a aplicação pela primeira vez.** Ao final desta etapa, a API estará respondendo no navegador e o banco estará com as tabelas criadas.
 
-> 🎉 Esta é a aula mais empolgante do curso. Tudo que fizemos até agora ganha vida aqui.
+> 🎉 Esta é a etapa mais empolgante do projeto. Tudo que fizemos até agora ganha vida aqui.
 
 ---
 
@@ -74,7 +73,7 @@ db Pulling
  => exporting to image
 ```
 
-> 👀 Repare: aqui você está vendo o `Dockerfile` da Aula 04 sendo executado, linha por linha.
+> 👀 Repare: aqui você está vendo o `Dockerfile` da Etapa 04 sendo executado, linha por linha.
 
 **Fase 3 — Criando rede e volumes**
 
@@ -94,7 +93,7 @@ estoque-db  | [Entrypoint] running /docker-entrypoint-initdb.d/init.sql
 estoque-db  | [Entrypoint] MySQL init process done. Ready for start up.
 ```
 
-> 🪄 A linha `running /docker-entrypoint-initdb.d/init.sql` é a mágica da Aula 06 acontecendo.
+> 🪄 A linha `running /docker-entrypoint-initdb.d/init.sql` é a mágica da Etapa 06 acontecendo.
 
 **Fase 5 — A API subindo**
 
@@ -164,7 +163,7 @@ curl http://localhost:3000/api/naoexiste
 {"error":"Rota nao encontrada: GET /api/naoexiste"}
 ```
 
-> ✅ Isso confirma que o `notFoundHandler` da Aula 08 está funcionando.
+> ✅ Isso confirma que o `notFoundHandler` da Etapa 08 está funcionando.
 
 ### 👀 Olhe o outro terminal
 
@@ -175,7 +174,7 @@ estoque-api  | GET /api/health
 estoque-api  | GET /api/naoexiste
 ```
 
-É o middleware de log da Aula 09 trabalhando.
+É o middleware de log da Etapa 09 trabalhando.
 
 ---
 
@@ -219,7 +218,7 @@ SHOW TABLES;
 +---------------------+
 ```
 
-> ✅ As três tabelas da Aula 06 estão lá!
+> ✅ As três tabelas da Etapa 06 estão lá!
 
 ```sql
 SELECT id, name, sku, quantity FROM products;
@@ -262,7 +261,7 @@ No terminal que está mostrando os logs, aperte:
 Ctrl + C
 ```
 
-Você verá o encerramento gracioso da Aula 09 acontecendo:
+Você verá o encerramento gracioso da Etapa 09 acontecendo:
 
 ```text
 estoque-api  | Recebido SIGTERM. Encerrando...
@@ -291,7 +290,7 @@ docker compose logs -f api
 
 ## Comandos que você vai usar todo dia
 
-Anote estes. São os mais importantes do curso:
+Anote estes. São os mais importantes do projeto:
 
 ```bash
 docker compose up -d          # sobe em segundo plano
@@ -315,7 +314,7 @@ estoque-api   Up 2 minutes              0.0.0.0:3000->3000/tcp
 estoque-db    Up 2 minutes (healthy)    0.0.0.0:3308->3306/tcp
 ```
 
-> 👀 Repare no `(healthy)` no banco. É o `healthcheck` da Aula 05 aprovando o MySQL.
+> 👀 Repare no `(healthy)` no banco. É o `healthcheck` da Etapa 05 aprovando o MySQL.
 
 ### ⚠️ Cuidado com o `-v`
 
@@ -330,7 +329,7 @@ Use o `-v` **de propósito**, quando quiser recomeçar do zero e reprocessar o `
 
 ## Passo 6 — Teste do hot reload
 
-Vamos confirmar que o bind mount da Aula 05 está funcionando.
+Vamos confirmar que o bind mount da Etapa 05 está funcionando.
 
 1. Abra `src/routes/index.js`
 2. Mude a mensagem de status:
@@ -368,7 +367,7 @@ curl http://localhost:3000/api/health
 
 ## 🔧 Se deu erro
 
-Esta é a aula com mais chance de problemas. Procure sua mensagem na tabela:
+Esta é a etapa com mais chance de problemas. Procure sua mensagem na tabela:
 
 ### `Ports are not available: ... 3308`
 
@@ -480,7 +479,7 @@ docker compose up -d --build
 
 Isso apaga os containers, o volume e reconstrói tudo. Os dados de exemplo voltam ao estado original do `init.sql`.
 
-> 📌 Guarde esses dois comandos. Eles resolvem a maioria dos problemas em sala de aula.
+> 📌 Guarde esses dois comandos. Eles resolvem a maioria dos problemas do dia a dia.
 
 ---
 
@@ -502,4 +501,4 @@ Isso apaga os containers, o volume e reconstrói tudo. Os dados de exemplo volta
 
 Infraestrutura no ar. Vamos construir nosso primeiro CRUD completo.
 
-**[Aula 11 — CRUD de Categorias](11-crud-categorias.md)**
+**[Etapa 11 — CRUD de Categorias](11-crud-categorias.md)**

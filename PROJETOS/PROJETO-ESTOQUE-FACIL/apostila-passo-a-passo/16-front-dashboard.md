@@ -1,6 +1,5 @@
-# Aula 16 — Tela do Dashboard
+# Etapa 16 — Tela do Dashboard
 
-⏱️ **Tempo estimado:** 45 minutos
 📋 **Tipo:** prática (HTML + JavaScript)
 
 ---
@@ -9,13 +8,13 @@
 
 Construir a primeira tela do sistema: o dashboard com **cards que somam e subtraem valores**, barras por categoria, alertas e tabela de movimentações recentes.
 
-> 🎉 Esta é a aula em que o projeto finalmente "aparece".
+> 🎉 Esta é a etapa em que o projeto finalmente "aparece".
 
 ---
 
 ## Antes de começar
 
-- [ ] Aula 15 concluída (`api.js` e `layout.js` criados)
+- [ ] Etapa 15 concluída (`api.js` e `layout.js` criados)
 
 ---
 
@@ -358,7 +357,7 @@ Esse `, 1` no final garante que `maxValue` **nunca** seja zero. Sem ele, se todo
 style="width: NaN%"    // barra quebrada
 ```
 
-> 🎯 **É exatamente a mesma armadilha da média do Módulo 1!**
+> 🎯 **É exatamente a mesma armadilha da média sem itens!**
 >
 > ```javascript
 > return soma / quantidade;   // 0 / 0 = NaN
@@ -483,7 +482,7 @@ Se preferir conferir o arquivo inteiro de uma vez, ele está na [apostila comple
 
 ## 🧠 O padrão que se repete em todas as telas
 
-Guarde este ciclo — as próximas três aulas usam exatamente ele:
+Guarde este ciclo — as próximas três etapas usam exatamente ele:
 
 ```text
    1. BUSCAR      const data = await api.getDashboard();
@@ -579,7 +578,7 @@ curl -X POST http://localhost:3000/api/movements \
 | `404 /js/dashboard.js` | Arquivo em lugar errado | Deve estar em `public/js/` |
 | Cards vazios, sem erro | O container não foi encontrado | Confira se o HTML tem `data-cards` |
 | `Cannot read properties of null` | `querySelector` não achou o elemento | Confira a grafia do `data-*` no HTML e no JS |
-| Valores como `R$ NaN` | Vieram strings do backend | Confira os `Number()` do dashboard-service (Aula 14) |
+| Valores como `R$ NaN` | Vieram strings do backend | Confira os `Number()` do dashboard-service (Etapa 14) |
 | Vírgulas soltas na tela | Faltou `.join("")` | Acrescente ao final do `.map()` |
 | Layout sem estilo nenhum | Tailwind não carregou | Confira a tag `<script src="https://cdn.tailwindcss.com">` e sua internet |
 
@@ -589,4 +588,4 @@ curl -X POST http://localhost:3000/api/movements \
 
 A tela mais bonita está pronta. Agora a mais completa: o CRUD visual de produtos.
 
-**[Aula 17 — Tela de Produtos](17-front-produtos.md)**
+**[Etapa 17 — Tela de Produtos](17-front-produtos.md)**

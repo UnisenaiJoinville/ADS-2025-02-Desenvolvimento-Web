@@ -1,6 +1,5 @@
-# Aula 02 — Criando o projeto
+# Etapa 02 — Criando o projeto
 
-⏱️ **Tempo estimado:** 15 minutos
 📋 **Tipo:** prática (terminal + VS Code)
 
 ---
@@ -15,7 +14,7 @@ Ao final, o VS Code estará aberto com a estrutura pronta para receber o código
 
 ## Antes de começar
 
-- [ ] Aula 01 concluída (Node e Docker funcionando)
+- [ ] Etapa 01 concluída (Node e Docker funcionando)
 
 ---
 
@@ -52,7 +51,7 @@ pwd
 
 Deve terminar com `/projeto-docker-nodejs`.
 
-> ⚠️ **Todos os comandos das próximas aulas devem ser rodados de dentro desta pasta.** Se algo der errado, o primeiro passo é rodar `pwd` e conferir onde você está.
+> ⚠️ **Todos os comandos das próximas etapas devem ser rodados de dentro desta pasta.** Se algo der errado, o primeiro passo é rodar `pwd` e conferir onde você está.
 
 ---
 
@@ -167,7 +166,7 @@ Vamos linha por linha nas partes que importam:
 
 ### `"type": "module"`
 
-Esta linha habilita os **ES Modules**, o padrão moderno de importação que usamos no Módulo 1:
+Esta linha habilita os **ES Modules**, o padrão moderno de importação:
 
 ```javascript
 import express from "express";        // ES Modules — é o que vamos usar
@@ -208,11 +207,11 @@ Documenta que o projeto precisa do Node 20.6 ou superior. Serve como aviso para 
 
 ## ⚠️ Uma dúvida que sempre aparece
 
-**"Professor, não é para rodar `npm install` agora?"**
+**"Não é para rodar `npm install` agora?"**
 
 **Não!** E este é um ponto importante da nossa arquitetura.
 
-Quem vai instalar as dependências é o **Docker**, dentro do container, na Aula 04. Se você instalar na sua máquina agora, vai criar uma pasta `node_modules` local que:
+Quem vai instalar as dependências é o **Docker**, dentro do container, na Etapa 04. Se você instalar na sua máquina agora, vai criar uma pasta `node_modules` local que:
 
 - não é usada pelo container;
 - ocupa espaço à toa;
@@ -262,4 +261,4 @@ Marque:
 
 Estrutura criada. Agora vamos configurar as senhas e endereços do banco.
 
-**[Aula 03 — Variáveis de ambiente](03-variaveis-de-ambiente.md)**
+**[Etapa 03 — Variáveis de ambiente](03-variaveis-de-ambiente.md)**

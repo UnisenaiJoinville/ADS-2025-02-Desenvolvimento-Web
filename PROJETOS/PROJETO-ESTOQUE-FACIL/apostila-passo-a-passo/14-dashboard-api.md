@@ -1,6 +1,5 @@
-# Aula 14 — Dashboard (API)
+# Etapa 14 — Dashboard (API)
 
-⏱️ **Tempo estimado:** 40 minutos
 📋 **Tipo:** prática (SQL de agregação)
 
 ---
@@ -15,11 +14,11 @@ Ao final, a API estará **completa**.
 
 ## Antes de começar
 
-- [ ] Aula 13 concluída (movimentações funcionando)
+- [ ] Etapa 13 concluída (movimentações funcionando)
 
 ---
 
-## A pergunta que abre a aula
+## A pergunta que abre a etapa
 
 Queremos mostrar "valor total em estoque". Há dois caminhos:
 
@@ -186,7 +185,7 @@ SELECT COALESCE(SUM(quantity), 0) FROM products WHERE active = TRUE;
 
 Sem o `COALESCE`, o dashboard mostraria "R$ null" no primeiro dia de uso do sistema.
 
-> 📌 **Lembra do `NaN` na média do Módulo 1?**
+> 📌 **Lembra do `NaN` em uma média sem itens?**
 >
 > ```javascript
 > return soma / quantidade;   // 0 / 0 = NaN
@@ -321,7 +320,7 @@ Salve.
 
 ---
 
-## ⚡ `Promise.all` — o ganho de desempenho da aula
+## ⚡ `Promise.all` — o ganho de desempenho da etapa
 
 Este é o conceito principal do service.
 
@@ -584,7 +583,7 @@ curl -s http://localhost:3000/api/dashboard   | head -c 60; echo
 
 | Erro | Causa | Solução |
 |---|---|---|
-| Valores vêm como texto (`"2744.70"`) | Faltou `decimalNumbers` ou `Number()` | Confira o `database.js` (Aula 07) e os `Number()` do service |
+| Valores vêm como texto (`"2744.70"`) | Faltou `decimalNumbers` ou `Number()` | Confira o `database.js` (Etapa 07) e os `Number()` do service |
 | `month` vem tudo zero | Não há movimentações **deste mês** | Registre uma movimentação nova e teste de novo |
 | `null` em algum total | Faltou `COALESCE` | Confira o SQL do `getSummary` |
 | `In aggregated query without GROUP BY...` | Coluna fora do `GROUP BY` | Todas as colunas não agregadas precisam estar no `GROUP BY` |
@@ -596,4 +595,4 @@ curl -s http://localhost:3000/api/dashboard   | head -c 60; echo
 
 Backend 100% pronto. Agora vamos construir a interface que consome tudo isso.
 
-**[Aula 15 — Base do front-end](15-front-base.md)**
+**[Etapa 15 — Base do front-end](15-front-base.md)**

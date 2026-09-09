@@ -1,6 +1,5 @@
-# Aula 09 — Servidor Express
+# Etapa 09 — Servidor Express
 
-⏱️ **Tempo estimado:** 25 minutos
 📋 **Tipo:** prática (código JavaScript)
 
 ---
@@ -13,13 +12,13 @@ Criar os três arquivos que montam e ligam o servidor:
 - `src/app.js` — a configuração do Express
 - `src/server.js` — quem liga tudo
 
-Ao final desta aula o código estará **completo o suficiente para rodar**. Na próxima aula, subimos.
+Ao final desta etapa o código estará **completo o suficiente para rodar**. Na próxima etapa, subimos.
 
 ---
 
 ## Antes de começar
 
-- [ ] Aula 08 concluída (os 4 arquivos de erro criados)
+- [ ] Etapa 08 concluída (os 4 arquivos de erro criados)
 
 ---
 
@@ -53,7 +52,7 @@ Por enquanto temos **uma rota só**, mas ela é muito útil.
 
 > 📌 Praticamente toda API profissional tem uma rota assim. É a primeira coisa que se testa quando algo dá errado.
 
-Vamos voltar a este arquivo nas aulas 11 a 14 para adicionar os módulos.
+Vamos voltar a este arquivo nas etapas 11 a 14 para adicionar os módulos.
 
 ---
 
@@ -78,7 +77,7 @@ export const app = express();
 // Interpreta o corpo das requisicoes em JSON
 app.use(express.json());
 
-// Log simples de cada requisicao (util em sala de aula)
+// Log simples de cada requisicao (util em desenvolvimento)
 app.use((request, response, next) => {
   console.log(`${request.method} ${request.originalUrl}`);
   next();
@@ -133,7 +132,7 @@ Este trecho confunde bastante. Vamos por partes:
 
 ### 🔑 A ordem dos middlewares é tudo
 
-Esta é a parte mais importante da aula. O Express executa os `app.use` **na ordem exata em que foram escritos**.
+Esta é a parte mais importante da etapa. O Express executa os `app.use` **na ordem exata em que foram escritos**.
 
 ```text
    Requisição chega
@@ -190,7 +189,7 @@ Este é um middleware escrito **por nós**, e ele mostra a anatomia de qualquer 
 
 > ⚠️ **Se esquecer o `next()`**, a requisição **para aqui** e o navegador fica girando para sempre. Todo middleware que não responde precisa chamar `next()`.
 
-Em aula, isso é ótimo: você vê no terminal cada clique que os alunos dão.
+Em desenvolvimento isso é ótimo: você vê no terminal cada clique dado na interface.
 
 ```text
 GET /api/products
@@ -416,4 +415,4 @@ Deve responder `9`.
 
 O código está pronto para rodar. Vamos subir tudo pela primeira vez!
 
-**[Aula 10 — Primeira execução](10-primeira-execucao.md)** 🚀
+**[Etapa 10 — Primeira execução](10-primeira-execucao.md)** 🚀

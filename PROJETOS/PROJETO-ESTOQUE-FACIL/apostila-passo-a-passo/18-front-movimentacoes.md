@@ -1,6 +1,5 @@
-# Aula 18 — Tela de Movimentações
+# Etapa 18 — Tela de Movimentações
 
-⏱️ **Tempo estimado:** 40 minutos
 📋 **Tipo:** prática (HTML + JavaScript)
 
 ---
@@ -13,7 +12,7 @@ Criar a tela onde o estoque **sobe e desce**: formulário de entrada/saída com 
 
 ## Antes de começar
 
-- [ ] Aula 17 concluída (tela de produtos funcionando)
+- [ ] Etapa 17 concluída (tela de produtos funcionando)
 
 ---
 
@@ -173,7 +172,7 @@ Salve.
 
 ## 🎨 O truque do `peer` — botões bonitos que ainda são radio
 
-Esta é a parte mais interessante do HTML desta aula:
+Esta é a parte mais interessante do HTML desta etapa:
 
 ```html
 <label class="cursor-pointer">
@@ -356,10 +355,10 @@ Estoque atual: 40 unidade(s) - minimo 10
 const product = products.find((item) => item.id === productId);
 ```
 
-Compare com o código problemático do Módulo 1:
+Compare com a abordagem problemática:
 
 ```javascript
-// ❌ Módulo 1: percorre TUDO mesmo depois de achar
+// ❌ Abordagem problemática: percorre TUDO mesmo depois de achar
 var achou = null;
 for (var i = 0; i < x.length; i++) {
   if (x[i].nome == n) {
@@ -527,7 +526,7 @@ http://localhost:3000/movimentacoes.html
 
 ### 🎉 O que você acabou de ver
 
-O toast vermelho do passo 6 é a **transação da Aula 13** funcionando:
+O toast vermelho do passo 6 é a **transação da Etapa 13** funcionando:
 
 ```text
    navegador  ->  api.js  ->  Express  ->  service  ->  repository
@@ -540,7 +539,7 @@ O toast vermelho do passo 6 é a **transação da Aula 13** funcionando:
    toast vermelho <- errorHandler <- AppError <- "INSUFFICIENT_STOCK"
 ```
 
-Todo o caminho que construímos ao longo do curso, funcionando de ponta a ponta.
+Todo o caminho que construímos ao longo do projeto, funcionando de ponta a ponta.
 
 ---
 
@@ -575,4 +574,4 @@ Todo o caminho que construímos ao longo do curso, funcionando de ponta a ponta.
 
 Falta a tela mais simples do sistema.
 
-**[Aula 19 — Tela de Categorias](19-front-categorias.md)**
+**[Etapa 19 — Tela de Categorias](19-front-categorias.md)**

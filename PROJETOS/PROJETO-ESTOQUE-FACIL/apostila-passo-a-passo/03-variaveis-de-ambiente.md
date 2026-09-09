@@ -1,6 +1,5 @@
-# Aula 03 — Variáveis de ambiente
+# Etapa 03 — Variáveis de ambiente
 
-⏱️ **Tempo estimado:** 15 minutos
 📋 **Tipo:** prática (VS Code)
 
 ---
@@ -13,7 +12,7 @@ Criar os arquivos `.env.example`, `.env` e `.gitignore`, entendendo por que **se
 
 ## Antes de começar
 
-- [ ] Aula 02 concluída (pastas criadas e `package.json` salvo)
+- [ ] Etapa 02 concluída (pastas criadas e `package.json` salvo)
 
 ---
 
@@ -167,7 +166,7 @@ Porque nossa aplicação vai rodar **dentro de um container**. E dentro do conta
    +------------------+          +------------------+
 ```
 
-No Docker Compose, **cada serviço vira um nome de host** dentro da rede interna. Como vamos chamar nosso serviço de banco de `db` (na Aula 05), o endereço dele é literalmente `db`.
+No Docker Compose, **cada serviço vira um nome de host** dentro da rede interna. Como vamos chamar nosso serviço de banco de `db` (na Etapa 05), o endereço dele é literalmente `db`.
 
 ### As duas portas do banco
 
@@ -199,7 +198,7 @@ O usuário `root` é o administrador total do MySQL. Nossa aplicação **não** 
 
 ## ⚠️ Aviso importante sobre senhas
 
-As senhas desta apostila (`estoque123`, `root123`) são **fracas de propósito**, para facilitar a aula.
+As senhas desta apostila (`estoque123`, `root123`) são **fracas de propósito**, para simplificar o ambiente local de desenvolvimento.
 
 Em um projeto real:
 
@@ -248,4 +247,4 @@ Marque:
 
 Configuração pronta. Vamos escrever a receita da imagem Docker.
 
-**[Aula 04 — Dockerfile](04-dockerfile.md)**
+**[Etapa 04 — Dockerfile](04-dockerfile.md)**
