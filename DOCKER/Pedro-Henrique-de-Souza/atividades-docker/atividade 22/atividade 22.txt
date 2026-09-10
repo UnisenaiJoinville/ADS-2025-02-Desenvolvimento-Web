@@ -1,0 +1,1 @@
+docker run -m 512m --cpus="1.0" ubuntu restringe o container a no máximo 512 MB de memória RAM e o equivalente a 1 núcleo de CPU. Isso evita que um container mal-comportado (ex: com vazamento de memória ou loop pesado) consuma todos os recursos da máquina host e derrube os outros containers ou o próprio sistema.

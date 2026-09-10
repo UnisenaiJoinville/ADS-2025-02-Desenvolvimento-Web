@@ -1,0 +1,7 @@
+import { createService } from "./modules/services/service-service.js";
+
+try {
+  console.log(createService({ name: "Consulta inicial", durationMinutes: 45 }));
+} catch (error) {
+  console.error("Não foi possível criar o serviço:", error.message);
+}

@@ -1,0 +1,5 @@
+EXERCÍCIO DE FIXAÇÃO — Runtime
+1. Explique por que console.log pode existir no navegador e no Node.js, embora os dois ambientes
+sejam diferentes.
+2. Pesquise no REPL o resultado de process.version e process.platform e explique o que cada
+propriedade representa.
