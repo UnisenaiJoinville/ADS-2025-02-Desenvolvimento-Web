@@ -1,0 +1,1 @@
+console.log('Worker no ar, aguardando mensagens...'); setInterval(() => { }, 1000 * 60 * 60);

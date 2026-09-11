@@ -1,0 +1,92 @@
+name: cenario1
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks: [app_net]
+
+  api:
+    build: ./api
+    restart: on-failure
+    ports:
+      - "3002:3000"
+    environment:
+      # Hosts sao os NOMES dos servicos: quem resolve e o DNS interno do Docker.
+      DB_HOST: mysql
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks: [app_net]
+
+  worker:
+    build: ./worker
+    restart: on-failure
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks: [app_net]
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      # Volume nomeado: os dados sobrevivem ao "docker compose down".
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [app_net]
+
+  redis:
+    image: redis:7.4-alpine
+    volumes:
+      - redis_data:/data
+    # Sem "ports": so a rede interna acessa. O host nao alcanca o Redis.
+    networks: [app_net]
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      # So o painel de gerenciamento e publicado; a porta 5672 fica interna.
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [app_net]
+
+networks:
+  app_net:
+
+volumes:
+  mysql_data:
+  redis_data:
