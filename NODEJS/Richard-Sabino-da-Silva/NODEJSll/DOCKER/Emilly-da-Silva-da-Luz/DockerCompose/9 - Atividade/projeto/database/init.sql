@@ -1,1 +1,0 @@
-CREATE TABLE IF NOT EXISTS tickets (id INT AUTO_INCREMENT PRIMARY KEY, subject VARCHAR(180) NOT NULL, status VARCHAR(30) DEFAULT 'ABERTO'); INSERT INTO tickets(subject) VALUES ('Exemplo de chamado');

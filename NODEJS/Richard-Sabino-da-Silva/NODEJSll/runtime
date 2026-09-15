@@ -8,3 +8,12 @@ R: console.log funciona nos dois porque cada ambiente (navegador e Node.js) crio
 propriedade representa.
 R: process.version verifica a versao do Node.js 
    process.platform verifica a versão do WIN -->
+
+3. Liste três recursos que fazem sentido no Node.js mas não são responsabilidades típicas de uma
+página no navegador
+R:Acessar o sistema de arquivos (ler/escrever arquivos)
+No navegador, por segurança, uma página não pode simplesmente abrir e salvar arquivos do seu computador. No Node.js, isso é super comum, tipo ler um arquivo .txt ou salvar dados num arquivo.
+Criar um servidor
+O Node.js pode "escutar" requisições da internet e responder a elas (por exemplo, um site inteiro pode rodar em cima de Node.js). O navegador   só recebe e mostra as páginas, ele não cria servidores.
+Acessar módulos do sistema operacional
+Node.js consegue ver informações do computador, tipo variáveis de ambiente, rodar comandos do terminal, etc. O navegador não tem esse tipo de acesso, pois isso seria um risco de segurança pro usuário.
