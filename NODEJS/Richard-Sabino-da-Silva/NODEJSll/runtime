@@ -1,5 +1,10 @@
-EXERCÍCIO DE FIXAÇÃO — Runtime
+
+<--EXERCÍCIO DE FIXAÇÃO — Runtime
 1. Explique por que console.log pode existir no navegador e no Node.js, embora os dois ambientes
 sejam diferentes.
+R: console.log funciona nos dois porque cada ambiente (navegador e Node.js) criou sua própria versão dessa ferramenta — não porque ela vem "de fábrica" com o JavaScript.
+
 2. Pesquise no REPL o resultado de process.version e process.platform e explique o que cada
 propriedade representa.
+R: process.version verifica a versao do Node.js 
+   process.platform verifica a versão do WIN -->
