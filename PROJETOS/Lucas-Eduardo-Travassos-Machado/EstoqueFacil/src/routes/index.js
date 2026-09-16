@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { categoryRoutes } from "../modules/categories/category-routes.js";
+import { productRoutes } from "../modules/products/product-routes.js";
 
 export const routes = Router();
 
@@ -9,3 +10,4 @@ routes.get("/health", (request, response) => {
 });
 
 routes.use("/categories", categoryRoutes);
+routes.use("/products", productRoutes);
