@@ -1,0 +1,27 @@
+EXERCÍCIO DE FIXAÇÃO — Variáveis e escopo
+1. Reescreva um exemplo com var utilizando const/let de forma adequada.
+
+const nome = "Maria";  // nunca vai mudar → const
+let idade = 25;        // vai mudar depois → let
+
+for (let i = 0; i < 5; i++) {
+  console.log(i);
+}
+
+idade = 26; // funciona, porque usamos "let"
+
+2. Crie uma constante service com name, durationMinutes e active. Depois altere apenas active.
+
+const service = {
+  name: "Corte de cabelo",
+  durationMinutes: 30,
+  active: true
+};
+
+// Alterando apenas o "active"
+service.active = false;
+
+console.log(service);
+
+3. Explique por que const service = {} não torna service imutável.
+R: O const só protege a variável service de ser reatribuída pra outra coisa. Ele não protege o conteúdo do objeto.
