@@ -56,19 +56,19 @@ jobs:
             done
 
             if [ "$match" -eq 0 ]; then
-              echo "::error file=$file::Arquivo fora das pastas permitidas ($MATERIAS)."
+              echo "::error file=$file::Envio inválido: use uma das pastas permitidas ($MATERIAS)."
               FAIL=1
               continue
             fi
 
             if [ -z "$subpasta" ] || [ "$profundidade" -lt 3 ]; then
-              echo "::error file=$file::Não é permitido alterar arquivos direto em '$materia/' ou criar pasta nova na raiz da matéria. Use uma subpasta de aluno já existente na main."
+              echo "::error file=$file::Envio inválido: não altere arquivos direto em '$materia/' e não crie nova pasta de aluno na raiz da matéria. Use uma subpasta que já exista na main."
               FAIL=1
               continue
             fi
 
             if ! git cat-file -e "$BASE:$materia/$subpasta" 2>/dev/null; then
-              echo "::error file=$file::A subpasta '$materia/$subpasta' precisa existir na branch main antes do envio. Não crie uma nova subpasta de aluno no PR."
+              echo "::error file=$file::Envio inválido: a subpasta '$materia/$subpasta' precisa existir na branch main antes do PR."
               FAIL=1
               continue
             fi
@@ -76,17 +76,17 @@ jobs:
             if [ -z "$SUBPASTA_REF" ]; then
               SUBPASTA_REF="$materia/$subpasta"
             elif [ "$materia/$subpasta" != "$SUBPASTA_REF" ]; then
-              echo "::error file=$file::Este Pull Request altera mais de uma subpasta de aluno ('$SUBPASTA_REF' e '$materia/$subpasta'). Cada PR deve conter só uma subpasta existente."
+              echo "::error file=$file::Envio inválido: este PR altera mais de uma subpasta de aluno ('$SUBPASTA_REF' e '$materia/$subpasta'). Use apenas uma subpasta existente por PR."
               FAIL=1
             fi
           done <<< "$CHANGED"
 
           if [ "$FAIL" -eq 1 ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "❌ **Este Pull Request não segue a estrutura esperada.** Veja os erros acima, ajuste e envie novamente." >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ **Envio recusado.** Use uma única subpasta de aluno que já exista na main. Veja os erros acima, corrija e envie de novo." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "✅ **Estrutura válida.** Alterações restritas à subpasta existente: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "Estrutura válida! Alterações restritas à subpasta existente: $SUBPASTA_REF"
+          echo "✅ **Envio válido.** Alterações restritas à subpasta existente: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Envio válido! Alterações restritas à subpasta existente: $SUBPASTA_REF"

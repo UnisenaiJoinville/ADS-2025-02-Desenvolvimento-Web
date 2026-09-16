@@ -33,6 +33,6 @@ git push origin envio-<sua-subpasta>
 
 4. Abra um **Pull Request**: o GitHub mostra um botão **Compare & pull request** assim que você dá push na branch. Confira se o destino é a branch `main` e envie.
 
-Assim que o PR é aberto, um **check automático** (GitHub Actions) confere se os arquivos ficam dentro de uma subpasta de aluno que já existe na `main`. O merge na `main` só acontece depois que o professor revisar e aprovar o PR — o push cria a proposta de envio, não publica direto.
+Assim que o PR é aberto, um **check automático** (GitHub Actions) confere se os arquivos ficam dentro de uma subpasta de aluno que já existe na `main`. Se aparecer erro, normalmente é porque o PR tentou mexer fora dessa subpasta ou criar uma nova pasta de aluno na raiz da matéria. O merge na `main` só acontece depois que o professor revisar e aprovar o PR — o push cria a proposta de envio, não publica direto.
 
 > Cada pasta de matéria (`BANCO-DE-DADOS/`, `NODEJS/`, `DOCKER/`, `PROJETO-INDIVIDUAL/`) também tem seu próprio README com esse passo a passo já com os comandos ajustados para aquela pasta.
