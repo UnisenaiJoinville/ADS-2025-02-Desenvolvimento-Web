@@ -1,4 +1,4 @@
-name: Validar estrutura de envio
+name: Validar envio em branch
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   validate:
-    name: Validar pastas alteradas
+    name: Validar subpasta de aluno
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,13 +18,11 @@ jobs:
       - name: Buscar branch base
         run: git fetch origin "${{ github.base_ref }}" --depth=1
 
-      - name: Validar estrutura das pastas
+      - name: Validar envio na subpasta existente
         shell: bash
         run: |
           set -e
 
-          # Evita que o git coloque em aspas/escape nomes de arquivo com acentos
-          # (ex.: "Espírito"), o que quebrava o parsing com cut -d/ abaixo.
           git config core.quotepath off
 
           BASE="origin/${{ github.base_ref }}"
@@ -64,15 +62,21 @@ jobs:
             fi
 
             if [ -z "$subpasta" ] || [ "$profundidade" -lt 3 ]; then
-              echo "::error file=$file::Não é permitido alterar arquivos direto em '$materia/' — coloque seus arquivos dentro da sua subpasta (com o seu nome)."
+              echo "::error file=$file::Não é permitido alterar arquivos direto em '$materia/' ou criar pasta nova na raiz da matéria. Use uma subpasta de aluno já existente na main."
+              FAIL=1
+              continue
+            fi
+
+            if ! git cat-file -e "$BASE:$materia/$subpasta" 2>/dev/null; then
+              echo "::error file=$file::A subpasta '$materia/$subpasta' precisa existir na branch main antes do envio. Não crie uma nova subpasta de aluno no PR."
               FAIL=1
               continue
             fi
 
             if [ -z "$SUBPASTA_REF" ]; then
-              SUBPASTA_REF="$subpasta"
-            elif [ "$subpasta" != "$SUBPASTA_REF" ]; then
-              echo "::error file=$file::Este Pull Request altera mais de uma subpasta de aluno ('$SUBPASTA_REF' e '$subpasta'). Cada PR deve conter só a sua própria subpasta."
+              SUBPASTA_REF="$materia/$subpasta"
+            elif [ "$materia/$subpasta" != "$SUBPASTA_REF" ]; then
+              echo "::error file=$file::Este Pull Request altera mais de uma subpasta de aluno ('$SUBPASTA_REF' e '$materia/$subpasta'). Cada PR deve conter só uma subpasta existente."
               FAIL=1
             fi
           done <<< "$CHANGED"
@@ -84,5 +88,5 @@ jobs:
           fi
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "✅ **Estrutura válida.** Alterações restritas à subpasta: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "Estrutura válida! Alterações restritas à subpasta: $SUBPASTA_REF"
+          echo "✅ **Estrutura válida.** Alterações restritas à subpasta existente: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Estrutura válida! Alterações restritas à subpasta existente: $SUBPASTA_REF"
