@@ -26,10 +26,10 @@ jobs:
           git config core.quotepath off
 
           BASE="origin/${{ github.base_ref }}"
-          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          CHANGED=$(git diff --name-only "$BASE"...HEAD | grep -v '^\.github/workflows/validar-estrutura\.yml$' || true)
 
           if [ -z "$CHANGED" ]; then
-            echo "Nenhum arquivo alterado neste PR."
+            echo "Nenhum arquivo de envio alterado neste PR."
             exit 0
           fi
 
