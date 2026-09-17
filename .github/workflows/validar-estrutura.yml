@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Buscar branch base
-        run: git fetch origin "${{ github.base_ref }}" --depth=1
+        run: git fetch --no-tags origin "${{ github.base_ref }}"
 
       - name: Validar envio na subpasta do aluno
         shell: bash
