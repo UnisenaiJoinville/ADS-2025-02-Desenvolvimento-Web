@@ -7,7 +7,7 @@ on:
 
 jobs:
   validate:
-    name: Validar subpasta de aluno
+    name: Validar envio do aluno
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,7 +18,7 @@ jobs:
       - name: Buscar branch base
         run: git fetch origin "${{ github.base_ref }}" --depth=1
 
-      - name: Validar envio na subpasta existente
+      - name: Validar envio na subpasta do aluno
         shell: bash
         run: |
           set -e
@@ -88,5 +88,5 @@ jobs:
           fi
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "✅ **Envio válido.** Alterações restritas à subpasta existente: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "Envio válido! Alterações restritas à subpasta existente: $SUBPASTA_REF"
+          echo "✅ **Envio válido.** Alterações restritas à subpasta do aluno: \`$SUBPASTA_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Envio válido! Alterações restritas à subpasta do aluno: $SUBPASTA_REF"
