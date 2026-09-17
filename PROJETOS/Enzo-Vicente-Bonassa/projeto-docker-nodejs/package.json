@@ -1,0 +1,21 @@
+{
+  "name": "estoque-facil",
+  "version": "1.0.0",
+  "description": "Sistema de gestao de estoque - Node.js, Express, MySQL e Docker",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon -L --watch src --signal SIGTERM src/server.js"
+  },
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

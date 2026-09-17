@@ -1,0 +1,14 @@
+{
+  "name": "nodejs-ii",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Atividades do Módulo 1 — Fundamentos de Backend, JavaScript Moderno e Node.js",
+  "scripts": {
+    "start:diagnostico": "node atividade-26-1-diagnostico/src/app.js",
+    "dev:diagnostico": "node --watch atividade-26-1-diagnostico/src/app.js",
+    "start:miniprojeto": "node miniprojeto-catalogo-servicos/src/app.js",
+    "dev:miniprojeto": "node --watch miniprojeto-catalogo-servicos/src/app.js",
+    "start:agendamento": "node desafio-26-3-agendamento/src/app.js",
+    "dev:agendamento": "node --watch desafio-26-3-agendamento/src/app.js"
+  }
+}

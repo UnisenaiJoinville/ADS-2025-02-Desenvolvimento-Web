@@ -1,0 +1,11 @@
+version: '3'
+services:
+  app-service:
+    image: nginx
+    container_name: minha-aplicacao
+
+  proxy-reverso:
+    image: nginx
+    container_name: meu-proxy
+    ports:
+      - "80:80"
