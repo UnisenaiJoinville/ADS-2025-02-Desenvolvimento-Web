@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Estoque Facil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div data-nav></div>
+
+    <main class="mx-auto max-w-7xl px-6 py-8">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p class="text-sm text-slate-500">Visao geral do estoque em tempo real</p>
+        </div>
+        <button
+          data-reload
+          class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+        >
+          Atualizar
+        </button>
+      </div>
+
+      
+      <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-cards></section>
+
+      
+      <section class="mt-4 grid gap-4 sm:grid-cols-3" data-month></section>
+
+      <div class="mt-8 grid gap-6 lg:grid-cols-2">
+        <section class="rounded-2xl border border-slate-200 bg-white p-6">
+          <h2 class="text-lg font-semibold text-slate-900">Estoque por categoria</h2>
+          <p class="mb-4 text-sm text-slate-500">Valor de custo imobilizado</p>
+          <div data-by-category class="space-y-4"></div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-6">
+          <h2 class="text-lg font-semibold text-slate-900">Estoque baixo</h2>
+          <p class="mb-4 text-sm text-slate-500">Produtos no limite ou abaixo do minimo</p>
+          <div data-low-stock class="space-y-2"></div>
+        </section>
+      </div>
+
+      <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 class="text-lg font-semibold text-slate-900">Ultimas movimentacoes</h2>
+        <p class="mb-4 text-sm text-slate-500">Entradas e saidas mais recentes</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="pb-2 pr-4">Produto</th>
+                <th class="pb-2 pr-4">Tipo</th>
+                <th class="pb-2 pr-4 text-right">Quantidade</th>
+                <th class="pb-2 text-right">Data</th>
+              </tr>
+            </thead>
+            <tbody data-recent class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div data-toast-stack class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <script type="module" src="/js/dashboard.js"></script>
+  </body>
+</html>
