@@ -1,7 +1,8 @@
 # Aula 26 — O service: bcrypt e o token JWT
 
-⏱️ **Tempo estimado:** 50 minutos
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
+
+**Tempo estimado:** 50 minutos
 
 ---
 
@@ -40,7 +41,7 @@ O `auth-service` **emite**. O middleware — que na próxima aula vai proteger p
 
 Como dois lados diferentes do sistema precisam dele, ele não pertence a nenhum módulo em particular. Vai para `shared/`, junto de `errors/` e `http/`.
 
-> 📌 **Regra prática:** se dois módulos precisam do mesmo código, ele sobe para `shared/`. Se só um precisa, fica dentro do módulo.
+> **Regra prática:** se dois módulos precisam do mesmo código, ele sobe para `shared/`. Se só um precisa, fica dentro do módulo.
 
 ---
 
@@ -120,7 +121,7 @@ Três argumentos:
 | 2º | O **segredo** que assina | `JWT_SECRET` do `.env` |
 | 3º | As **opções** | quem é o dono e por quanto tempo vale |
 
-> ⚠️ Lembre da [Aula 23](23-autenticacao-conceitos.md): o payload é **legível por qualquer um**. Nome e e-mail já são conhecidos pelo próprio usuário, então tudo bem. Senha, hash, CPF ou cartão: jamais.
+> **Atenção:** Lembre da [Aula 23](23-autenticacao-conceitos.md): o payload é **legível por qualquer um**. Nome e e-mail já são conhecidos pelo próprio usuário, então tudo bem. Senha, hash, CPF ou cartão: jamais.
 
 ### 2.2 `subject` e o campo `sub`
 
@@ -138,7 +139,7 @@ O JWT tem campos padronizados, com nomes de três letras:
 
 Passando `subject` nas opções, a biblioteca preenche o `sub` para nós. O `iat` e o `exp` ela preenche sozinha.
 
-> 🔍 **Por que `String(user.id)`?** A especificação do JWT exige que `sub` seja uma **string**. Se você passar o número `2`, a biblioteca reclama. Por isso, na volta, fazemos `Number(payload.sub)`.
+> **Por que `String(user.id)`?** A especificação do JWT exige que `sub` seja uma **string**. Se você passar o número `2`, a biblioteca reclama. Por isso, na volta, fazemos `Number(payload.sub)`.
 
 ### 2.3 O token pronto, por dentro
 
@@ -200,7 +201,7 @@ Por que separar o caso do token expirado? Porque a ação do usuário é diferen
 | "Sessão expirada" | "ah, fiquei fora muito tempo" | fazer login de novo, tranquilo |
 | "Token inválido" | "algo está errado" | idem, mas há algo suspeito |
 
-> 🔍 **Por que traduzir o erro?** Se deixássemos o erro da biblioteca subir, o usuário veria `JsonWebTokenError: invalid signature` — uma mensagem que só faz sentido para quem escreveu a biblioteca. Traduzir erros técnicos em erros de negócio é trabalho do nosso código.
+> **Por que traduzir o erro?** Se deixássemos o erro da biblioteca subir, o usuário veria `JsonWebTokenError: invalid signature` — uma mensagem que só faz sentido para quem escreveu a biblioteca. Traduzir erros técnicos em erros de negócio é trabalho do nosso código.
 
 ---
 
@@ -359,7 +360,7 @@ Se fosse síncrono, o Node ficaria 100 ms **inteiramente parado**, sem atender m
 
 Com `await`, o trabalho pesado acontece fora dela e o servidor continua respondendo.
 
-> ⚠️ O `bcryptjs` também oferece `hashSync` e `compareSync`. **Não use** em servidor. Eles travam o processo inteiro.
+> **Atenção:** O `bcryptjs` também oferece `hashSync` e `compareSync`. **Não use** em servidor. Eles travam o processo inteiro.
 
 ### 3.3 A checagem de e-mail duplicado
 
@@ -381,7 +382,7 @@ O banco já tem `UNIQUE` em `email`. Então por que checar aqui?
 
 O `UNIQUE` continua sendo essencial — ele é a **garantia**. A checagem aqui é a **boa mensagem**.
 
-> 🔍 **Curiosidade honesta:** entre o `findByEmail` e o `create` existe uma janela de milissegundos em que duas requisições simultâneas poderiam passar as duas. Nesse caso raríssimo, o `UNIQUE` do banco barra a segunda e ela vira erro 500. Feio, mas **correto**: nunca vão existir dois usuários com o mesmo e-mail. É exatamente por isso que a garantia fica no banco, e não só no código.
+> **Curiosidade honesta:** entre o `findByEmail` e o `create` existe uma janela de milissegundos em que duas requisições simultâneas poderiam passar as duas. Nesse caso raríssimo, o `UNIQUE` do banco barra a segunda e ela vira erro 500. Feio, mas **correto**: nunca vão existir dois usuários com o mesmo e-mail. É exatamente por isso que a garantia fica no banco, e não só no código.
 
 ### 3.4 `toPublicUser`: escolher o que sai
 
@@ -397,10 +398,10 @@ Existem duas formas de evitar vazar dados:
 
 ```javascript
 // Lista negra: "tire o que não pode"
-const { passwordHash, ...user } = found;      // ❌ frágil
+const { passwordHash, ...user } = found;      // frágil
 
 // Lista branca: "pegue só o que pode"
-const user = { id: found.id, name: found.name, email: found.email };  // ✅
+const user = { id: found.id, name: found.name, email: found.email };  // seguro
 ```
 
 A primeira depende de você **lembrar** de acrescentar cada campo novo perigoso. A segunda é segura por padrão: campo novo não sai até alguém escrever que ele sai.
@@ -476,7 +477,7 @@ Por quê? Veja o que aconteceria com mensagens específicas:
 
 Em poucos minutos ele monta a lista de todos os clientes da empresa — sem descobrir uma senha sequer. Isso se chama **enumeração de usuários**.
 
-> 📌 Você vai reparar nisso em qualquer site sério: a mensagem é sempre "e-mail ou senha inválidos", nunca uma das duas.
+> Você vai reparar nisso em qualquer site sério: a mensagem é sempre "e-mail ou senha inválidos", nunca uma das duas.
 
 ### 4.3 A ordem das checagens é uma decisão de segurança
 
@@ -499,7 +500,7 @@ if (!found.active) {
 }
 ```
 
-> 💡 Troque as duas checagens de lugar mentalmente e veja como uma linha fora de ordem vira um problema de segurança. É por isso que segurança se revisa lendo o código, não só testando a tela.
+> Troque as duas checagens de lugar mentalmente e veja como uma linha fora de ordem vira um problema de segurança. É por isso que segurança se revisa lendo o código, não só testando a tela.
 
 ### 4.4 O que o service devolve
 
@@ -548,7 +549,7 @@ export async function getProfile(id) {
 
 Serve para a rota `GET /api/auth/me`, que o front usa para perguntar "meu token ainda vale?".
 
-> 🔍 **Como o usuário pode não existir se o token é válido?** O token vale 1 dia. Se a conta for excluída do banco nesse meio tempo, o token continua criptograficamente válido mas aponta para ninguém. Buscar no banco em vez de confiar cegamente no token cobre esse caso.
+> **Como o usuário pode não existir se o token é válido?** O token vale 1 dia. Se a conta for excluída do banco nesse meio tempo, o token continua criptograficamente válido mas aponta para ninguém. Buscar no banco em vez de confiar cegamente no token cobre esse caso.
 
 ---
 
@@ -569,7 +570,7 @@ O service não sabe o que é `request` nem `response`. O repositório não sabe 
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 Ainda não há rota: ninguém chama o service. Confira que o servidor continua subindo:
 
@@ -589,7 +590,7 @@ estoque-api  | Servidor rodando em http://localhost:3000
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### `Cannot find package 'bcryptjs'` ou `'jsonwebtoken'`
 
@@ -624,7 +625,7 @@ Deve mostrar `$2b$` e `60`.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 O cérebro está pronto. Falta abrir as portas — e trancar as que já existiam.
 

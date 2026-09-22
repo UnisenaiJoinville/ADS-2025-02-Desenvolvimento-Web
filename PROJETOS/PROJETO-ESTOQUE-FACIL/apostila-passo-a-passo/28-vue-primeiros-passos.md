@@ -1,7 +1,8 @@
 # Aula 28 — Primeiros passos com Vue.js
 
-⏱️ **Tempo estimado:** 45 minutos
-📋 **Tipo:** teórica + laboratório
+**Tipo:** teórica + laboratório
+
+**Tempo estimado:** 45 minutos
 
 ---
 
@@ -98,7 +99,7 @@ Vue inverte a direção. Em vez de você dizer *como* mudar a tela, você descre
 
 Só isso. Esse "perceber sozinho" tem nome: **reatividade**.
 
-> 📌 Você não vai deixar de entender o `innerHTML`. Pelo contrário: agora que você sabe fazer na mão, dá para apreciar o que o Vue economiza. Frameworks só fazem sentido para quem já sentiu o problema que eles resolvem.
+> Você não vai deixar de entender o `innerHTML`. Pelo contrário: agora que você sabe fazer na mão, dá para apreciar o que o Vue economiza. Frameworks só fazem sentido para quem já sentiu o problema que eles resolvem.
 
 ---
 
@@ -121,7 +122,7 @@ Exatamente como fizemos com o Tailwind na [Aula 15](15-front-base.md).
 
 Para aprender os conceitos, o CDN é melhor: nada fica escondido atrás de um compilador.
 
-> ⚠️ **Em produção** você usaria `vue.global.prod.js` (menor e mais rápido) ou um build de verdade. A versão que estamos usando traz mensagens de erro detalhadas no console — ótimo para aprender.
+> **Em produção** você usaria `vue.global.prod.js` (menor e mais rápido) ou um build de verdade. A versão que estamos usando traz mensagens de erro detalhadas no console — ótimo para aprender.
 
 ---
 
@@ -146,7 +147,7 @@ Todo app Vue tem **duas metades**:
 
 E o `.mount("#app")` é o momento em que o Vue assume o comando daquele pedaço da página.
 
-> 🔍 O Vue só controla o que está **dentro** de `#app`. O resto da página continua sendo HTML comum.
+> O Vue só controla o que está **dentro** de `#app`. O resto da página continua sendo HTML comum.
 
 ---
 
@@ -348,7 +349,7 @@ Crie `public/vue-lab.html`. Este arquivo **não faz parte do sistema** — é um
 
 Salve e abra `http://localhost:3000/vue-lab.html`.
 
-> 💡 Repare que esta página não chama a API. Por isso ela funciona mesmo com a API protegida pela [Aula 27](27-auth-rotas-e-middleware.md).
+> Repare que esta página não chama a API. Por isso ela funciona mesmo com a API protegida pela [Aula 27](27-auth-rotas-e-middleware.md).
 
 ---
 
@@ -373,7 +374,7 @@ document.querySelector("#contador").textContent = contador;
 
 Só que você teria que se lembrar de chamar isso **toda vez** que `contador` mudasse. O Vue não esquece.
 
-> 🔒 **Bônus de segurança:** `{{ }}` sempre escreve **texto**, nunca HTML. Se o nome do produto for `<script>alert(1)</script>`, aparece essa string na tela — não executa. Ou seja: o `escapeHtml` da [Aula 15](15-front-base.md) vem de graça.
+> **Bônus de segurança:** `{{ }}` sempre escreve **texto**, nunca HTML. Se o nome do produto for `<script>alert(1)</script>`, aparece essa string na tela — não executa. Ou seja: o `escapeHtml` da [Aula 15](15-front-base.md) vem de graça.
 
 ### 5.2 `v-model` — o campo e o dado, amarrados
 
@@ -410,7 +411,7 @@ input.value = nome;
 | `.number` | converte para número |
 | `.lazy` | só atualiza quando sair do campo, em vez de a cada tecla |
 
-> ⚠️ **Guarde para a Aula 29:** vamos usar `.trim` no nome e no e-mail — e **nunca** na senha, pelo mesmo motivo da [Aula 25](25-auth-validator-repository.md).
+> **Guarde para a Aula 29:** vamos usar `.trim` no nome e no e-mail — e **nunca** na senha, pelo mesmo motivo da [Aula 25](25-auth-validator-repository.md).
 
 ### 5.3 `@evento` — reagir a cliques
 
@@ -436,7 +437,7 @@ form.addEventListener("submit", (event) => {
 <form @submit.prevent="adicionar">
 ```
 
-> ⚠️ **Se você esquecer o `.prevent`**, a página recarrega ao enviar o formulário, o estado se perde e parece que "não aconteceu nada". É o erro nº 1 de quem começa com Vue.
+> **Se você esquecer o `.prevent`**, a página recarrega ao enviar o formulário, o estado se perde e parece que "não aconteceu nada". É o erro nº 1 de quem começa com Vue.
 
 ### 5.4 `:atributo` — atributo que muda sozinho
 
@@ -467,7 +468,7 @@ Experimente no laboratório: apague o campo da seção 5 e veja o botão "Adicio
 | `v-if` | **remove** o elemento do HTML | a condição muda pouco |
 | `v-show` | mantém o elemento, com `display: none` | liga/desliga toda hora |
 
-> 🔍 **Faça este teste em sala:** abra o inspetor (F12), vá na seção 4 do laboratório e clique em "Esconder". O parágrafo com `v-if` **desaparece** do HTML; o com `v-show` continua lá, riscado com `display: none`.
+> **Faça este teste em sala:** abra o inspetor (F12), vá na seção 4 do laboratório e clique em "Esconder". O parágrafo com `v-if` **desaparece** do HTML; o com `v-show` continua lá, riscado com `display: none`.
 
 ### 5.6 `v-for` — repetir para cada item
 
@@ -493,7 +494,7 @@ tableBody.innerHTML = categories.map((c) => `<tr>...</tr>`).join("");
 
 É como o Vue reconhece cada item entre uma atualização e outra. Sem ele, ao remover o item do meio da lista, o Vue pode reaproveitar o elemento errado — e um texto digitado dentro de um item "pula" para outro.
 
-> 📌 **Regra:** todo `v-for` tem `:key`, e a chave é algo **único e estável** — o `id` do banco, nunca o índice da posição.
+> **Regra:** todo `v-for` tem `:key`, e a chave é algo **único e estável** — o `id` do banco, nunca o índice da posição.
 
 ### 5.7 `computed` — valor que se calcula sozinho
 
@@ -549,7 +550,7 @@ E existe um quarto, que usaremos na Aula 30:
 mounted() { ... }   // roda uma vez, quando a tela aparece
 ```
 
-### 🔍 Por que `data()` é uma função?
+### Por que `data()` é uma função?
 
 ```javascript
 data() {
@@ -561,7 +562,7 @@ Parece burocracia — por que não `data: { contador: 0 }`?
 
 Porque um mesmo componente pode aparecer várias vezes na tela. Se `data` fosse um objeto direto, todas as cópias compartilhariam o **mesmo** objeto, e mexer em uma mudaria as outras. Sendo função, cada cópia chama e recebe o seu próprio.
 
-### 🔍 O `this`
+### O `this`
 
 Dentro de `methods` e `computed`, `this` é o estado da tela:
 
@@ -574,7 +575,7 @@ adicionar() {
 
 `this.novoItem = ""` limpa o campo na tela — porque ele está amarrado com `v-model`.
 
-> ⚠️ **Nunca use *arrow function* em `methods`.** Escrever `adicionar: () => { this.itens... }` quebra, porque *arrow functions* não têm `this` próprio. Use sempre a forma curta `adicionar() { ... }`.
+> **Nunca use *arrow function* em `methods`.** Escrever `adicionar: () => { this.itens... }` quebra, porque *arrow functions* não têm `this` próprio. Use sempre a forma curta `adicionar() { ... }`.
 
 ---
 
@@ -596,7 +597,7 @@ Ola, {{ nome }} - voce digitou {{ nome.length }} caractere(s).
 
 O atributo `v-cloak` fica no elemento até o Vue assumir; o CSS esconde tudo enquanto ele está lá. Quando o Vue monta, ele remove o atributo e a tela aparece pronta.
 
-> 🔍 Para ver o problema, comente a linha do `<style>` e recarregue algumas vezes com o cache desligado.
+> Para ver o problema, comente a linha do `<style>` e recarregue algumas vezes com o cache desligado.
 
 ---
 
@@ -615,7 +616,7 @@ As telas de login e cadastro vão usar **o mesmo `api.js`** das outras telas. Vu
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 Abra `http://localhost:3000/vue-lab.html` e marque:
 
@@ -640,7 +641,7 @@ Aprender a reconhecer o erro é tão útil quanto acertar:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### A tela mostra literalmente `{{ contador }}`
 
@@ -664,7 +665,7 @@ Você usou no HTML um nome que não existe no `data()`. Confira a grafia — o c
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Agora que o Vue não é mais mistério, vamos construir a primeira tela de verdade.
 

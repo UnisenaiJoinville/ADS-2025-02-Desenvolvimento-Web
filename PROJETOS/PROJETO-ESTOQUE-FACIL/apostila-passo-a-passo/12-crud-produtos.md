@@ -1,6 +1,6 @@
 # Etapa 12 — CRUD de Produtos
 
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
 
 ---
 
@@ -115,12 +115,12 @@ Salve.
 
 ## Entendendo o validador
 
-### 🧩 Funções auxiliares em vez de `if` repetido
+### Funções auxiliares em vez de `if` repetido
 
 Compare com a abordagem problemática:
 
 ```javascript
-// ❌ Abordagem problemática: if dentro de if dentro de if
+// Abordagem problemática: if dentro de if dentro de if
 if (a == undefined || a == "") {
   console.log("erro");
 } else {
@@ -151,16 +151,16 @@ Esta escolha é proposital:
 | `Number.isFinite` | `10`, `10.5`, `0.99` | `NaN`, `Infinity` | **Preços** (têm centavos) |
 | `Number.isInteger` | `10`, `0` | `10.5`, `NaN` | **Quantidades** |
 
-> 💭 **Por que quantidade não pode ser fracionada?** Porque não existe "meia caneta" no estoque. Se o seu negócio vendesse a granel (2,5 kg de café), aí a modelagem seria outra.
+> **Por que quantidade não pode ser fracionada?** Porque não existe "meia caneta" no estoque. Se o seu negócio vendesse a granel (2,5 kg de café), aí a modelagem seria outra.
 
 Ambas rejeitam `NaN`, que é o que acontece quando alguém manda `"abc"`:
 
 ```javascript
 Number("abc")              // NaN
-Number.isInteger(NaN)      // false ✅ rejeitado
+Number.isInteger(NaN)      // false -> rejeitado
 ```
 
-### 💰 O arredondamento do dinheiro
+### O arredondamento do dinheiro
 
 ```javascript
 return Math.round(amount * 100) / 100;
@@ -176,7 +176,7 @@ Passo a passo com o valor `19.999`:
 
 **Por que fazer isso?** Nossa coluna é `DECIMAL(10,2)`, ou seja, 2 casas. Se mandássemos `19.999`, o banco arredondaria por conta própria — e a API teria respondido um valor **diferente** do que ficou salvo. Arredondando antes, o que a API responde é exatamente o que está no banco.
 
-### 🔤 O SKU em maiúsculas
+### O SKU em maiúsculas
 
 ```javascript
 const sku = parseText(input?.sku, { field: "SKU", maxLength: 40 }).toUpperCase();
@@ -184,9 +184,9 @@ const sku = parseText(input?.sku, { field: "SKU", maxLength: 40 }).toUpperCase()
 
 Isso normaliza a entrada. Assim `inf-003` e `INF-003` são o **mesmo** SKU, e a regra de unicidade funciona de verdade.
 
-> 📌 Sem isso, o usuário conseguiria cadastrar `bеb-001` e `BEB-001` como produtos diferentes, e o `UNIQUE` do banco não impediria (para o MySQL são strings distintas, dependendo da collation).
+> Sem isso, o usuário conseguiria cadastrar `bеb-001` e `BEB-001` como produtos diferentes, e o `UNIQUE` do banco não impediria (para o MySQL são strings distintas, dependendo da collation).
 
-### ⚖️ A validação que compara dois campos
+### A validação que compara dois campos
 
 ```javascript
 if (salePrice < costPrice) {
@@ -376,9 +376,9 @@ Depois, é só concatenar o que muda:
 `${SELECT_PRODUCT} ${where} ORDER BY p.name`
 ```
 
-> ⚠️ **Atenção:** aqui estamos concatenando **estrutura de SQL** (cláusulas que nós escrevemos), nunca **valores do usuário**. Isso é seguro. Valores continuam indo por `?`.
+> **Atenção:** aqui estamos concatenando **estrutura de SQL** (cláusulas que nós escrevemos), nunca **valores do usuário**. Isso é seguro. Valores continuam indo por `?`.
 
-### 🔍 Filtros dinâmicos, com segurança
+### Filtros dinâmicos, com segurança
 
 Esta é a parte mais interessante do arquivo:
 
@@ -428,7 +428,7 @@ Repare: os `%` (curingas) fazem parte do **valor**, que continua indo por `?`. A
 |---|---|---|
 | `caneta` | `%caneta%` | "Caneta esferografica", "Porta-caneta" |
 
-### 🎯 A função `toProduct`
+### A função `toProduct`
 
 ```javascript
 function toProduct(row) {
@@ -460,7 +460,7 @@ lowStock: row.quantity <= row.minimumStock
 
 `lowStock` **não existe no banco** — é calculado na hora. O front-end usa esse campo para pintar o alerta vermelho, sem precisar repetir a comparação em cada tela.
 
-> 📌 **Vantagem:** se um dia a regra mudar (por exemplo, alertar com 10% de folga), você muda **aqui**, em um lugar só.
+> **Vantagem:** se um dia a regra mudar (por exemplo, alertar com 10% de folga), você muda **aqui**, em um lugar só.
 
 ### O `...row` (spread)
 
@@ -548,7 +548,7 @@ export async function deleteProduct(id) {
 
 Salve.
 
-### 🔗 Um service pode usar o repository de outro módulo
+### Um service pode usar o repository de outro módulo
 
 ```javascript
 import * as categoryRepository from "../categories/category-repository.js";
@@ -559,7 +559,7 @@ Isso é **legítimo**. A regra "não aceitar categoria inexistente" pertence ao 
 **O que seria errado:** um repository chamar um service. Isso inverteria a direção das camadas e criaria dependência circular.
 
 ```text
-   ✅ PERMITIDO                    ❌ PROIBIDO
+   PERMITIDO                       PROIBIDO
 
    product-service                 product-repository
          |                                |
@@ -567,7 +567,7 @@ Isso é **legítimo**. A regra "não aceitar categoria inexistente" pertence ao 
    category-repository              category-service
 ```
 
-### 💭 "Mas a chave estrangeira já não garante isso?"
+### "Mas a chave estrangeira já não garante isso?"
 
 Excelente pergunta. Sim, o banco recusaria um `category_id` inexistente. Mas veja a diferença na mensagem:
 
@@ -577,7 +577,7 @@ Excelente pergunta. Sim, o banco recusaria um `category_id` inexistente. Mas vej
 
 A primeira é críptica e vaza detalhes internos. A segunda o usuário entende.
 
-> 📌 **Padrão:** valide na aplicação para dar boa mensagem; mantenha a restrição no banco como rede de segurança.
+> **Padrão:** valide na aplicação para dar boa mensagem; mantenha a restrição no banco como rede de segurança.
 
 ### A ordem das verificações
 
@@ -644,7 +644,7 @@ export async function destroy(request, response) {
 
 Salve.
 
-### 📥 `request.query` — os parâmetros da URL
+### `request.query` — os parâmetros da URL
 
 Quando alguém acessa:
 
@@ -662,7 +662,7 @@ request.query = {
 }
 ```
 
-### ⚠️ A armadilha do booleano na query string
+### A armadilha do booleano na query string
 
 ```javascript
 onlyLowStock: lowStock === "true",
@@ -674,12 +674,12 @@ Porque na URL **tudo é texto**. E, em JavaScript, qualquer string não vazia é
 
 ```javascript
 Boolean("true")    // true
-Boolean("false")   // true  😱 !!!
+Boolean("false")   // true  <- cuidado!
 ```
 
 Se escrevêssemos `Boolean(lowStock)`, o filtro ficaria ligado mesmo com `?lowStock=false`.
 
-> 📌 Este é exatamente o tipo clássico de bug de coerção. A solução é sempre a mesma: **comparação estrita e conversão explícita**.
+> Este é exatamente o tipo clássico de bug de coerção. A solução é sempre a mesma: **comparação estrita e conversão explícita**.
 
 ---
 
@@ -705,7 +705,7 @@ productRoutes.delete("/:id", asyncHandler(controller.destroy));
 
 Salve.
 
-> 👀 Idêntico ao de categorias, trocando apenas os nomes. É o padrão se repetindo.
+> Idêntico ao de categorias, trocando apenas os nomes. É o padrão se repetindo.
 
 ---
 
@@ -749,7 +749,7 @@ curl -X POST http://localhost:3000/api/products \
  "quantity":10,"minimumStock":2,"active":true,"lowStock":false, ...}
 ```
 
-> 🎯 **Três coisas para observar:**
+> **Três coisas para observar:**
 > 1. Mandamos `"inf-003"` e voltou `"INF-003"` → o `.toUpperCase()` funcionou
 > 2. Veio `categoryName: "Informatica"` → o `LEFT JOIN` funcionou
 > 3. Veio `lowStock: false` → o campo calculado funcionou
@@ -806,7 +806,7 @@ curl "http://localhost:3000/api/products?categoryId=3"
 curl "http://localhost:3000/api/products?search=caneta&categoryId=3"
 ```
 
-> ⚠️ **Use aspas na URL com `&`** no terminal. Sem elas, o shell interpreta o `&` como "rodar em segundo plano".
+> **Use aspas na URL com `&`** no terminal. Sem elas, o shell interpreta o `&` como "rodar em segundo plano".
 
 ### Atualizar e excluir
 
@@ -820,7 +820,7 @@ curl -i -X DELETE http://localhost:3000/api/products/8
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] Os 5 arquivos existem em `src/modules/products`
 - [ ] `src/routes/index.js` registra `/products`
@@ -834,7 +834,7 @@ curl -i -X DELETE http://localhost:3000/api/products/8
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -846,8 +846,8 @@ curl -i -X DELETE http://localhost:3000/api/products/8
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Agora vem a etapa mais importante do projeto: fazer o estoque somar e subtrair **com segurança**.
 
-**[Etapa 13 — Movimentações e Transações](13-movimentacoes-transacoes.md)** ⭐
+**[Etapa 13 — Movimentações e Transações](13-movimentacoes-transacoes.md)**

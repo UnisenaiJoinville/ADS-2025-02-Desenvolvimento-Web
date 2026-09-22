@@ -1,7 +1,8 @@
 # Aula 29 — Tela de cadastro com Vue
 
-⏱️ **Tempo estimado:** 50 minutos
-📋 **Tipo:** prática (HTML + Vue)
+**Tipo:** prática (HTML + Vue)
+
+**Tempo estimado:** 50 minutos
 
 ---
 
@@ -28,14 +29,14 @@ Antes da tela, uma decisão: depois do login, **onde** o navegador guarda o toke
 
 | Lugar | Sobrevive ao F5? | Sobrevive a fechar o navegador? |
 |---|---|---|
-| Variável JavaScript | ❌ não | ❌ não |
-| `sessionStorage` | ✅ sim | ❌ não |
-| `localStorage` | ✅ sim | ✅ sim |
-| Cookie `httpOnly` | ✅ sim | ✅ sim |
+| Variável JavaScript | não | não |
+| `sessionStorage` | sim | não |
+| `localStorage` | sim | sim |
+| Cookie `httpOnly` | sim | sim |
 
 Vamos usar **`localStorage`**: é simples, visível no F12 (ótimo para aula) e não exige mudar nada no servidor.
 
-> ⚠️ **Sendo honesto sobre a escolha:** `localStorage` é legível por qualquer JavaScript da página. Se um invasor conseguir injetar script no seu site (ataque **XSS**), ele lê o token. A defesa de verdade, em produção, é o cookie `httpOnly`, que o JavaScript **não** enxerga — mas ele exige configurar CORS, CSRF e `SameSite`, assunto para outro módulo. Aqui, o que nos protege de XSS é o que já fazemos: `escapeHtml` nas telas antigas e `{{ }}` nas telas Vue.
+> **Sendo honesto sobre a escolha:** `localStorage` é legível por qualquer JavaScript da página. Se um invasor conseguir injetar script no seu site (ataque **XSS**), ele lê o token. A defesa de verdade, em produção, é o cookie `httpOnly`, que o JavaScript **não** enxerga — mas ele exige configurar CORS, CSRF e `SameSite`, assunto para outro módulo. Aqui, o que nos protege de XSS é o que já fazemos: `escapeHtml` nas telas antigas e `{{ }}` nas telas Vue.
 
 ### Uma regra de organização
 
@@ -176,7 +177,7 @@ Abra o F12 → **Application** → **Local Storage**. Você consegue **editar** 
 
 Se alguém apagar metade do JSON, o `JSON.parse` lança um erro — e um erro não tratado no topo do módulo **impede a tela inteira de carregar**. Com o `catch`, tratamos como "não tem usuário" e a vida segue.
 
-> 📌 Tudo que vem do navegador do usuário é dado **não confiável**, igualzinho ao que vem numa requisição HTTP. Mesmo princípio da [Aula 25](25-auth-validator-repository.md), do outro lado do fio.
+> Tudo que vem do navegador do usuário é dado **não confiável**, igualzinho ao que vem numa requisição HTTP. Mesmo princípio da [Aula 25](25-auth-validator-repository.md), do outro lado do fio.
 
 ### 2.4 O porteiro do front
 
@@ -200,13 +201,13 @@ E o contrário, usado no cadastro e no login:
 export function redirectIfAuthenticated() { ... }
 ```
 
-> ⚠️ **Isto não é segurança.** É conveniência.
+> **Isto não é segurança.** É conveniência.
 >
 > `requireAuth()` só olha se **existe** um texto no `localStorage` — não valida assinatura nem expiração. Qualquer pessoa pode digitar `localStorage.setItem("estoque-facil:token", "xxx")` no console e a tela abre.
 >
 > E aí não acontece nada de mais: a tela abre **vazia**, porque cada `fetch` vai levar esse token falso e a API vai responder `401`.
 >
-> 📌 **Guarde esta frase:** a segurança está no servidor. O front só evita mostrar uma tela que não vai funcionar.
+> **Guarde esta frase:** a segurança está no servidor. O front só evita mostrar uma tela que não vai funcionar.
 
 ### 2.5 `replace()` e não `href`
 
@@ -346,7 +347,7 @@ Esta é a grande vantagem de ter centralizado o `fetch` lá na [Aula 15](15-fron
 
 São **quatro linhas**, escritas **uma vez**, e agora as 20 chamadas de API do sistema inteiro passam a mandar o token. Nenhuma tela precisou mudar.
 
-> 💡 Imagine se cada tela tivesse o seu próprio `fetch`. Seriam 20 lugares para editar — e um deles ficaria esquecido.
+> Imagine se cada tela tivesse o seu próprio `fetch`. Seriam 20 lugares para editar — e um deles ficaria esquecido.
 
 ### 3.2 O `...options.headers`
 
@@ -584,7 +585,7 @@ Não se assuste com o tamanho: é o mesmo bloco repetido quatro vezes, um por ca
 
 Tailwind, Vue e o truque do `v-cloak` da [Aula 28](28-vue-primeiros-passos.md).
 
-> ⚠️ Repare que **não existe** `<div data-nav>` aqui. Quem ainda não tem conta não deve ver o menu do sistema.
+> **Atenção:** Repare que **não existe** `<div data-nav>` aqui. Quem ainda não tem conta não deve ver o menu do sistema.
 
 ### 4.2 O molde de um campo
 
@@ -843,7 +844,7 @@ O `<script src="...vue.global.js">` do HTML publica tudo numa variável global c
 - usar `import` para os **nossos** arquivos;
 - ler a global `Vue`, que o CDN já deixou pronta.
 
-> 🔍 Repare que o `api.js` é exatamente o mesmo usado pelas telas antigas. Vue não substituiu nada do que você já tinha.
+> Repare que o `api.js` é exatamente o mesmo usado pelas telas antigas. Vue não substituiu nada do que você já tinha.
 
 ### 5.2 O estado
 
@@ -868,7 +869,7 @@ Sem esse controle, a tela abriria assim:
 ```text
    Nome completo
    [                    ]
-   ⚠ Informe seu nome          <- a pessoa nem começou!
+   Informe seu nome            <- a pessoa nem começou!
 ```
 
 É hostil. O padrão que usamos é o de qualquer formulário bem feito:
@@ -934,7 +935,7 @@ strength() {
 
 Um ponto por critério atendido. Repare que o `computed` devolve um **objeto** com três informações, e o HTML usa as três.
 
-> 🔍 **Cuidado com o recado que isso passa:** força de senha medida assim é uma estimativa grosseira. `Senha@123` marca "forte" e está em qualquer lista de senhas comuns. É um incentivo visual, não uma garantia.
+> **Cuidado com o recado que isso passa:** força de senha medida assim é uma estimativa grosseira. `Senha@123` marca "forte" e está em qualquer lista de senhas comuns. É um incentivo visual, não uma garantia.
 
 ### 5.6 `canSubmit`
 
@@ -1008,7 +1009,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 Prove em sala: rode aquele `curl` com senha `"123"` da [Aula 27](27-auth-rotas-e-middleware.md). A tela do Vue nem foi consultada, e o back-end recusou.
 
-> 📌 **Regra que vale para a carreira inteira:** validação no cliente é UX. Validação no servidor é segurança. Nunca confie na primeira.
+> **Regra que vale para a carreira inteira:** validação no cliente é UX. Validação no servidor é segurança. Nunca confie na primeira.
 
 ### 5.10 Passando dados pela URL
 
@@ -1056,7 +1057,7 @@ Abra `http://localhost:3000/cadastro.html`.
 | 10 | Volte e cadastre o **mesmo** e-mail | Faixa vermelha: "Ja existe uma conta com esse e-mail" |
 | 11 | Clique em "Mostrar" na senha | O texto aparece nos dois campos |
 
-> 🔍 **No teste 10**, repare de onde veio a mensagem: do **back-end**. Ela atravessou `service → controller → HTTP → api.js → catch → errorMessage → {{ }}`. É todo o sistema funcionando em conjunto.
+> **No teste 10**, repare de onde veio a mensagem: do **back-end**. Ela atravessou `service → controller → HTTP → api.js → catch → errorMessage → {{ }}`. É todo o sistema funcionando em conjunto.
 
 ### Confira no banco
 
@@ -1071,11 +1072,11 @@ id  name                  email            hash      created_at
 2   Maria de Lourdes...   maria@teste.com  $2b$10$   2026-09-22 22:31:02
 ```
 
-🎉 A senha que você digitou **não está** ali. Só o hash.
+A senha que você digitou **não está** ali. Só o hash.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `public/js/auth.js` criado
 - [ ] `public/js/api.js` manda `Authorization` quando há token
@@ -1090,7 +1091,7 @@ id  name                  email            hash      created_at
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### A tela mostra `{{ form.name }}` literalmente
 
@@ -1132,7 +1133,7 @@ Confira o `catch`: ele precisa atribuir `this.errorMessage = error.message`, e o
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 A conta existe. Agora vamos entrar com ela.
 

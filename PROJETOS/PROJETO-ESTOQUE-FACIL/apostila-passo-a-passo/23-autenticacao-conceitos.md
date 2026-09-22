@@ -1,7 +1,8 @@
 # Aula 23 — Autenticação: entendendo antes de codar
 
-⏱️ **Tempo estimado:** 30 minutos
-📋 **Tipo:** teórica (nenhum código ainda)
+**Tipo:** teórica (nenhum código ainda)
+
+**Tempo estimado:** 30 minutos
 
 ---
 
@@ -45,7 +46,7 @@ Ninguém. O sistema não faz ideia. E isso significa que:
 | **Autenticação** | *Quem é você?* | Você digitou e-mail e senha corretos |
 | **Autorização** | *Você pode fazer isso?* | Só o gerente exclui produtos |
 
-> 📌 Nas aulas 23 a 32 fazemos **autenticação**. A autorização (perfis, permissões) fica como exercício na [Aula 32](32-teste-final-autenticacao.md).
+> Nas aulas 23 a 32 fazemos **autenticação**. A autorização (perfis, permissões) fica como exercício na [Aula 32](32-teste-final-autenticacao.md).
 
 ---
 
@@ -75,7 +76,7 @@ SELECT * FROM users WHERE email = ? AND password = ?;
 | As pessoas repetem senhas | A senha do seu sistema é a senha do e-mail e do banco delas |
 | Você nunca "desvaza" um vazamento | Uma vez exposta, sempre exposta |
 
-> 💡 Sistemas sérios não sabem a sua senha. Repare que quando você esquece a senha de um site, ele nunca te manda a senha antiga — ele manda um link para **criar outra**. Isso é prova de que ele não a tem.
+> Sistemas sérios não sabem a sua senha. Repare que quando você esquece a senha de um site, ele nunca te manda a senha antiga — ele manda um link para **criar outra**. Isso é prova de que ele não a tem.
 
 ### A solução: hash
 
@@ -117,7 +118,7 @@ Este é o pulo do gato, e confunde todo mundo na primeira vez:
 
 Nós **não descriptografamos** nada. Nós aplicamos o hash de novo e comparamos os resultados.
 
-> ⚠️ **Guarde esta frase:** não existe `WHERE password = ?` em nenhum lugar do nosso código. A comparação de senha nunca acontece no SQL.
+> **Guarde esta frase:** não existe `WHERE password = ?` em nenhum lugar do nosso código. A comparação de senha nunca acontece no SQL.
 
 ### Hash não é criptografia
 
@@ -179,7 +180,7 @@ Cada requisição HTTP é independente. O servidor atende e esquece.
 
 ```text
   Requisição 1:  POST /api/auth/login    -> "ok, é a Ana mesmo"
-  Requisição 2:  GET  /api/products      -> "quem é você?" 🤷
+  Requisição 2:  GET  /api/products      -> "quem é você?"
 ```
 
 Se o servidor esquece, como as próximas telas sabem quem está falando?
@@ -216,7 +217,7 @@ eyJhbGciOiJIUzI1NiJ9 . eyJuYW1lIjoiQW5hIiwic3ViIjoiMiJ9 . PorPhLZZff5seKhz95uYOt
 
 Os dois primeiros pedaços são **apenas JSON codificado em Base64**. Qualquer pessoa consegue ler.
 
-> 🔍 **Teste em sala:** copie um token e cole em https://jwt.io. Você vai ver o conteúdo em texto claro. Isso assusta na primeira vez, mas está correto.
+> **Teste em sala:** copie um token e cole em https://jwt.io. Você vai ver o conteúdo em texto claro. Isso assusta na primeira vez, mas está correto.
 
 ### Se qualquer um lê, qual é a graça?
 
@@ -235,7 +236,7 @@ A graça está na **terceira parte**: a assinatura.
 
 Se alguém trocar `"sub": "2"` por `"sub": "1"` para virar outro usuário, a assinatura deixa de bater e o servidor recusa.
 
-> ⚠️ **Duas regras que valem ouro:**
+> **Duas regras que valem ouro:**
 > 1. Token **não é** lugar de segredo. Nunca coloque senha, hash ou número de cartão no payload.
 > 2. O `JWT_SECRET` é a chave do reino. Vazou o segredo, qualquer um emite tokens válidos.
 
@@ -348,7 +349,7 @@ app.use(express.static(...)); // middleware: entrega os arquivos do public
 | `403` | Forbidden | **Sei quem você é, mas não pode** (autorização — fica de exercício) |
 | `409` | Conflict | Esse e-mail já tem conta |
 
-> 📌 O nome `401 Unauthorized` é um erro histórico do próprio HTTP: ele deveria se chamar *Unauthenticated*. Quem trata de permissão é o `403`.
+> O nome `401 Unauthorized` é um erro histórico do próprio HTTP: ele deveria se chamar *Unauthenticated*. Quem trata de permissão é o `403`.
 
 ---
 
@@ -384,7 +385,7 @@ public/
 
 ---
 
-## ✅ Confira se você entendeu
+## Confira se você entendeu
 
 Responda mentalmente antes de seguir:
 
@@ -409,7 +410,7 @@ Responda mentalmente antes de seguir:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Chega de teoria. Vamos criar a tabela de usuários e instalar as duas bibliotecas.
 

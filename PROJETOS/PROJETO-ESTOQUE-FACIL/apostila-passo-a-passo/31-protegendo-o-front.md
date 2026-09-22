@@ -1,7 +1,8 @@
 # Aula 31 — Protegendo as telas e mostrando quem está logado
 
-⏱️ **Tempo estimado:** 40 minutos
-📋 **Tipo:** prática (alterações em arquivos já existentes)
+**Tipo:** prática (alterações em arquivos já existentes)
+
+**Tempo estimado:** 40 minutos
 
 ---
 
@@ -29,12 +30,12 @@ Nesta aula você não cria arquivos novos: **altera cinco** que já existem.
 Hoje o sistema está assim:
 
 ```text
-   ✅ A API recusa quem não tem token              (Aula 27)
-   ✅ O token é gerado no login                    (Aula 30)
-   ✅ O api.js manda o token em toda requisição    (Aula 29)
-   ❌ As telas internas abrem para qualquer um
-   ❌ Ninguém sabe quem está logado
-   ❌ Não existe como sair
+   [x] A API recusa quem não tem token              (Aula 27)
+   [x] O token é gerado no login                    (Aula 30)
+   [x] O api.js manda o token em toda requisição    (Aula 29)
+   [ ] As telas internas abrem para qualquer um
+   [ ] Ninguém sabe quem está logado
+   [ ] Não existe como sair
 ```
 
 Teste o problema: abra o F12 → Application → Local Storage, **apague as duas chaves** e recarregue o dashboard.
@@ -175,7 +176,7 @@ Repare no que existe nesses arquivos **acima** dessa linha: definições de fun�
 
 A única linha que **carrega dados do servidor** é a última. É ela que protegemos.
 
-> 📌 Duas linhas por arquivo, nenhuma indentação alterada, nenhum erro no console. Quando uma solução simples cobre o caso real, ela ganha da elegante.
+> Duas linhas por arquivo, nenhuma indentação alterada, nenhum erro no console. Quando uma solução simples cobre o caso real, ela ganha da elegante.
 
 ---
 
@@ -350,7 +351,7 @@ function renderUserBadge() {
 
 Repare no `if (!user) return "";`. Ele existe porque `renderNav` pode ser chamada por uma tela sem sessão, no instante antes do redirecionamento. Sem essa guarda, `user.name` quebraria com `Cannot read properties of null`.
 
-> 💡 Essa linha é o que chamamos de "programação defensiva": tratar o caso improvável antes que ele apareça em sala.
+> Essa linha é o que chamamos de "programação defensiva": tratar o caso improvável antes que ele apareça em sala.
 
 ### 3.3 As iniciais do nome
 
@@ -396,7 +397,7 @@ Truque que vale conhecer: `Boolean` é uma função, e `filter` chama ela para c
 
 Mantém só a primeira e a última letra: `"Maria de Lourdes Silva"` vira `"MS"`, não `"MDLS"`.
 
-> 🔍 **Por que um caso especial?** Um nome só, como `"Ana"`, tem índice 0 que é ao mesmo tempo o primeiro e o último. O `||` faz as duas condições baterem na mesma letra e o resultado é `"A"` — uma letra, não `"AA"`, porque é o mesmo item filtrado uma vez.
+> **Por que um caso especial?** Um nome só, como `"Ana"`, tem índice 0 que é ao mesmo tempo o primeiro e o último. O `||` faz as duas condições baterem na mesma letra e o resultado é `"A"` — uma letra, não `"AA"`, porque é o mesmo item filtrado uma vez.
 
 #### E o `escapeHtml` continua obrigatório
 
@@ -408,7 +409,7 @@ Esta parte do sistema **não usa Vue** — ela monta HTML com template string, c
 
 Se alguém se cadastrasse com o nome `<img src=x onerror=alert(1)>`, sem `escapeHtml` esse código rodaria no menu. Com ele, aparece o texto literal.
 
-> 📌 É um bom momento para comparar: nas telas Vue, `{{ }}` faz isso sozinho. Aqui, você faz na mão. Mesma proteção, esforços diferentes.
+> É um bom momento para comparar: nas telas Vue, `{{ }}` faz isso sozinho. Aqui, você faz na mão. Mesma proteção, esforços diferentes.
 
 ### 3.4 Ligando o botão "Sair"
 
@@ -452,7 +453,7 @@ Isso costuma incomodar quem está aprendendo: "mas o servidor não precisa saber
 
 Não precisa — e não tem como saber. O servidor **não guarda sessão nenhuma**: ele só confere assinaturas de token. Apagar o token do navegador é, literalmente, sair.
 
-> ⚠️ **A consequência honesta:** um token que já tenha sido copiado continua válido até vencer. Se você "sair" mas alguém tiver anotado o seu token, ele ainda funciona pelo tempo restante.
+> **A consequência honesta:** um token que já tenha sido copiado continua válido até vencer. Se você "sair" mas alguém tiver anotado o seu token, ele ainda funciona pelo tempo restante.
 >
 > Sistemas que precisam de logout imediato mantêm uma lista de tokens revogados no servidor — e aí voltam a ter estado. É a troca clássica: tokens sem estado são simples e escaláveis, mas não se cancelam.
 
@@ -494,7 +495,7 @@ O que acontece, em ordem:
    4. o api.js vê "401 COM token" -> limpa a sessão e volta ao login
 ```
 
-🔑 **Este é o resumo das dez aulas.** O front foi enganado com facilidade. O servidor, não.
+**Este é o resumo das dez aulas.** O front foi enganado com facilidade. O servidor, não.
 
 ### O teste do token inventado
 
@@ -507,7 +508,7 @@ location.reload();
 
 Mesmo final: a tela abre e é imediatamente expulsa.
 
-> 📌 Se algum aluno perguntar "então o `requireAuth` não serve para nada?", a resposta é: ele serve para **experiência**, não para segurança. Sem ele, quem não está logado veria uma tela quebrada em vez de um formulário de login. A tranca de verdade está no `ensureAuthenticated`, do outro lado.
+> Se algum aluno perguntar "então o `requireAuth` não serve para nada?", a resposta é: ele serve para **experiência**, não para segurança. Sem ele, quem não está logado veria uma tela quebrada em vez de um formulário de login. A tranca de verdade está no `ensureAuthenticated`, do outro lado.
 
 ---
 
@@ -543,7 +544,7 @@ Mesmo final: a tela abre e é imediatamente expulsa.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] As 4 telas internas redirecionam para o login quando não há sessão
 - [ ] O menu mostra iniciais, nome e e-mail de quem entrou
@@ -555,7 +556,7 @@ Mesmo final: a tela abre e é imediatamente expulsa.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### `requireAuth is not defined`
 
@@ -591,7 +592,7 @@ container.querySelector("[data-logout]")?.addEventListener("click", logout);
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Tudo funcionando. Hora de testar do zero, com roteiro, e fixar com exercícios.
 
