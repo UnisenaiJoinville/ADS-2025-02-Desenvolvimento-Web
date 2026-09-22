@@ -1,4 +1,4 @@
-# Aula 29 — Tela de cadastro com Vue
+# Etapa 29 — Tela de cadastro com Vue
 
 **Tipo:** prática (HTML + Vue)
 
@@ -18,8 +18,8 @@ Construir a primeira tela em Vue do projeto, e com ela três arquivos:
 
 ## Antes de começar
 
-- [ ] [Aula 28](28-vue-primeiros-passos.md) concluída (o laboratório funcionando)
-- [ ] API protegida, testada por `curl` na [Aula 27](27-auth-rotas-e-middleware.md)
+- [ ] [Etapa 28](28-vue-primeiros-passos.md) concluída (o laboratório funcionando)
+- [ ] API protegida, testada por `curl` na [Etapa 27](27-auth-rotas-e-middleware.md)
 
 ---
 
@@ -177,7 +177,7 @@ Abra o F12 → **Application** → **Local Storage**. Você consegue **editar** 
 
 Se alguém apagar metade do JSON, o `JSON.parse` lança um erro — e um erro não tratado no topo do módulo **impede a tela inteira de carregar**. Com o `catch`, tratamos como "não tem usuário" e a vida segue.
 
-> Tudo que vem do navegador do usuário é dado **não confiável**, igualzinho ao que vem numa requisição HTTP. Mesmo princípio da [Aula 25](25-auth-validator-repository.md), do outro lado do fio.
+> Tudo que vem do navegador do usuário é dado **não confiável**, igualzinho ao que vem numa requisição HTTP. Mesmo princípio da [Etapa 25](25-auth-validator-repository.md), do outro lado do fio.
 
 ### 2.4 O porteiro do front
 
@@ -343,7 +343,7 @@ if (token) {
 }
 ```
 
-Esta é a grande vantagem de ter centralizado o `fetch` lá na [Aula 15](15-front-base.md).
+Esta é a grande vantagem de ter centralizado o `fetch` lá na [Etapa 15](15-front-base.md).
 
 São **quatro linhas**, escritas **uma vez**, e agora as 20 chamadas de API do sistema inteiro passam a mandar o token. Nenhuma tela precisou mudar.
 
@@ -390,7 +390,7 @@ login: (payload) =>
 me: () => request("/auth/me"),
 ```
 
-Mesmo formato dos outros. Nada de novo aqui — e é esse o ponto: o padrão que você criou na Aula 15 acomodou o recurso novo sem precisar ser repensado.
+Mesmo formato dos outros. Nada de novo aqui — e é esse o ponto: o padrão que você criou na Etapa 15 acomodou o recurso novo sem precisar ser repensado.
 
 ### 3.5 Cuidado com a ordem dos imports
 
@@ -583,7 +583,7 @@ Não se assuste com o tamanho: é o mesmo bloco repetido quatro vezes, um por ca
 </style>
 ```
 
-Tailwind, Vue e o truque do `v-cloak` da [Aula 28](28-vue-primeiros-passos.md).
+Tailwind, Vue e o truque do `v-cloak` da [Etapa 28](28-vue-primeiros-passos.md).
 
 > **Atenção:** Repare que **não existe** `<div data-nav>` aqui. Quem ainda não tem conta não deve ver o menu do sistema.
 
@@ -1007,7 +1007,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 | No navegador | resposta instantânea, sem ida ao servidor | **sim**, é só usar `curl` |
 | No servidor | **a que vale** | não |
 
-Prove em sala: rode aquele `curl` com senha `"123"` da [Aula 27](27-auth-rotas-e-middleware.md). A tela do Vue nem foi consultada, e o back-end recusou.
+Prove em sala: rode aquele `curl` com senha `"123"` da [Etapa 27](27-auth-rotas-e-middleware.md). A tela do Vue nem foi consultada, e o back-end recusou.
 
 > **Regra que vale para a carreira inteira:** validação no cliente é UX. Validação no servidor é segurança. Nunca confie na primeira.
 
@@ -1027,7 +1027,7 @@ Vira, por exemplo:
 
 O `encodeURIComponent` escapa os caracteres especiais — o `@` vira `%40`. Sem isso, um e-mail com `+` (como `ana+loja@teste.com`) chegaria errado do outro lado, porque `+` significa espaço numa URL.
 
-A Aula 30 lê esses parâmetros.
+A Etapa 30 lê esses parâmetros.
 
 ---
 
@@ -1137,4 +1137,4 @@ Confira o `catch`: ele precisa atribuir `this.errorMessage = error.message`, e o
 
 A conta existe. Agora vamos entrar com ela.
 
-**[Aula 30 — Tela de login com Vue](30-tela-login-vue.md)**
+**[Etapa 30 — Tela de login com Vue](30-tela-login-vue.md)**

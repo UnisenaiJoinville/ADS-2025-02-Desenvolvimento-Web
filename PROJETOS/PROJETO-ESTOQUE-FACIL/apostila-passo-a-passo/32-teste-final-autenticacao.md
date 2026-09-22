@@ -1,4 +1,4 @@
-# Aula 32 — Teste final, problemas comuns e exercícios
+# Etapa 32 — Teste final, problemas comuns e exercícios
 
 **Tipo:** prática e avaliação
 
@@ -16,7 +16,7 @@
 
 ## Antes de começar
 
-- [ ] Aulas 23 a 31 concluídas
+- [ ] Etapas 23 a 31 concluídas
 - [ ] Containers no ar
 
 ---
@@ -107,7 +107,7 @@ id  name              email                        prefixo  tam
 
 ## Parte 2 — Dicionário de erros da autenticação
 
-Complementa a [Aula 21](21-solucao-de-problemas.md), só com o que aparece nestas dez aulas.
+Complementa a [Etapa 21](21-solucao-de-problemas.md), só com o que aparece nestas dez etapas.
 
 ### Back-end
 
@@ -119,11 +119,11 @@ Complementa a [Aula 21](21-solucao-de-problemas.md), só com o que aparece nesta
 | `JWT_SECRET deve ter pelo menos 32 caracteres` | segredo curto (proposital!) | use um segredo mais longo |
 | `secretOrPrivateKey must have a value` | `JWT_SECRET` vazio dentro do container | `docker compose exec api printenv JWT_SECRET` |
 | `"expiresIn" should be a number of seconds...` | `JWT_EXPIRES_IN` mal formatado | use `15m`, `2h`, `1d`, `7d` |
-| `Table 'estoque_db.users' doesn't exist` | migração não rodou | Passo 3 da [Aula 24](24-tabela-usuarios.md) |
+| `Table 'estoque_db.users' doesn't exist` | migração não rodou | Passo 3 da [Etapa 24](24-tabela-usuarios.md) |
 | `Error: Invalid salt version` | `password_hash` não é bcrypt | confira com `LEFT(password_hash, 4)` |
 | `ER_DUP_ENTRY ... for key 'users.email'` | duas requisições simultâneas | é o `UNIQUE` funcionando |
 | `ER_DATA_TOO_LONG for column 'password_hash'` | coluna criada pequena demais | precisa ser `VARCHAR(255)` |
-| `Rota nao encontrada: POST /api/auth/login` | falta `routes.use("/auth", authRoutes)` | [Aula 27](27-auth-rotas-e-middleware.md) |
+| `Rota nao encontrada: POST /api/auth/login` | falta `routes.use("/auth", authRoutes)` | [Etapa 27](27-auth-rotas-e-middleware.md) |
 | `/api/products` responde sem token | `ensureAuthenticated` está **depois** das rotas | ordem no `routes/index.js` |
 
 ### Front-end
@@ -137,7 +137,7 @@ Complementa a [Aula 21](21-solucao-de-problemas.md), só com o que aparece nesta
 | "Mostrar" tenta fazer login | falta `type="button"` | acrescente ao botão |
 | Entro e volto para o login na hora | token não foi salvo | confira o `saveSession` |
 | Dashboard vazio com erro `401` | token não está sendo enviado | reveja o `api.js` |
-| Senha errada recarrega a tela | falta `&& token` no `if` do `api.js` | [Aula 29](29-tela-cadastro-vue.md) |
+| Senha errada recarrega a tela | falta `&& token` no `if` do `api.js` | [Etapa 29](29-tela-cadastro-vue.md) |
 | Laço infinito de redirecionamento | `login.js` usa `requireAuth()` | deve ser `redirectIfAuthenticated()` |
 | `Cannot read properties of null` | elemento não existe ainda | use `?.`, e monte o HTML antes |
 | As alterações não aparecem | cache do navegador | **Ctrl + Shift + R** |
@@ -248,7 +248,7 @@ ALTER TABLE stock_movements
 
 Grave o `request.user.id` em cada movimentação e mostre o nome na tabela da tela.
 
-> Cuidado: o `movement-service.js` da [Aula 13](13-movimentacoes-transacoes.md) usa **transação**. O `user_id` entra no mesmo `INSERT`.
+> Cuidado: o `movement-service.js` da [Etapa 13](13-movimentacoes-transacoes.md) usa **transação**. O `user_id` entra no mesmo `INSERT`.
 
 ---
 
@@ -260,7 +260,7 @@ Grave o `request.user.id` em cada movimentação e mostre o nome na tabela da te
 ALTER TABLE users ADD COLUMN role ENUM('ADMIN','OPERATOR') NOT NULL DEFAULT 'OPERATOR' AFTER password_hash;
 ```
 
-Crie um middleware `ensureRole("ADMIN")` e use o `ForbiddenError` que já está no projeto desde a Aula 25.
+Crie um middleware `ensureRole("ADMIN")` e use o `ForbiddenError` que já está no projeto desde a Etapa 25.
 
 Regra: só `ADMIN` exclui produtos e categorias.
 
@@ -439,7 +439,7 @@ Para o professor conferir a entrega, ou para você se autoavaliar.
 
 ## O que você sabe fazer agora
 
-Some aos objetivos da [Aula 22](22-exercicios-e-checklist.md):
+Some aos objetivos da [Etapa 22](22-exercicios-e-checklist.md):
 
 - [x] Guardar senhas com segurança, usando hash e salt
 - [x] Emitir e validar tokens JWT

@@ -1,4 +1,4 @@
-# Aula 31 — Protegendo as telas e mostrando quem está logado
+# Etapa 31 — Protegendo as telas e mostrando quem está logado
 
 **Tipo:** prática (alterações em arquivos já existentes)
 
@@ -14,14 +14,14 @@ Fechar o círculo da autenticação no front-end:
 - mostrar **quem está logado** no menu, com um botão "Sair";
 - entender por que isso é conveniência, e não segurança.
 
-Nesta aula você não cria arquivos novos: **altera cinco** que já existem.
+Nesta etapa você não cria arquivos novos: **altera cinco** que já existem.
 
 ---
 
 ## Antes de começar
 
-- [ ] [Aula 30](30-tela-login-vue.md) concluída (você consegue entrar e ver o token no F12)
-- [ ] `public/js/auth.js` criado na [Aula 29](29-tela-cadastro-vue.md)
+- [ ] [Etapa 30](30-tela-login-vue.md) concluída (você consegue entrar e ver o token no F12)
+- [ ] `public/js/auth.js` criado na [Etapa 29](29-tela-cadastro-vue.md)
 
 ---
 
@@ -30,9 +30,9 @@ Nesta aula você não cria arquivos novos: **altera cinco** que já existem.
 Hoje o sistema está assim:
 
 ```text
-   [x] A API recusa quem não tem token              (Aula 27)
-   [x] O token é gerado no login                    (Aula 30)
-   [x] O api.js manda o token em toda requisição    (Aula 29)
+   [x] A API recusa quem não tem token              (Etapa 27)
+   [x] O token é gerado no login                    (Etapa 30)
+   [x] O api.js manda o token em toda requisição    (Etapa 29)
    [ ] As telas internas abrem para qualquer um
    [ ] Ninguém sabe quem está logado
    [ ] Não existe como sair
@@ -48,7 +48,7 @@ Não está errado — a API cumpriu o papel dela. Mas é uma péssima experiênc
 
 ## Passo 1 — O porteiro nas 4 telas
 
-A função já existe (você a escreveu na Aula 29):
+A função já existe (você a escreveu na Etapa 29):
 
 ```javascript
 export function requireAuth() {
@@ -329,7 +329,7 @@ Salve.
 
 ## 3. Dissecando as mudanças no `layout.js`
 
-Três coisas mudaram. O resto do arquivo está igual desde a [Aula 15](15-front-base.md).
+Três coisas mudaram. O resto do arquivo está igual desde a [Etapa 15](15-front-base.md).
 
 ### 3.1 O import
 
@@ -405,7 +405,7 @@ Mantém só a primeira e a última letra: `"Maria de Lourdes Silva"` vira `"MS"`
 <p class="...">${escapeHtml(user.name)}</p>
 ```
 
-Esta parte do sistema **não usa Vue** — ela monta HTML com template string, como nas Aulas 15 a 19. Então a proteção contra injeção continua sendo manual.
+Esta parte do sistema **não usa Vue** — ela monta HTML com template string, como nas Etapas 15 a 19. Então a proteção contra injeção continua sendo manual.
 
 Se alguém se cadastrasse com o nome `<img src=x onerror=alert(1)>`, sem `escapeHtml` esse código rodaria no menu. Com ele, aparece o texto literal.
 
@@ -428,7 +428,7 @@ export function mountLayout(activeHref) {
 
 **A ordem importa muito aqui.** O `addEventListener` vem **depois** do `innerHTML`, porque antes disso o botão simplesmente não existe no documento.
 
-É exatamente o problema que a [Aula 28](28-vue-primeiros-passos.md) citou: com `innerHTML`, os eventos precisam ser religados toda vez.
+É exatamente o problema que a [Etapa 28](28-vue-primeiros-passos.md) citou: com `innerHTML`, os eventos precisam ser religados toda vez.
 
 #### O `?.` antes do `addEventListener`
 
@@ -495,7 +495,7 @@ O que acontece, em ordem:
    4. o api.js vê "401 COM token" -> limpa a sessão e volta ao login
 ```
 
-**Este é o resumo das dez aulas.** O front foi enganado com facilidade. O servidor, não.
+**Este é o resumo das dez etapas.** O front foi enganado com facilidade. O servidor, não.
 
 ### O teste do token inventado
 
@@ -568,7 +568,7 @@ import { requireAuth } from "./auth.js";
 
 ### O nome não aparece no menu
 
-Confira no F12 → Application se a chave `estoque-facil:user` existe e tem um JSON válido. Se estiver faltando, o `saveSession` da Aula 30 não gravou o usuário — só o token.
+Confira no F12 → Application se a chave `estoque-facil:user` existe e tem um JSON válido. Se estiver faltando, o `saveSession` da Etapa 30 não gravou o usuário — só o token.
 
 ### O botão "Sair" não faz nada
 
@@ -596,4 +596,4 @@ container.querySelector("[data-logout]")?.addEventListener("click", logout);
 
 Tudo funcionando. Hora de testar do zero, com roteiro, e fixar com exercícios.
 
-**[Aula 32 — Teste final, problemas comuns e exercícios](32-teste-final-autenticacao.md)**
+**[Etapa 32 — Teste final, problemas comuns e exercícios](32-teste-final-autenticacao.md)**

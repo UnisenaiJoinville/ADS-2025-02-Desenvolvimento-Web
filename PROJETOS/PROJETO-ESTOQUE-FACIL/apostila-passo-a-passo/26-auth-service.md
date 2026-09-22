@@ -1,4 +1,4 @@
-# Aula 26 — O service: bcrypt e o token JWT
+# Etapa 26 — O service: bcrypt e o token JWT
 
 **Tipo:** prática (código JavaScript)
 
@@ -13,15 +13,15 @@ Escrever o **coração** do módulo de autenticação:
 - `src/shared/auth/token.js` — emite e confere o crachá
 - `src/modules/auth/auth-service.js` — as regras de cadastro e login
 
-É a aula mais densa deste bloco. Vá com calma.
+É a etapa mais densa deste bloco. Vá com calma.
 
 ---
 
 ## Antes de começar
 
-- [ ] [Aula 25](25-auth-validator-repository.md) concluída
+- [ ] [Etapa 25](25-auth-validator-repository.md) concluída
 - [ ] `user-validator.js` e `user-repository.js` criados
-- [ ] Você rodou `docker compose up -d --build api` na [Aula 24](24-tabela-usuarios.md)
+- [ ] Você rodou `docker compose up -d --build api` na [Etapa 24](24-tabela-usuarios.md)
 
 ---
 
@@ -37,7 +37,7 @@ Pense em quem vai usar cada coisa:
    (emite o token)       (confere o token, em TODAS as rotas)
 ```
 
-O `auth-service` **emite**. O middleware — que na próxima aula vai proteger produtos, categorias, movimentações e dashboard — **confere**.
+O `auth-service` **emite**. O middleware — que na próxima etapa vai proteger produtos, categorias, movimentações e dashboard — **confere**.
 
 Como dois lados diferentes do sistema precisam dele, ele não pertence a nenhum módulo em particular. Vai para `shared/`, junto de `errors/` e `http/`.
 
@@ -121,7 +121,7 @@ Três argumentos:
 | 2º | O **segredo** que assina | `JWT_SECRET` do `.env` |
 | 3º | As **opções** | quem é o dono e por quanto tempo vale |
 
-> **Atenção:** Lembre da [Aula 23](23-autenticacao-conceitos.md): o payload é **legível por qualquer um**. Nome e e-mail já são conhecidos pelo próprio usuário, então tudo bem. Senha, hash, CPF ou cartão: jamais.
+> **Atenção:** Lembre da [Etapa 23](23-autenticacao-conceitos.md): o payload é **legível por qualquer um**. Nome e e-mail já são conhecidos pelo próprio usuário, então tudo bem. Senha, hash, CPF ou cartão: jamais.
 
 ### 2.2 `subject` e o campo `sub`
 
@@ -143,7 +143,7 @@ Passando `subject` nas opções, a biblioteca preenche o `sub` para nós. O `iat
 
 ### 2.3 O token pronto, por dentro
 
-Depois de rodar a próxima aula, um token nosso fica assim (quebrado em linhas para caber):
+Depois de rodar a próxima etapa, um token nosso fica assim (quebrado em linhas para caber):
 
 ```text
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
@@ -342,7 +342,7 @@ A sequência é sempre a mesma dos outros services do projeto:
 const passwordHash = await bcrypt.hash(data.password, env.auth.saltRounds);
 ```
 
-Esta é **a linha mais importante das dez aulas**.
+Esta é **a linha mais importante das dez etapas**.
 
 A partir daqui, `data.password` não é usado em lugar nenhum. Ele existe na memória por alguns milissegundos e some com a função. O que segue viagem é o hash.
 
@@ -354,7 +354,7 @@ A partir daqui, `data.password` não é usado em lugar nenhum. Ele existe na mem
 
 ### 3.2 Por que `await`
 
-O `bcrypt.hash` é lento **de propósito** (lembra do custo 10 da [Aula 23](23-autenticacao-conceitos.md)?). São cerca de 100 milissegundos.
+O `bcrypt.hash` é lento **de propósito** (lembra do custo 10 da [Etapa 23](23-autenticacao-conceitos.md)?). São cerca de 100 milissegundos.
 
 Se fosse síncrono, o Node ficaria 100 ms **inteiramente parado**, sem atender mais ninguém — porque, como vimos no Módulo 1, o Node tem uma única *thread* principal.
 
@@ -529,7 +529,7 @@ Poderíamos devolver só o usuário e obrigar um login em seguida. Devolvemos o 
 - quem acabou de provar que sabe a senha **está autenticado**, por definição;
 - permite a experiência "cadastrou, já entrou", comum em apps.
 
-Nas nossas telas, ainda assim vamos mandar a pessoa para o login depois do cadastro — é mais claro em aula, e reforça que são dois passos. Fazer o cadastro entrar direto é um exercício da [Aula 32](32-teste-final-autenticacao.md).
+Nas nossas telas, ainda assim vamos mandar a pessoa para o login depois do cadastro — é mais claro em aula, e reforça que são dois passos. Fazer o cadastro entrar direto é um exercício da [Etapa 32](32-teste-final-autenticacao.md).
 
 ---
 
@@ -566,7 +566,7 @@ Vale parar e olhar o que cada arquivo conhece:
 
 O service não sabe o que é `request` nem `response`. O repositório não sabe o que é hash — para ele, `passwordHash` é um texto qualquer que vai para uma coluna.
 
-É a regra de ouro da [Aula 00](00-visao-geral.md) valendo também aqui.
+É a regra de ouro da [Etapa 00](00-visao-geral.md) valendo também aqui.
 
 ---
 
@@ -629,4 +629,4 @@ Deve mostrar `$2b$` e `60`.
 
 O cérebro está pronto. Falta abrir as portas — e trancar as que já existiam.
 
-**[Aula 27 — Controller, rotas e o middleware que protege a API](27-auth-rotas-e-middleware.md)**
+**[Etapa 27 — Controller, rotas e o middleware que protege a API](27-auth-rotas-e-middleware.md)**

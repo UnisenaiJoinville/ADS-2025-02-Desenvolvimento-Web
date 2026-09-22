@@ -1,4 +1,4 @@
-# Aula 25 — O módulo `auth`: validador e repositório
+# Etapa 25 — O módulo `auth`: validador e repositório
 
 **Tipo:** prática (código JavaScript)
 
@@ -19,21 +19,21 @@ E, de quebra, acrescentar dois erros novos ao projeto.
 
 ## Antes de começar
 
-- [ ] [Aula 24](24-tabela-usuarios.md) concluída (tabela `users` criada, bibliotecas instaladas)
+- [ ] [Etapa 24](24-tabela-usuarios.md) concluída (tabela `users` criada, bibliotecas instaladas)
 - [ ] `docker compose logs api --tail 5` mostra o servidor rodando
 
 ---
 
 ## A ordem em que vamos criar os arquivos
 
-Igual à [Aula 11](11-crud-categorias.md): **de baixo para cima**.
+Igual à [Etapa 11](11-crud-categorias.md): **de baixo para cima**.
 
 ```text
-   5. auth-routes.js       (Aula 27)
+   5. auth-routes.js       (Etapa 27)
             ^
-   4. auth-controller.js   (Aula 27)
+   4. auth-controller.js   (Etapa 27)
             ^
-   3. auth-service.js      (Aula 26)
+   3. auth-service.js      (Etapa 26)
             ^
    2. user-repository.js   <- HOJE
             ^
@@ -74,7 +74,7 @@ Salve.
 
 ### Por que isso já funciona sozinho
 
-Reveja o `error-handler.js` da [Aula 08](08-tratamento-de-erros.md):
+Reveja o `error-handler.js` da [Etapa 08](08-tratamento-de-erros.md):
 
 ```javascript
 if (error instanceof AppError) {
@@ -86,7 +86,7 @@ Ele não conhece `UnauthorizedError` — e nem precisa. Como a nova classe **est
 
 > Isso é herança sendo útil de verdade: você acrescenta comportamento novo **sem editar** o código que já funcionava. Repare que não mexemos em uma linha sequer do `error-handler.js`.
 
-O `ForbiddenError` não será usado nestas aulas — ele fica pronto para o exercício de perfis de usuário da [Aula 32](32-teste-final-autenticacao.md).
+O `ForbiddenError` não será usado nestas etapas — ele fica pronto para o exercício de perfis de usuário da [Etapa 32](32-teste-final-autenticacao.md).
 
 ---
 
@@ -229,7 +229,7 @@ Ou seja: **algo@algo.algo**, sem espaços.
 const name = String(value ?? "").trim().replace(/\s+/g, " ");
 ```
 
-É a mesma linha do `category-validator.js` da [Aula 11](11-crud-categorias.md). Ela transforma:
+É a mesma linha do `category-validator.js` da [Etapa 11](11-crud-categorias.md). Ela transforma:
 
 ```text
 "   Ana      Paula   Souza  "   ->   "Ana Paula Souza"
@@ -415,7 +415,7 @@ Compare as duas funções que buscam por e-mail:
 [email]
 ```
 
-Reveja a [Aula 11](11-crud-categorias.md): o `?` é **prepared statement**. O valor viaja separado do comando SQL, então não existe jeito de o conteúdo virar comando.
+Reveja a [Etapa 11](11-crud-categorias.md): o `?` é **prepared statement**. O valor viaja separado do comando SQL, então não existe jeito de o conteúdo virar comando.
 
 Numa tela de login isso é ainda mais crítico. A injeção de SQL clássica da internet é exatamente esta:
 
@@ -438,7 +438,7 @@ function toUser(row) {
 }
 ```
 
-É o mesmo `toProduct` do `product-repository.js` da [Aula 12](12-crud-produtos.md). O MySQL não tem um tipo booleano de verdade: `BOOLEAN` é apelido para `TINYINT(1)`, e volta como `0` ou `1`.
+É o mesmo `toProduct` do `product-repository.js` da [Etapa 12](12-crud-produtos.md). O MySQL não tem um tipo booleano de verdade: `BOOLEAN` é apelido para `TINYINT(1)`, e volta como `0` ou `1`.
 
 Sem essa conversão, o JSON da API sairia assim:
 
@@ -520,7 +520,7 @@ O `node --watch` às vezes não percebe alterações através do *bind mount* do
 docker compose restart api
 ```
 
-> Guarde este comando: ele vai ser útil várias vezes até a Aula 32.
+> Guarde este comando: ele vai ser útil várias vezes até a Etapa 32.
 
 ---
 
@@ -528,4 +528,4 @@ docker compose restart api
 
 As duas camadas de baixo estão prontas. Agora vem o coração do módulo: onde a senha vira hash e onde nasce o token.
 
-**[Aula 26 — O service: bcrypt e o token JWT](26-auth-service.md)**
+**[Etapa 26 — O service: bcrypt e o token JWT](26-auth-service.md)**

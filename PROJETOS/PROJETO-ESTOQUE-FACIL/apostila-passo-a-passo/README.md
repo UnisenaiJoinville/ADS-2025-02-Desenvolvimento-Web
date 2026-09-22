@@ -1,6 +1,6 @@
 # Estoque Fácil — Apostila passo a passo
 
-Esta pasta contém a construção completa do projeto **Estoque Fácil**, dividida em **23 etapas** sequenciais.
+Esta pasta contém a construção completa do projeto **Estoque Fácil**, dividida em **33 etapas** sequenciais.
 
 Cada arquivo é uma etapa curta, com passos numerados, o que você deve ver na tela e o que fazer se der erro.
 
@@ -73,6 +73,21 @@ Cada etapa tem sempre a mesma estrutura:
 | 21 | [Solução de problemas](21-solucao-de-problemas.md) | Dicionário de erros, para consulta |
 | 22 | [Exercícios e checklist](22-exercicios-e-checklist.md) | Para fixar o que foi construído |
 
+### Parte 6 — Autenticação e Vue.js (etapas 23 a 32)
+
+| # | Etapa | O que você faz |
+|---|---|---|
+| 23 | [Autenticação: conceitos](23-autenticacao-conceitos.md) | Entende hash, token e middleware antes de codar |
+| 24 | [Tabela de usuários](24-tabela-usuarios.md) | Cria a tabela `users` e instala `bcryptjs` e `jsonwebtoken` |
+| 25 | [Validador e repositório](25-auth-validator-repository.md) | `user-validator.js` e `user-repository.js` |
+| 26 | [Service de autenticação](26-auth-service.md) | Hash da senha e geração do token JWT |
+| 27 | [Rotas e middleware](27-auth-rotas-e-middleware.md) | **Protege a API inteira** |
+| 28 | [Primeiros passos com Vue.js](28-vue-primeiros-passos.md) | Laboratório com as diretivas do Vue |
+| 29 | [Tela de cadastro](29-tela-cadastro-vue.md) | Formulário reativo em Vue |
+| 30 | [Tela de login](30-tela-login-vue.md) | Login e armazenamento do token |
+| 31 | [Protegendo o front](31-protegendo-o-front.md) | Telas protegidas, usuário logado e botão Sair |
+| 32 | [Teste final da autenticação](32-teste-final-autenticacao.md) | Teste completo, erros comuns e exercícios |
+
 ---
 
 ## Marcos de progresso
@@ -87,6 +102,8 @@ Se quiser dividir a construção em blocos, estes são os pontos naturais de par
 | 4 | 13 a 14 | Transações e dashboard funcionando |
 | 5 | 15 a 17 | Dashboard e produtos na tela |
 | 6 | 18 a 20 | **Sistema completo testado** |
+| 7 | 23 a 27 | API protegida por login |
+| 8 | 28 a 32 | **Telas de cadastro e login em Vue, sistema protegido** |
 
 ---
 

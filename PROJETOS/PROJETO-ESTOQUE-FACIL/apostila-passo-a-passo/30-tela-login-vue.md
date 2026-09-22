@@ -1,4 +1,4 @@
-# Aula 30 — Tela de login com Vue
+# Etapa 30 — Tela de login com Vue
 
 **Tipo:** prática (HTML + Vue)
 
@@ -14,13 +14,13 @@ Construir a tela de login e **guardar a sessão**:
 - ler os parâmetros da URL que a tela de cadastro manda
 - gravar token e usuário com o `auth.js`
 
-Ao final desta aula você vai entrar no sistema — e ver o token nascer no F12.
+Ao final desta etapa você vai entrar no sistema — e ver o token nascer no F12.
 
 ---
 
 ## Antes de começar
 
-- [ ] [Aula 29](29-tela-cadastro-vue.md) concluída
+- [ ] [Etapa 29](29-tela-cadastro-vue.md) concluída
 - [ ] Você já criou pelo menos uma conta pela tela de cadastro
 
 ---
@@ -38,7 +38,7 @@ O passo 3 é a diferença. A tela de cadastro não guardava nada; esta guarda �
 
 ### Menos validação que no cadastro
 
-Repare no contraste com a Aula 29:
+Repare no contraste com a Etapa 29:
 
 | | Cadastro | Login |
 |---|---|---|
@@ -49,7 +49,7 @@ Repare no contraste com a Aula 29:
 
 Por quê? Duas razões:
 
-1. **Segurança** — "a senha deve ter 6 caracteres" já conta algo sobre a conta (veja a [Aula 25](25-auth-validator-repository.md)).
+1. **Segurança** — "a senha deve ter 6 caracteres" já conta algo sobre a conta (veja a [Etapa 25](25-auth-validator-repository.md)).
 2. **A senha pode ser antiga** — se a regra mudou desde que a pessoa se cadastrou, a senha dela continua valendo. Bloquear por regra nova trancaria um usuário legítimo para fora.
 
 > **Regra geral:** cadastro valida muito, login valida quase nada. Quem decide é o servidor.
@@ -395,7 +395,7 @@ params.get("cadastro")            // "ok"
 params.get("email")               // "ana@teste.com"  (já decodificado!)
 ```
 
-Repare: o `%40` voltou a ser `@` sozinho. É o par do `encodeURIComponent` que usamos na Aula 29.
+Repare: o `%40` voltou a ser `@` sozinho. É o par do `encodeURIComponent` que usamos na Etapa 29.
 
 > **Por que não `mounted` para tudo?** Porque `mounted` roda **uma vez**. O que precisa acompanhar mudanças vai em `computed`. Aqui cabe porque a URL não muda enquanto a tela está aberta.
 
@@ -438,7 +438,7 @@ A API devolve `{ user: {...}, token: "eyJ..." }` e nós já separamos em duas va
 saveSession({ user, token });
 ```
 
-Aqui o `localStorage` ganha duas chaves. **Deste ponto em diante o usuário está logado** — e o `api.js` da Aula 29 vai anexar o token em toda requisição, sozinho.
+Aqui o `localStorage` ganha duas chaves. **Deste ponto em diante o usuário está logado** — e o `api.js` da Etapa 29 vai anexar o token em toda requisição, sozinho.
 
 **Linha 3 — sair da tela de login**
 
@@ -464,11 +464,11 @@ Duas razões:
 
 Repare que o **e-mail continua** preenchido. Limpar os dois seria irritante.
 
-> Uma linha como `this.form.password = ""` limpa o campo de verdade na tela, sem tocar no DOM. É o `v-model` funcionando nas duas direções, como vimos na [Aula 28](28-vue-primeiros-passos.md).
+> Uma linha como `this.form.password = ""` limpa o campo de verdade na tela, sem tocar no DOM. É o `v-model` funcionando nas duas direções, como vimos na [Etapa 28](28-vue-primeiros-passos.md).
 
 ### 3.6 Por que não caímos no redirecionamento do `api.js`
 
-Lembre da regra da Aula 29:
+Lembre da regra da Etapa 29:
 
 ```javascript
 if (response.status === 401 && token) {   // <- o "&& token"
@@ -539,7 +539,7 @@ Ainda no F12, abra a aba **Network**, recarregue o dashboard e clique na requisi
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-Ninguém escreveu esse cabeçalho nesta tela. Ele veio das quatro linhas que você acrescentou ao `api.js` na Aula 29.
+Ninguém escreveu esse cabeçalho nesta tela. Ele veio das quatro linhas que você acrescentou ao `api.js` na Etapa 29.
 
 > **Momento jwt.io, parte 2:** copie o valor de `estoque-facil:token`, cole em https://jwt.io e mostre para a turma o `sub` com o id **daquele** usuário, e o `exp` com a data de vencimento.
 
@@ -547,11 +547,11 @@ Ninguém escreveu esse cabeçalho nesta tela. Ele veio das quatro linhas que voc
 
 ## 4. "O dashboard está vazio!"
 
-Pode ser que sim — e é esperado nesta aula.
+Pode ser que sim — e é esperado nesta etapa.
 
 As telas internas ainda não têm o porteiro nem mostram quem está logado. Se você entrou agora, o token existe e elas até carregam. Mas se você abrir o dashboard **sem** ter feito login, ele vai piscar vazio com uma notificação de erro, em vez de mandar você para o login.
 
-É exatamente o que a próxima aula resolve.
+É exatamente o que a próxima etapa resolve.
 
 ---
 
@@ -595,7 +595,7 @@ Confira a URL depois do cadastro: precisa ter `?cadastro=ok`. Se não tiver, o p
 
 ### O dashboard abre mas não carrega os dados
 
-Olhe a aba Network. Se a requisição deu `401`, o token não está indo — reveja o `api.js` da Aula 29.
+Olhe a aba Network. Se a requisição deu `401`, o token não está indo — reveja o `api.js` da Etapa 29.
 
 ---
 
@@ -603,4 +603,4 @@ Olhe a aba Network. Se a requisição deu `401`, o token não está indo — rev
 
 Você entra no sistema, mas as telas internas ainda não sabem disso. Vamos fechar o círculo.
 
-**[Aula 31 — Protegendo as telas e mostrando quem está logado](31-protegendo-o-front.md)**
+**[Etapa 31 — Protegendo as telas e mostrando quem está logado](31-protegendo-o-front.md)**
