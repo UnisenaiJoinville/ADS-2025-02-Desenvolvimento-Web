@@ -1,4 +1,4 @@
-# Aula 28 — Primeiros passos com Vue.js
+# Etapa 28 — Primeiros passos com Vue.js
 
 **Tipo:** teórica + laboratório
 
@@ -18,14 +18,14 @@ Ao final você vai ter uma página de laboratório para experimentar.
 
 ## Antes de começar
 
-- [ ] [Aula 27](27-auth-rotas-e-middleware.md) concluída (API protegida e testada por `curl`)
+- [ ] [Etapa 27](27-auth-rotas-e-middleware.md) concluída (API protegida e testada por `curl`)
 - [ ] Containers no ar
 
 ---
 
 ## 1. O problema que já estava lá
 
-Abra `public/js/categorias.js`, da [Aula 19](19-front-categorias.md). Você vai encontrar algo assim:
+Abra `public/js/categorias.js`, da [Etapa 19](19-front-categorias.md). Você vai encontrar algo assim:
 
 ```javascript
 function renderCategories(categories) {
@@ -113,7 +113,7 @@ Uma linha basta:
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 ```
 
-Exatamente como fizemos com o Tailwind na [Aula 15](15-front-base.md).
+Exatamente como fizemos com o Tailwind na [Etapa 15](15-front-base.md).
 
 | | O que ganhamos | O que perdemos |
 |---|---|---|
@@ -172,14 +172,14 @@ Crie `public/vue-lab.html`. Este arquivo **não faz parte do sistema** — é um
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <!-- ==========================================================
-         Pagina de laboratorio da Aula 28.
+         Pagina de laboratorio da Etapa 28.
          Nao faz parte do sistema: serve para experimentar o Vue.
          Pode ser apagada depois da aula.
          ========================================================== -->
     <main id="app" v-cloak class="mx-auto max-w-3xl space-y-6 px-6 py-10">
       <header>
         <h1 class="text-2xl font-bold">Laboratorio Vue</h1>
-        <p class="text-sm text-slate-500">Aula 28 - experimente e veja o que acontece</p>
+        <p class="text-sm text-slate-500">Etapa 28 - experimente e veja o que acontece</p>
       </header>
 
       <!-- 1. REATIVIDADE -->
@@ -349,7 +349,7 @@ Crie `public/vue-lab.html`. Este arquivo **não faz parte do sistema** — é um
 
 Salve e abra `http://localhost:3000/vue-lab.html`.
 
-> Repare que esta página não chama a API. Por isso ela funciona mesmo com a API protegida pela [Aula 27](27-auth-rotas-e-middleware.md).
+> Repare que esta página não chama a API. Por isso ela funciona mesmo com a API protegida pela [Etapa 27](27-auth-rotas-e-middleware.md).
 
 ---
 
@@ -374,7 +374,7 @@ document.querySelector("#contador").textContent = contador;
 
 Só que você teria que se lembrar de chamar isso **toda vez** que `contador` mudasse. O Vue não esquece.
 
-> **Bônus de segurança:** `{{ }}` sempre escreve **texto**, nunca HTML. Se o nome do produto for `<script>alert(1)</script>`, aparece essa string na tela — não executa. Ou seja: o `escapeHtml` da [Aula 15](15-front-base.md) vem de graça.
+> **Bônus de segurança:** `{{ }}` sempre escreve **texto**, nunca HTML. Se o nome do produto for `<script>alert(1)</script>`, aparece essa string na tela — não executa. Ou seja: o `escapeHtml` da [Etapa 15](15-front-base.md) vem de graça.
 
 ### 5.2 `v-model` — o campo e o dado, amarrados
 
@@ -411,7 +411,7 @@ input.value = nome;
 | `.number` | converte para número |
 | `.lazy` | só atualiza quando sair do campo, em vez de a cada tecla |
 
-> **Guarde para a Aula 29:** vamos usar `.trim` no nome e no e-mail — e **nunca** na senha, pelo mesmo motivo da [Aula 25](25-auth-validator-repository.md).
+> **Guarde para a Etapa 29:** vamos usar `.trim` no nome e no e-mail — e **nunca** na senha, pelo mesmo motivo da [Etapa 25](25-auth-validator-repository.md).
 
 ### 5.3 `@evento` — reagir a cliques
 
@@ -422,7 +422,7 @@ input.value = nome;
 
 `@click` é atalho para `v-on:click`.
 
-O `.prevent` é o modificador mais importante da aula:
+O `.prevent` é o modificador mais importante da etapa:
 
 ```javascript
 // O que você escrevia antes, em TODO formulário:
@@ -544,7 +544,7 @@ createApp({
 | `computed` | O que dá para **calcular** a partir disso? |
 | `methods` | O que essa tela **faz**? |
 
-E existe um quarto, que usaremos na Aula 30:
+E existe um quarto, que usaremos na Etapa 30:
 
 ```javascript
 mounted() { ... }   // roda uma vez, quando a tela aparece
@@ -669,4 +669,4 @@ Você usou no HTML um nome que não existe no `data()`. Confira a grafia — o c
 
 Agora que o Vue não é mais mistério, vamos construir a primeira tela de verdade.
 
-**[Aula 29 — Tela de cadastro com Vue](29-tela-cadastro-vue.md)**
+**[Etapa 29 — Tela de cadastro com Vue](29-tela-cadastro-vue.md)**

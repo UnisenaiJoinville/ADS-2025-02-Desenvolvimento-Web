@@ -1,4 +1,4 @@
-# Aula 27 — Controller, rotas e o middleware que protege a API
+# Etapa 27 — Controller, rotas e o middleware que protege a API
 
 **Tipo:** prática (código JavaScript + testes com `curl`)
 
@@ -14,13 +14,13 @@ Fechar o back-end da autenticação:
 - `ensure-authenticated.js` — o porteiro
 - `routes/index.js` — **trancar** produtos, categorias, movimentações e dashboard
 
-Ao final desta aula a API inteira estará protegida e testada por linha de comando. O front vem depois.
+Ao final desta etapa a API inteira estará protegida e testada por linha de comando. O front vem depois.
 
 ---
 
 ## Antes de começar
 
-- [ ] [Aula 26](26-auth-service.md) concluída (`auth-service.js` e `token.js` criados)
+- [ ] [Etapa 26](26-auth-service.md) concluída (`auth-service.js` e `token.js` criados)
 - [ ] Servidor no ar sem erros no log
 
 ---
@@ -153,7 +153,7 @@ Três parâmetros — é isso que faz o Express reconhecer a função como middl
 
 Sem chamar `next()`, a requisição para ali e o navegador fica esperando para sempre.
 
-> Lembre do `error-handler.js` da [Aula 08](08-tratamento-de-erros.md): ele tem **quatro** parâmetros. É a contagem de parâmetros que o Express usa para diferenciar um middleware normal de um middleware de erro.
+> Lembre do `error-handler.js` da [Etapa 08](08-tratamento-de-erros.md): ele tem **quatro** parâmetros. É a contagem de parâmetros que o Express usa para diferenciar um middleware normal de um middleware de erro.
 
 ### 3.2 Quebrando o cabeçalho
 
@@ -225,7 +225,7 @@ A partir deste ponto, **qualquer** controller do sistema pode escrever `request.
 
 Repare que este middleware **não é `async`**. Ele é síncrono do começo ao fim — `jwt.verify` não devolve promessa.
 
-O Express 4 captura erros lançados de forma síncrona automaticamente. O `asyncHandler` da [Aula 08](08-tratamento-de-erros.md) só é necessário para funções `async`.
+O Express 4 captura erros lançados de forma síncrona automaticamente. O `asyncHandler` da [Etapa 08](08-tratamento-de-erros.md) só é necessário para funções `async`.
 
 ---
 
@@ -253,7 +253,7 @@ authRoutes.get("/me", ensureAuthenticated, asyncHandler(controller.profile));
 
 Salve.
 
-### A linha que resume a aula
+### A linha que resume a etapa
 
 ```javascript
 authRoutes.get("/me", ensureAuthenticated, asyncHandler(controller.profile));
@@ -490,7 +490,7 @@ HTTP/1.1 201 Created
 {"user":{"id":2,"name":"Ana Paula Souza","email":"ana@teste.com"},"token":"eyJhbGciOiJ..."}
 ```
 
-> Repare: mandamos `"  ANA@Teste.com  "` e voltou `"ana@teste.com"`. O validador da [Aula 25](25-auth-validator-repository.md) aparou os espaços e baixou as maiúsculas. Isso é o "validar nas fronteiras" funcionando.
+> Repare: mandamos `"  ANA@Teste.com  "` e voltou `"ana@teste.com"`. O validador da [Etapa 25](25-auth-validator-repository.md) aparou os espaços e baixou as maiúsculas. Isso é o "validar nas fronteiras" funcionando.
 
 ---
 
@@ -554,7 +554,7 @@ curl -i http://localhost:3000/api/products -H "Authorization: $TOKEN"
 {"error":"E-mail ou senha invalidos"}
 ```
 
-Idênticos. É exatamente o que a [Aula 26](26-auth-service.md) explicou: o invasor não descobre quais e-mails existem.
+Idênticos. É exatamente o que a [Etapa 26](26-auth-service.md) explicou: o invasor não descobre quais e-mails existem.
 
 ### Teste extra: uma conta desativada
 
@@ -623,7 +623,7 @@ Olhe o log: `docker compose logs api --tail 30`. Erro 500 significa que algo esc
 
 ### A tela do navegador parou de funcionar
 
-**É esperado nesta aula.** As telas de produtos, dashboard etc. ainda não mandam token. A partir da [Aula 31](31-protegendo-o-front.md) elas voltam a funcionar.
+**É esperado nesta etapa.** As telas de produtos, dashboard etc. ainda não mandam token. A partir da [Etapa 31](31-protegendo-o-front.md) elas voltam a funcionar.
 
 ---
 
@@ -631,4 +631,4 @@ Olhe o log: `docker compose logs api --tail 30`. Erro 500 significa que algo esc
 
 O back-end está pronto e protegido. Agora vamos construir as telas — e, para isso, conhecer uma ferramenta nova.
 
-**[Aula 28 — Primeiros passos com Vue.js](28-vue-primeiros-passos.md)**
+**[Etapa 28 — Primeiros passos com Vue.js](28-vue-primeiros-passos.md)**

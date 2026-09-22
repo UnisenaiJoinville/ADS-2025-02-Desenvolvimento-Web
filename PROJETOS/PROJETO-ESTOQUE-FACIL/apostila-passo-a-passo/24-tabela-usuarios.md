@@ -1,4 +1,4 @@
-# Aula 24 — A tabela de usuários e as novas bibliotecas
+# Etapa 24 — A tabela de usuários e as novas bibliotecas
 
 **Tipo:** prática (SQL, `package.json` e `.env`)
 
@@ -8,7 +8,7 @@
 
 ## Objetivo
 
-Preparar o terreno para o código da próxima aula:
+Preparar o terreno para o código da próxima etapa:
 
 - criar a tabela `users` **sem perder** os dados que você já tem;
 - instalar `bcryptjs` e `jsonwebtoken`;
@@ -18,7 +18,7 @@ Preparar o terreno para o código da próxima aula:
 
 ## Antes de começar
 
-- [ ] [Aula 23](23-autenticacao-conceitos.md) lida (você entende hash e token)
+- [ ] [Etapa 23](23-autenticacao-conceitos.md) lida (você entende hash e token)
 - [ ] Containers no ar (`docker compose ps` mostra os dois `Up`)
 
 ---
@@ -45,7 +45,7 @@ Três decisões que valem discussão:
 | `VARCHAR(255)` para o hash | O bcrypt gera 60 caracteres, mas algoritmos futuros são maiores. Sobra espaço |
 | `email` é `UNIQUE` | Garantia do **banco**, não só do código. É a última linha de defesa contra conta duplicada |
 
-> **Por que `active` em vez de apagar o usuário?** Porque um `DELETE` levaria junto o histórico. Desativar é reversível; excluir não é. Esse padrão se chama *soft delete* — você já viu ele em `products.active`, na [Aula 12](12-crud-produtos.md).
+> **Por que `active` em vez de apagar o usuário?** Porque um `DELETE` levaria junto o histórico. Desativar é reversível; excluir não é. Esse padrão se chama *soft delete* — você já viu ele em `products.active`, na [Etapa 12](12-crud-produtos.md).
 
 ---
 
@@ -55,7 +55,7 @@ Abra `database/init.sql` e acrescente **no final do arquivo**:
 
 ```sql
 -- ============================================================
--- Modulo de autenticacao (Aula 24)
+-- Modulo de autenticacao (Etapa 24)
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS users (
@@ -108,14 +108,14 @@ Você acabou de editar o `init.sql`. Vai funcionar?
 
 **Não.** E o motivo é importante.
 
-Lembre da [Aula 05](05-docker-compose.md):
+Lembre da [Etapa 05](05-docker-compose.md):
 
 ```yaml
 volumes:
   - ./database:/docker-entrypoint-initdb.d
 ```
 
-O MySQL só executa os arquivos dessa pasta **na primeira vez que o banco é criado**, quando o volume ainda está vazio. Como você já subiu o projeto nas aulas anteriores, o banco existe — e o `init.sql` vai ser simplesmente ignorado.
+O MySQL só executa os arquivos dessa pasta **na primeira vez que o banco é criado**, quando o volume ainda está vazio. Como você já subiu o projeto nas etapas anteriores, o banco existe — e o `init.sql` vai ser simplesmente ignorado.
 
 Existem dois caminhos:
 
@@ -134,11 +134,11 @@ Crie a pasta `database/migrations/` e dentro dela o arquivo `001-create-users.sq
 
 ```sql
 -- ============================================================
--- Migracao 001 - tabela de usuarios (Aula 24)
+-- Migracao 001 - tabela de usuarios (Etapa 24)
 -- ------------------------------------------------------------
 -- QUANDO USAR ESTE ARQUIVO
 -- O arquivo database/init.sql so roda na PRIMEIRA vez que o
--- volume do MySQL e criado. Se voce ja subiu o projeto nas aulas
+-- volume do MySQL e criado. Se voce ja subiu o projeto nas etapas
 -- anteriores, o banco existe e o init.sql NAO vai rodar de novo.
 -- Este arquivo cria a tabela sem apagar nada do que voce ja tem.
 --
@@ -275,7 +275,7 @@ Editar o `package.json` **não basta**. As dependências foram instaladas *dentr
 docker compose up -d --build api
 ```
 
-> **Este é o erro nº 1 desta aula.** Se você pular o `--build`, a próxima aula vai falhar com `Cannot find package 'bcryptjs'`. Guarde a regra: **mexeu no `package.json` ou no `Dockerfile`, reconstrua a imagem.**
+> **Este é o erro nº 1 desta etapa.** Se você pular o `--build`, a próxima etapa vai falhar com `Cannot find package 'bcryptjs'`. Guarde a regra: **mexeu no `package.json` ou no `Dockerfile`, reconstrua a imagem.**
 
 ---
 
@@ -285,7 +285,7 @@ Abra o `.env` e acrescente no final:
 
 ```bash
 # ---------------------------------------------------------
-# Autenticacao (Aula 24)
+# Autenticacao (Etapa 24)
 # ---------------------------------------------------------
 # Segredo usado para ASSINAR os tokens JWT.
 # Em producao: string longa, aleatoria e fora do controle de versao.
@@ -295,7 +295,7 @@ JWT_SECRET=troque-este-segredo-em-producao-estoque-facil-2026
 JWT_EXPIRES_IN=1d
 ```
 
-Faça **o mesmo no `.env.example`**. Lembre da [Aula 03](03-variaveis-de-ambiente.md): o `.env` fica na sua máquina, o `.env.example` é o mapa que vai para o repositório.
+Faça **o mesmo no `.env.example`**. Lembre da [Etapa 03](03-variaveis-de-ambiente.md): o `.env` fica na sua máquina, o `.env.example` é o mapa que vai para o repositório.
 
 ### Escolhendo o tempo de expiração
 
@@ -326,7 +326,7 @@ E nunca, jamais, vai para o Git.
 
 ## Passo 6 — Ensinar o `env.js` a exigir o segredo
 
-Lembre do princípio de *fail fast* da [Aula 07](07-configuracao-da-aplicacao.md): a aplicação **não sobe** se faltar configuração.
+Lembre do princípio de *fail fast* da [Etapa 07](07-configuracao-da-aplicacao.md): a aplicação **não sobe** se faltar configuração.
 
 Abra `src/config/env.js` e deixe assim:
 
@@ -401,7 +401,7 @@ jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || "1d",
 
 Este é opcional: se ninguém definir, vale `1d`.
 
-> **Por que `||` e não `??` aqui?** Com `??`, uma variável vazia (`JWT_EXPIRES_IN=`) passaria como string vazia e quebraria o `jsonwebtoken`. O `||` trata `""` como ausência, que é o que queremos neste caso. Os dois operadores existem porque servem para coisas diferentes — reveja a [Aula 07](07-configuracao-da-aplicacao.md).
+> **Por que `||` e não `??` aqui?** Com `??`, uma variável vazia (`JWT_EXPIRES_IN=`) passaria como string vazia e quebraria o `jsonwebtoken`. O `||` trata `""` como ausência, que é o que queremos neste caso. Os dois operadores existem porque servem para coisas diferentes — reveja a [Etapa 07](07-configuracao-da-aplicacao.md).
 
 ```javascript
 saltRounds: 10,
@@ -497,4 +497,4 @@ docker compose up -d --build
 
 Banco pronto, bibliotecas instaladas. Agora começa o código.
 
-**[Aula 25 — O módulo auth: validador e repositório](25-auth-validator-repository.md)**
+**[Etapa 25 — O módulo auth: validador e repositório](25-auth-validator-repository.md)**

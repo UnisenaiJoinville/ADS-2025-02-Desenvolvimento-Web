@@ -448,4 +448,12 @@ Termina com uma aplicação que:
 
 ---
 
+## Próximo passo
+
+O sistema ainda está aberto para qualquer pessoa. A próxima parte adiciona cadastro, login e proteção das rotas.
+
+**[Etapa 23 — Autenticação: entendendo antes de codar](23-autenticacao-conceitos.md)**
+
+---
+
 ← [Voltar ao índice](README.md)

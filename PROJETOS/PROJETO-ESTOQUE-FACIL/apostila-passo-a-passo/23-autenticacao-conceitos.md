@@ -1,4 +1,4 @@
-# Aula 23 — Autenticação: entendendo antes de codar
+# Etapa 23 — Autenticação: entendendo antes de codar
 
 **Tipo:** teórica (nenhum código ainda)
 
@@ -8,19 +8,19 @@
 
 ## Objetivo
 
-Entender **três decisões** que vamos tomar nas próximas aulas — e por que elas são assim:
+Entender **três decisões** que vamos tomar nas próximas etapas — e por que elas são assim:
 
 1. Por que a senha **nunca** é guardada no banco.
 2. O que é um **token** e por que ele resolve um problema que o HTTP cria.
 3. Onde exatamente entra o "porteiro" que barra quem não fez login.
 
-Não escreva código nesta aula. Vamos desenhar o mapa primeiro, como fizemos na [Aula 00](00-visao-geral.md).
+Não escreva código nesta etapa. Vamos desenhar o mapa primeiro, como fizemos na [Etapa 00](00-visao-geral.md).
 
 ---
 
 ## Antes de começar
 
-- [ ] Aulas 00 a 22 concluídas (o Estoque Fácil funcionando por inteiro)
+- [ ] Etapas 00 a 22 concluídas (o Estoque Fácil funcionando por inteiro)
 - [ ] Containers no ar: `docker compose ps` mostra os dois como `Up`
 
 ---
@@ -46,7 +46,7 @@ Ninguém. O sistema não faz ideia. E isso significa que:
 | **Autenticação** | *Quem é você?* | Você digitou e-mail e senha corretos |
 | **Autorização** | *Você pode fazer isso?* | Só o gerente exclui produtos |
 
-> Nas aulas 23 a 32 fazemos **autenticação**. A autorização (perfis, permissões) fica como exercício na [Aula 32](32-teste-final-autenticacao.md).
+> Nas etapas 23 a 32 fazemos **autenticação**. A autorização (perfis, permissões) fica como exercício na [Etapa 32](32-teste-final-autenticacao.md).
 
 ---
 
@@ -256,7 +256,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ## 4. Onde tudo isso entra no nosso sistema
 
-Lembre do desenho da [Aula 00](00-visao-geral.md). Agora ele ganha **uma caixa nova**:
+Lembre do desenho da [Etapa 00](00-visao-geral.md). Agora ele ganha **uma caixa nova**:
 
 ```text
     Navegador manda:  GET /api/products
@@ -353,9 +353,9 @@ app.use(express.static(...)); // middleware: entrega os arquivos do public
 
 ---
 
-## 7. O que vamos construir nas próximas 9 aulas
+## 7. O que vamos construir nas próximas 9 etapas
 
-| Aula | Entrega |
+| Etapa | Entrega |
 |---|---|
 | [24](24-tabela-usuarios.md) | Tabela `users` + bibliotecas `bcryptjs` e `jsonwebtoken` |
 | [25](25-auth-validator-repository.md) | `user-validator.js` e `user-repository.js` |
@@ -414,4 +414,4 @@ Responda mentalmente antes de seguir:
 
 Chega de teoria. Vamos criar a tabela de usuários e instalar as duas bibliotecas.
 
-**[Aula 24 — A tabela de usuários e as novas bibliotecas](24-tabela-usuarios.md)**
+**[Etapa 24 — A tabela de usuários e as novas bibliotecas](24-tabela-usuarios.md)**
