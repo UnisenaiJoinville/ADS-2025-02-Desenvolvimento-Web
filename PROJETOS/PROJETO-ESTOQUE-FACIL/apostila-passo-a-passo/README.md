@@ -117,7 +117,7 @@ Tenha instalado:
 | `código assim` | Nome de arquivo, comando ou trecho de código |
 | **Passo N** | Uma ação que você precisa executar |
 | > Bloco citado | Explicação extra ou aviso importante |
-| ⚠️ | Atenção: erro comum acontece aqui |
-| ✅ | Checkpoint: pare e confira antes de continuar |
+| **Atenção:** | Erro comum acontece aqui |
+| **Confira se deu certo** | Checkpoint: pare e confira antes de continuar |
 
 Bom trabalho, e vamos começar pela [Etapa 00](00-visao-geral.md).

@@ -1,6 +1,6 @@
 # Etapa 22 — Exercícios e checklist
 
-📋 **Tipo:** exercícios e checklist de revisão
+**Tipo:** exercícios e checklist de revisão
 
 ---
 
@@ -29,7 +29,7 @@ Adicione o campo `supplier` (fornecedor) ao produto.
 
 **Dica:** depois de mudar o `init.sql`, rode `docker compose down -v && docker compose up -d`.
 
-> 🎓 **O que este exercício ensina:** o custo real de adicionar um campo em um sistema em camadas. Serve para discutir por que modelar bem no início economiza trabalho depois.
+> **O que este exercício ensina:** o custo real de adicionar um campo em um sistema em camadas. Serve para discutir por que modelar bem no início economiza trabalho depois.
 
 ---
 
@@ -37,16 +37,16 @@ Adicione o campo `supplier` (fornecedor) ao produto.
 
 Aceite `?orderBy=name|quantity|salePrice` em `GET /api/products`.
 
-⚠️ **Atenção — pegadinha de segurança:** nome de coluna **não pode** ir como `?`. Isto **não funciona**:
+**Atenção — pegadinha de segurança:** nome de coluna **não pode** ir como `?`. Isto **não funciona**:
 
 ```javascript
-`ORDER BY ? ASC`, [orderBy]     // ❌ o driver escaparia como string
+`ORDER BY ? ASC`, [orderBy]     // errado: o driver escaparia como string
 ```
 
 E concatenar direto seria **SQL Injection**:
 
 ```javascript
-`ORDER BY ${orderBy}`            // ❌ PERIGOSO
+`ORDER BY ${orderBy}`            // PERIGOSO
 ```
 
 **A solução correta é uma lista branca:**
@@ -62,7 +62,7 @@ const orderColumn = ALLOWED_ORDER[orderBy] ?? "p.name";
 // agora pode concatenar: só valores que NÓS escrevemos entram aqui
 ```
 
-> 🎓 **O que este exercício ensina:** que a proteção contra SQL Injection nem sempre é o `?`. Quando a parte variável é **estrutura** e não **valor**, a defesa é a lista branca.
+> **O que este exercício ensina:** que a proteção contra SQL Injection nem sempre é o `?`. Quando a parte variável é **estrutura** e não **valor**, a defesa é a lista branca.
 
 ---
 
@@ -74,7 +74,7 @@ Mostre o **preço médio de venda** dos produtos ativos.
 - [ ] `dashboard-service.js` — converta com `Number()`
 - [ ] `dashboard.js` — mais um `card({...})`
 
-⚠️ **Lembre-se do conjunto vazio!** Sem produtos, `AVG` devolve `NULL`. Use `COALESCE(AVG(sale_price), 0)`.
+**Lembre-se do conjunto vazio!** Sem produtos, `AVG` devolve `NULL`. Use `COALESCE(AVG(sale_price), 0)`.
 
 ---
 
@@ -129,7 +129,7 @@ Implemente `?page=1&perPage=20` na listagem de produtos.
 - Use `Promise.all` para as duas consultas (Etapa 14!)
 - Limite o `perPage` a um máximo (Etapa 13!)
 
-⚠️ **Atenção:** isso **quebra** o front-end, que hoje espera um array. Você terá que ajustar o `produtos.js`.
+**Atenção:** isso **quebra** o front-end, que hoje espera um array. Você terá que ajustar o `produtos.js`.
 
 ---
 
@@ -178,7 +178,7 @@ Proteja as rotas de escrita (`POST`, `PUT`, `DELETE`) com login.
 
 **Bibliotecas:** `jsonwebtoken` e `bcryptjs`.
 
-⚠️ **Nunca** guarde senha em texto puro. Sempre hash.
+**Nunca** guarde senha em texto puro. Sempre hash.
 
 ---
 
@@ -193,7 +193,7 @@ response.setHeader("Content-Type", "text/csv; charset=utf-8");
 response.setHeader("Content-Disposition", "attachment; filename=produtos.csv");
 ```
 
-⚠️ Cuidado com valores que contenham vírgula ou aspas — eles precisam ser escapados.
+**Atenção:** Cuidado com valores que contenham vírgula ou aspas — eles precisam ser escapados.
 
 ---
 
@@ -236,7 +236,7 @@ Adicione um gráfico de barras com entradas e saídas dos últimos 7 dias.
 **Dicas:**
 
 - SQL: `GROUP BY DATE(created_at)` com `WHERE created_at >= CURRENT_DATE - INTERVAL 7 DAY`
-- ⚠️ Dias sem movimentação **não aparecem** no resultado — preencha os buracos no JavaScript
+- **Atenção:** Dias sem movimentação **não aparecem** no resultado — preencha os buracos no JavaScript
 - Você pode fazer com `div` e Tailwind, como as barras da Etapa 16
 
 ---
@@ -274,7 +274,7 @@ export async function store(req, res) {
 ```
 
 <details>
-<summary>📝 Gabarito sugerido</summary>
+<summary>Gabarito sugerido</summary>
 
 | # | Problema | Por quê | Correção |
 |---|---|---|---|
@@ -317,7 +317,7 @@ productRoutes.post("/", asyncHandler(controller.store));
 
 ---
 
-# ✅ Checklist de conceitos trabalhados
+# Checklist de conceitos trabalhados
 
 Use como roteiro de revisão ou como base para a prova.
 
@@ -400,7 +400,7 @@ Use como roteiro de revisão ou como base para a prova.
 
 ---
 
-# 🎯 Autoavaliação
+# Autoavaliação
 
 Se você consegue responder às perguntas abaixo sem consultar o código, dominou o projeto.
 
@@ -416,7 +416,7 @@ Se você consegue responder às perguntas abaixo sem consultar o código, domino
 
 ---
 
-# 📚 Para continuar estudando
+# Para continuar estudando
 
 | Tema | Por onde seguir |
 |---|---|
@@ -431,7 +431,7 @@ Se você consegue responder às perguntas abaixo sem consultar o código, domino
 
 ---
 
-## 🏆 Encerramento
+## Encerramento
 
 Você começou com um array em memória que se perdia ao fechar o programa.
 

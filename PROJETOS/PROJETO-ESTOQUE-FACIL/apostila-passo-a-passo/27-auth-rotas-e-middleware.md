@@ -1,7 +1,8 @@
 # Aula 27 — Controller, rotas e o middleware que protege a API
 
-⏱️ **Tempo estimado:** 45 minutos
-📋 **Tipo:** prática (código JavaScript + testes com `curl`)
+**Tipo:** prática (código JavaScript + testes com `curl`)
+
+**Tempo estimado:** 45 minutos
 
 ---
 
@@ -54,7 +55,7 @@ export async function profile(request, response) {
 
 Salve.
 
-### 🔍 Repare como ele é pequeno
+### Repare como ele é pequeno
 
 Três funções, três linhas cada. É assim que um controller deve ser.
 
@@ -67,7 +68,7 @@ Ele faz **só** o trabalho de tradução:
 
 O que ele **não** faz: validar, decidir, consultar banco, gerar token. Tudo isso é do service.
 
-### 🔍 Os status escolhidos
+### Os status escolhidos
 
 ```javascript
 // 201 Created: um recurso novo passou a existir.
@@ -78,9 +79,9 @@ response.json(result);               // login  -> 200 (padrão)
 
 O cadastro **cria** algo no banco: `201`. O login não cria nada — só verifica e devolve um token: `200`.
 
-> 📌 Pense assim: se você repetir o `POST /auth/register` dez vezes, dez usuários deveriam existir (o e-mail único impede, mas a intenção é essa). Se repetir o `POST /auth/login` dez vezes, nada muda no banco.
+> Pense assim: se você repetir o `POST /auth/register` dez vezes, dez usuários deveriam existir (o e-mail único impede, mas a intenção é essa). Se repetir o `POST /auth/login` dez vezes, nada muda no banco.
 
-### 🔍 De onde vem `request.user`
+### De onde vem `request.user`
 
 ```javascript
 // request.user foi preenchido pelo middleware ensureAuthenticated.
@@ -152,7 +153,7 @@ Três parâmetros — é isso que faz o Express reconhecer a função como middl
 
 Sem chamar `next()`, a requisição para ali e o navegador fica esperando para sempre.
 
-> 🔍 Lembre do `error-handler.js` da [Aula 08](08-tratamento-de-erros.md): ele tem **quatro** parâmetros. É a contagem de parâmetros que o Express usa para diferenciar um middleware normal de um middleware de erro.
+> Lembre do `error-handler.js` da [Aula 08](08-tratamento-de-erros.md): ele tem **quatro** parâmetros. É a contagem de parâmetros que o Express usa para diferenciar um middleware normal de um middleware de erro.
 
 ### 3.2 Quebrando o cabeçalho
 
@@ -188,7 +189,7 @@ Três situações diferentes, três respostas:
 | `Authorization: abc123` | `Formato do token invalido` (sem "Bearer") |
 | `Authorization: Bearer abc123` | passa para o `verifyToken`, que recusa: `Token invalido` |
 
-> 🔍 **`request.headers.authorization` em minúsculas?** Sim. Cabeçalhos HTTP não diferenciam maiúsculas, e o Node normaliza todos para minúsculas. Se você escrever `request.headers.Authorization`, vai receber `undefined` — e é um erro difícil de achar.
+> **`request.headers.authorization` em minúsculas?** Sim. Cabeçalhos HTTP não diferenciam maiúsculas, e o Node normaliza todos para minúsculas. Se você escrever `request.headers.Authorization`, vai receber `undefined` — e é um erro difícil de achar.
 
 ### 3.3 A linha que liga tudo
 
@@ -218,7 +219,7 @@ A partir deste ponto, **qualquer** controller do sistema pode escrever `request.
    controller ──► service ──► repository
 ```
 
-> 💡 **Por que pendurar no `request` e não numa variável global?** Porque o servidor atende várias pessoas ao mesmo tempo. Uma variável global seria compartilhada entre todas as requisições e você entregaria os dados da Ana para o Bruno. Cada `request` é um objeto isolado, por requisição.
+> **Por que pendurar no `request` e não numa variável global?** Porque o servidor atende várias pessoas ao mesmo tempo. Uma variável global seria compartilhada entre todas as requisições e você entregaria os dados da Ana para o Bruno. Cada `request` é um objeto isolado, por requisição.
 
 ### 3.4 Por que não precisa de `asyncHandler`
 
@@ -252,7 +253,7 @@ authRoutes.get("/me", ensureAuthenticated, asyncHandler(controller.profile));
 
 Salve.
 
-### 🔍 A linha que resume a aula
+### A linha que resume a aula
 
 ```javascript
 authRoutes.get("/me", ensureAuthenticated, asyncHandler(controller.profile));
@@ -270,7 +271,7 @@ Compare com as duas rotas de cima:
 | `POST /auth/login` | não | pedir token para fazer login seria um paradoxo |
 | `GET /auth/me` | **sim** | só faz sentido para quem já entrou |
 
-> 🥚 Pense no paradoxo do ovo e da galinha: se o login exigisse token, ninguém nunca conseguiria o primeiro token. É por isso que **toda** aplicação tem pelo menos duas portas abertas.
+> Pense no paradoxo do ovo e da galinha: se o login exigisse token, ninguém nunca conseguiria o primeiro token. É por isso que **toda** aplicação tem pelo menos duas portas abertas.
 
 ---
 
@@ -334,7 +335,7 @@ Esta linha sozinha protege **tudo** que vier depois dela.
    routes.use("/dashboard", ...)   ─┘
 ```
 
-> ⚠️ **Mover uma linha neste arquivo muda quem pode entrar no sistema.** Se alguém colocar `routes.use("/products", productRoutes)` acima do `ensureAuthenticated`, os produtos ficam abertos para o mundo — e nada no código vai reclamar. É por isso que o comentário no arquivo diz isso em voz alta.
+> **Mover uma linha neste arquivo muda quem pode entrar no sistema.** Se alguém colocar `routes.use("/products", productRoutes)` acima do `ensureAuthenticated`, os produtos ficam abertos para o mundo — e nada no código vai reclamar. É por isso que o comentário no arquivo diz isso em voz alta.
 
 ### 4.2 Por que `/health` fica de fora
 
@@ -388,7 +389,7 @@ estoque-api  | Servidor rodando em http://localhost:3000
 
 Agora vem a parte divertida. **Não abra o navegador ainda** — as telas ainda não sabem mandar token, então elas vão parecer quebradas. É esperado.
 
-> 💡 Se preferir uma interface gráfica, pode usar o Thunder Client (extensão do VS Code), Insomnia ou Postman. Os campos são os mesmos.
+> Se preferir uma interface gráfica, pode usar o Thunder Client (extensão do VS Code), Insomnia ou Postman. Os campos são os mesmos.
 
 ### Teste 1 — A rota pública continua aberta
 
@@ -413,7 +414,7 @@ Content-Type: application/json; charset=utf-8
 {"error":"Token nao informado"}
 ```
 
-🎉 **Este é o momento da aula.** A API que estava aberta para o mundo inteiro acabou de fechar.
+**Este é o momento da aula.** A API que estava aberta para o mundo inteiro acabou de fechar.
 
 > O `-i` do `curl` mostra os cabeçalhos junto com o corpo. Use sempre que quiser ver o status.
 
@@ -429,7 +430,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 {"user":{"id":1,"name":"Professor Demo","email":"professor@estoquefacil.com"},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiUHJvZmVzc29yIERlbW8iLCJlbWFpbCI6InByb2Zlc3NvckBlc3RvcXVlZmFjaWwuY29tIiwiaWF0IjoxNzkwMTE1MjkxLCJleHAiOjE3OTAyMDE2OTEsInN1YiI6IjEifQ.PorPhLZZff5seKhz95uYOt3OUMwsCH1FeD6D29COwEo"}
 ```
 
-> 🔍 **Momento jwt.io:** copie esse token, cole em https://jwt.io e mostre para a turma que o conteúdo é legível. Depois troque uma letra do payload e veja a assinatura ficar vermelha. É a aula de segurança mais visual que existe.
+> **Momento jwt.io:** copie esse token, cole em https://jwt.io e mostre para a turma que o conteúdo é legível. Depois troque uma letra do payload e veja a assinatura ficar vermelha. É a aula de segurança mais visual que existe.
 
 ### Teste 4 — Guardar o token numa variável
 
@@ -489,7 +490,7 @@ HTTP/1.1 201 Created
 {"user":{"id":2,"name":"Ana Paula Souza","email":"ana@teste.com"},"token":"eyJhbGciOiJ..."}
 ```
 
-> 🔍 Repare: mandamos `"  ANA@Teste.com  "` e voltou `"ana@teste.com"`. O validador da [Aula 25](25-auth-validator-repository.md) aparou os espaços e baixou as maiúsculas. Isso é o "validar nas fronteiras" funcionando.
+> Repare: mandamos `"  ANA@Teste.com  "` e voltou `"ana@teste.com"`. O validador da [Aula 25](25-auth-validator-repository.md) aparou os espaços e baixou as maiúsculas. Isso é o "validar nas fronteiras" funcionando.
 
 ---
 
@@ -546,7 +547,7 @@ curl -i http://localhost:3000/api/products -H "Authorization: Bearer ${TOKEN}xx"
 curl -i http://localhost:3000/api/products -H "Authorization: $TOKEN"
 ```
 
-### 🔍 Compare os testes 6 e 7 lado a lado
+### Compare os testes 6 e 7 lado a lado
 
 ```json
 {"error":"E-mail ou senha invalidos"}
@@ -555,7 +556,7 @@ curl -i http://localhost:3000/api/products -H "Authorization: $TOKEN"
 
 Idênticos. É exatamente o que a [Aula 26](26-auth-service.md) explicou: o invasor não descobre quais e-mails existem.
 
-### 🔍 Teste extra: uma conta desativada
+### Teste extra: uma conta desativada
 
 ```bash
 docker compose exec db mysql -uestoque -pestoque123 estoque_db \
@@ -579,11 +580,11 @@ docker compose exec db mysql -uestoque -pestoque123 estoque_db \
   -e "DELETE FROM users WHERE email <> 'professor@estoquefacil.com'; SELECT id,name,email FROM users;"
 ```
 
-> 📎 Esses e outros comandos estão prontos em `database/queries/auth-queries.sql`.
+> Esses e outros comandos estão prontos em `database/queries/auth-queries.sql`.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `src/modules/auth/` tem os 5 arquivos (validator, repository, service, controller, routes)
 - [ ] `src/shared/auth/` tem `token.js` e `ensure-authenticated.js`
@@ -596,7 +597,7 @@ docker compose exec db mysql -uestoque -pestoque123 estoque_db \
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### `{"error":"Rota nao encontrada: POST /api/auth/login"}`
 
@@ -626,7 +627,7 @@ Olhe o log: `docker compose logs api --tail 30`. Erro 500 significa que algo esc
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 O back-end está pronto e protegido. Agora vamos construir as telas — e, para isso, conhecer uma ferramenta nova.
 

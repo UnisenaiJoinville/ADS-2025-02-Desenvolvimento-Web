@@ -1,7 +1,8 @@
 # Aula 24 — A tabela de usuários e as novas bibliotecas
 
-⏱️ **Tempo estimado:** 35 minutos
-📋 **Tipo:** prática (SQL, `package.json` e `.env`)
+**Tipo:** prática (SQL, `package.json` e `.env`)
+
+**Tempo estimado:** 35 minutos
 
 ---
 
@@ -44,7 +45,7 @@ Três decisões que valem discussão:
 | `VARCHAR(255)` para o hash | O bcrypt gera 60 caracteres, mas algoritmos futuros são maiores. Sobra espaço |
 | `email` é `UNIQUE` | Garantia do **banco**, não só do código. É a última linha de defesa contra conta duplicada |
 
-> 💡 **Por que `active` em vez de apagar o usuário?** Porque um `DELETE` levaria junto o histórico. Desativar é reversível; excluir não é. Esse padrão se chama *soft delete* — você já viu ele em `products.active`, na [Aula 12](12-crud-produtos.md).
+> **Por que `active` em vez de apagar o usuário?** Porque um `DELETE` levaria junto o histórico. Desativar é reversível; excluir não é. Esse padrão se chama *soft delete* — você já viu ele em `products.active`, na [Aula 12](12-crud-produtos.md).
 
 ---
 
@@ -78,7 +79,7 @@ INSERT INTO users (name, email, password_hash) VALUES
 
 Salve.
 
-### 🔍 Repare no que NÃO tem aqui
+### Repare no que NÃO tem aqui
 
 Não existe índice extra em `email`. Muita gente escreveria:
 
@@ -88,7 +89,7 @@ CREATE INDEX idx_users_email ON users (email);   -- desnecessário!
 
 Mas `UNIQUE` **já cria um índice**. Colocar outro seria manter duas estruturas para a mesma coisa: mais lento para gravar, sem nenhum ganho para consultar.
 
-### 🔍 E aquele hash gigante?
+### E aquele hash gigante?
 
 É o resultado de `bcrypt.hash("123456", 10)`. Veja como ele se lê:
 
@@ -101,7 +102,7 @@ $2b$10$xkAjZ..MHKdp.7cnXFMvVON.XZmd/foxiswJJS61thFcP/WLquT6m
 
 ---
 
-## 2. ⚠️ O problema que ninguém vê chegando
+## 2. O problema que ninguém vê chegando
 
 Você acabou de editar o `init.sql`. Vai funcionar?
 
@@ -170,13 +171,13 @@ SELECT id, name, email, active, created_at FROM users;
 
 Salve.
 
-### 🔍 Por que uma subpasta?
+### Por que uma subpasta?
 
 Porque o MySQL **não entra em subpastas** de `docker-entrypoint-initdb.d`. Ele lê `database/init.sql`, vê a pasta `database/migrations` e a ignora.
 
 É exatamente o que queremos: a migração roda **só quando você mandar**, na mão.
 
-### 🔍 `INSERT IGNORE`
+### `INSERT IGNORE`
 
 ```sql
 INSERT IGNORE INTO users (name, email, password_hash) VALUES ...
@@ -186,7 +187,7 @@ Sem o `IGNORE`, rodar o script duas vezes daria erro de chave duplicada. Com ele
 
 Junto com o `CREATE TABLE IF NOT EXISTS`, isso torna o script **idempotente**: rodar uma ou dez vezes dá no mesmo resultado.
 
-> 📌 **Idempotente** é uma palavra que vale aprender. Ela descreve uma operação que pode ser repetida sem efeito colateral. Apertar o botão do elevador é idempotente; apertar o gatilho não é.
+> **Idempotente** é uma palavra que vale aprender. Ela descreve uma operação que pode ser repetida sem efeito colateral. Apertar o botão do elevador é idempotente; apertar o gatilho não é.
 
 ---
 
@@ -208,7 +209,7 @@ id      name             email                        active  created_at
 
 O aviso sobre a senha é normal (e correto: em produção não se passa senha assim).
 
-### 🔍 Dissecando o comando
+### Dissecando o comando
 
 | Parte | O que faz |
 |---|---|
@@ -218,7 +219,7 @@ O aviso sobre a senha é normal (e correto: em produção não se passa senha as
 | `mysql -uestoque -pestoque123 estoque_db` | O cliente do MySQL, já apontando para o nosso banco |
 | `< arquivo.sql` | Joga o conteúdo do arquivo na entrada do comando |
 
-> ⚠️ **No `-p` não tem espaço.** É `-pestoque123`, colado. Com espaço, o MySQL acha que `estoque123` é o nome do banco.
+> **No `-p` não tem espaço.** É `-pestoque123`, colado. Com espaço, o MySQL acha que `estoque123` é o nome do banco.
 
 ### Confira no banco
 
@@ -264,7 +265,7 @@ Salve.
 | `bcryptjs` | Gerar e conferir o hash da senha |
 | `jsonwebtoken` | Assinar e verificar o token JWT |
 
-> 💡 **Por que `bcryptjs` e não `bcrypt`?** O pacote `bcrypt` é escrito em C e precisa ser **compilado** na instalação — o que exige Python e compilador dentro da imagem Alpine. O `bcryptjs` é JavaScript puro: instala em qualquer lugar, sem dor de cabeça. Ele é um pouco mais lento, o que para uma aula (e para a maioria dos sistemas) não faz diferença.
+> **Por que `bcryptjs` e não `bcrypt`?** O pacote `bcrypt` é escrito em C e precisa ser **compilado** na instalação — o que exige Python e compilador dentro da imagem Alpine. O `bcryptjs` é JavaScript puro: instala em qualquer lugar, sem dor de cabeça. Ele é um pouco mais lento, o que para uma aula (e para a maioria dos sistemas) não faz diferença.
 
 ### Agora reconstrua a imagem
 
@@ -274,7 +275,7 @@ Editar o `package.json` **não basta**. As dependências foram instaladas *dentr
 docker compose up -d --build api
 ```
 
-> ⚠️ **Este é o erro nº 1 desta aula.** Se você pular o `--build`, a próxima aula vai falhar com `Cannot find package 'bcryptjs'`. Guarde a regra: **mexeu no `package.json` ou no `Dockerfile`, reconstrua a imagem.**
+> **Este é o erro nº 1 desta aula.** Se você pular o `--build`, a próxima aula vai falhar com `Cannot find package 'bcryptjs'`. Guarde a regra: **mexeu no `package.json` ou no `Dockerfile`, reconstrua a imagem.**
 
 ---
 
@@ -296,7 +297,7 @@ JWT_EXPIRES_IN=1d
 
 Faça **o mesmo no `.env.example`**. Lembre da [Aula 03](03-variaveis-de-ambiente.md): o `.env` fica na sua máquina, o `.env.example` é o mapa que vai para o repositório.
 
-### 🔍 Escolhendo o tempo de expiração
+### Escolhendo o tempo de expiração
 
 É sempre uma troca:
 
@@ -311,7 +312,7 @@ Faça **o mesmo no `.env.example`**. Lembre da [Aula 03](03-variaveis-de-ambient
 
 Bancos usam minutos. Redes sociais usam semanas. Para a aula, `1d` é confortável.
 
-### 🔍 Como seria um segredo de verdade
+### Como seria um segredo de verdade
 
 Aquele texto `troque-este-segredo...` é didático: legível, para você entender de onde ele vem. Em produção, o segredo é gerado aleatoriamente:
 
@@ -381,7 +382,7 @@ export const env = {
 
 Salve.
 
-### 🔍 O que mudou
+### O que mudou
 
 ```javascript
 const jwtSecret = requireEnv("JWT_SECRET");
@@ -400,7 +401,7 @@ jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || "1d",
 
 Este é opcional: se ninguém definir, vale `1d`.
 
-> 🔍 **Por que `||` e não `??` aqui?** Com `??`, uma variável vazia (`JWT_EXPIRES_IN=`) passaria como string vazia e quebraria o `jsonwebtoken`. O `||` trata `""` como ausência, que é o que queremos neste caso. Os dois operadores existem porque servem para coisas diferentes — reveja a [Aula 07](07-configuracao-da-aplicacao.md).
+> **Por que `||` e não `??` aqui?** Com `??`, uma variável vazia (`JWT_EXPIRES_IN=`) passaria como string vazia e quebraria o `jsonwebtoken`. O `||` trata `""` como ausência, que é o que queremos neste caso. Os dois operadores existem porque servem para coisas diferentes — reveja a [Aula 07](07-configuracao-da-aplicacao.md).
 
 ```javascript
 saltRounds: 10,
@@ -417,7 +418,7 @@ docker compose restart api
 docker compose logs api --tail 10
 ```
 
-### ✅ O que você deve ver
+### O que você deve ver
 
 ```text
 estoque-api  | Conexao com o MySQL estabelecida
@@ -436,7 +437,7 @@ curl http://localhost:3000/api/health
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `database/init.sql` termina com a seção de autenticação
 - [ ] O arquivo `database/migrations/001-create-users.sql` existe
@@ -449,7 +450,7 @@ curl http://localhost:3000/api/health
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### `Variavel de ambiente obrigatoria ausente: JWT_SECRET`
 
@@ -488,11 +489,11 @@ docker compose down -v
 docker compose up -d --build
 ```
 
-> ⚠️ O `-v` **apaga o volume**: todos os produtos, categorias e movimentações somem, e o `init.sql` roda de novo do começo.
+> **Atenção:** O `-v` **apaga o volume**: todos os produtos, categorias e movimentações somem, e o `init.sql` roda de novo do começo.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Banco pronto, bibliotecas instaladas. Agora começa o código.
 

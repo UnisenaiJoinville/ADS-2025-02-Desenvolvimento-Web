@@ -1,6 +1,6 @@
 # Etapa 19 — Tela de Categorias
 
-📋 **Tipo:** prática (HTML + JavaScript)
+**Tipo:** prática (HTML + JavaScript)
 
 ---
 
@@ -16,7 +16,7 @@ Criar a última tela do sistema. Ela é a **mais simples**, e por isso é uma bo
 
 ---
 
-## 🎯 Desafio: tente fazer sozinho primeiro
+## Desafio: tente fazer sozinho primeiro
 
 Você já viu tudo o que precisa nas etapas 15 a 18. Antes de copiar o código, tente construir:
 
@@ -34,7 +34,7 @@ Você já viu tudo o que precisa nas etapas 15 a 18. Antes de copiar o código, 
 - Use **delegação de eventos** no container da tabela
 - Para mostrar/esconder o botão Cancelar, use `classList.add("hidden")` e `classList.remove("hidden")`
 
-> ⏰ Tente construir por conta própria antes de comparar com a solução abaixo.
+> Tente construir por conta própria antes de comparar com a solução abaixo.
 
 ---
 
@@ -116,7 +116,7 @@ Salve.
 | Formulário **na página**, sem modal | Só um campo — abrir um modal seria exagero |
 | Botão Cancelar com `hidden` | Só aparece no modo edição |
 
-> 📌 **Decisão de design:** nem toda tela precisa de modal. Formulário simples pode ficar direto na página. Adequar a complexidade da interface à do dado é uma boa prática.
+> **Decisão de design:** nem toda tela precisa de modal. Formulário simples pode ficar direto na página. Adequar a complexidade da interface à do dado é uma boa prática.
 
 ### O `type="button"` no Cancelar
 
@@ -124,13 +124,13 @@ Salve.
 <button type="button" data-cancel>Cancelar</button>
 ```
 
-⚠️ **Detalhe crucial:** dentro de um `<form>`, todo `<button>` sem `type` é tratado como `type="submit"`. Sem o `type="button"`, clicar em Cancelar **enviaria o formulário**.
+**Detalhe crucial:** dentro de um `<form>`, todo `<button>` sem `type` é tratado como `type="submit"`. Sem o `type="button"`, clicar em Cancelar **enviaria o formulário**.
 
 | Tipo | Comportamento dentro do form |
 |---|---|
 | (sem type) | Envia o formulário |
 | `type="submit"` | Envia o formulário |
-| `type="button"` | Não faz nada (só o que o JS mandar) ✅ |
+| `type="button"` | Não faz nada (só o que o JS mandar) |
 
 ---
 
@@ -252,7 +252,7 @@ Salve.
 
 ## Entendendo os pontos novos
 
-### 💡 O botão que carrega o nome consigo
+### O botão que carrega o nome consigo
 
 ```html
 <button data-edit="${category.id}" data-name="${escapeHtml(category.name)}">Editar</button>
@@ -271,9 +271,9 @@ Compare com a tela de produtos:
 | Produtos | `await api.getProduct(id)` | São 8 campos; buscar garante dados frescos |
 | Categorias | Lê do `data-name` | É **um** campo; a requisição não compensa |
 
-> 📌 **Lição:** nem toda ação precisa ir ao servidor. Se o dado já está na tela e é simples, aproveite.
+> **Lição:** nem toda ação precisa ir ao servidor. Se o dado já está na tela e é simples, aproveite.
 
-### ⚠️ O `escapeHtml` dentro do atributo
+### O `escapeHtml` dentro do atributo
 
 ```javascript
 data-name="${escapeHtml(category.name)}"
@@ -293,7 +293,7 @@ Sem o escape, o HTML gerado seria:
 
 O atacante teria injetado um evento no seu botão. Com o `escapeHtml`, as aspas viram `&quot;` e o valor continua sendo apenas texto.
 
-> 🎯 XSS não acontece só dentro de tags — acontece também **dentro de atributos**. Escape sempre.
+> XSS não acontece só dentro de tags — acontece também **dentro de atributos**. Escape sempre.
 
 ### O modo edição do formulário
 
@@ -316,7 +316,7 @@ function resetForm() {
 }
 ```
 
-> ⚠️ **Por que limpar o `id` explicitamente?** Porque `form.reset()` volta os campos ao **valor inicial do HTML**, e o `id` é `hidden` sem valor... mas depois de atribuirmos por JavaScript, o `reset()` pode não limpá-lo em todos os navegadores. Limpar explicitamente é mais seguro.
+> **Por que limpar o `id` explicitamente?** Porque `form.reset()` volta os campos ao **valor inicial do HTML**, e o `id` é `hidden` sem valor... mas depois de atribuirmos por JavaScript, o `reset()` pode não limpá-lo em todos os navegadores. Limpar explicitamente é mais seguro.
 
 ### O `window.confirm` com aviso de consequência
 
@@ -326,11 +326,11 @@ if (!window.confirm("Excluir esta categoria? Os produtos ficarao sem categoria."
 
 Repare que a mensagem **explica a consequência**. Lembra do `ON DELETE SET NULL` da Etapa 06? A interface avisa exatamente o que o banco vai fazer.
 
-> 💭 Compare com um genérico "Tem certeza?". Uma boa mensagem de confirmação diz **o que vai acontecer**, não só pergunta se você quer.
+> Compare com um genérico "Tem certeza?". Uma boa mensagem de confirmação diz **o que vai acontecer**, não só pergunta se você quer.
 
 ---
 
-## Passo 3 — 🧪 Testar
+## Passo 3 — Testar
 
 Acesse:
 
@@ -351,7 +351,7 @@ http://localhost:3000/categorias.html
 6. **Cancelar** — clique em **Editar** de novo e depois em **Cancelar** → o formulário limpa e o botão some
 7. **Excluir** — clique em **Excluir** → aparece a confirmação com o aviso → confirme
 
-### 🧪 O teste que mostra o `ON DELETE SET NULL`
+### O teste que mostra o `ON DELETE SET NULL`
 
 1. Vá em **Produtos** e crie um produto na categoria `Bebidas`
 2. Volte em **Categorias** e **exclua** `Bebidas`
@@ -359,11 +359,11 @@ http://localhost:3000/categorias.html
 
 Os produtos **continuam lá**, agora com "Sem categoria". Nada foi perdido.
 
-> 🎯 Aqui você vê, na tela, a decisão de modelagem que tomamos lá na Etapa 06.
+> Aqui você vê, na tela, a decisão de modelagem que tomamos lá na Etapa 06.
 
 ---
 
-## 🎉 O sistema está completo!
+## O sistema está completo!
 
 Faça um tour pelas quatro telas:
 
@@ -389,7 +389,7 @@ E veja o menu funcionando, com o item da página atual sempre destacado.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `public/categorias.html` e `public/js/categorias.js` existem
 - [ ] A tabela mostra as categorias com a contagem de produtos
@@ -403,7 +403,7 @@ E veja o menu funcionando, com o item da página atual sempre destacado.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Sintoma | Causa | Solução |
 |---|---|---|
@@ -415,8 +415,8 @@ E veja o menu funcionando, com o item da página atual sempre destacado.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Sistema pronto. Vamos testar tudo junto, do começo ao fim.
 
-**[Etapa 20 — Teste final](20-teste-final.md)** 🏁
+**[Etapa 20 — Teste final](20-teste-final.md)**

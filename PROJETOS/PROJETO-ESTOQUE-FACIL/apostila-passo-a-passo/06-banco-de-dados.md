@@ -1,6 +1,6 @@
 # Etapa 06 — Banco de dados
 
-📋 **Tipo:** prática (VS Code) + teoria de modelagem
+**Tipo:** prática (VS Code) + teoria de modelagem
 
 ---
 
@@ -47,7 +47,7 @@ Leia as setas assim:
 
 No VS Code, dentro da pasta `database`, crie o arquivo `init.sql`.
 
-> 💡 Para criar dentro de uma pasta: clique com o botão direito **sobre a pasta `database`** → **New File**.
+> Para criar dentro de uma pasta: clique com o botão direito **sobre a pasta `database`** → **New File**.
 
 ---
 
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS categories (
 | `UNIQUE` | Não pode haver dois valores iguais |
 | `DEFAULT` | Valor usado quando nada é informado |
 
-> 📌 Repare que `UNIQUE` em `name` faz **o banco** garantir que não existam duas categorias "Bebidas". Mesmo que a aplicação tenha um bug, o banco recusa. É uma segunda linha de defesa.
+> Repare que `UNIQUE` em `name` faz **o banco** garantir que não existam duas categorias "Bebidas". Mesmo que a aplicação tenha um bug, o banco recusa. É uma segunda linha de defesa.
 
 ---
 
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS products (
 | `active` | Produto ativo ou desativado |
 | `updated_at` | Atualiza sozinha a cada alteração (`ON UPDATE`) |
 
-### 💰 Decisão importante: `DECIMAL`, nunca `FLOAT`
+### Decisão importante: `DECIMAL`, nunca `FLOAT`
 
 ```sql
 cost_price DECIMAL(10, 2)
@@ -147,9 +147,9 @@ cost_price DECIMAL(10, 2)
 
 Em um sistema financeiro, esse errinho vira diferença de centavos que não fecha no balanço. `DECIMAL` guarda o valor **exato**.
 
-> 📌 **Regra:** dinheiro é sempre `DECIMAL`. Sem exceção.
+> **Regra:** dinheiro é sempre `DECIMAL`. Sem exceção.
 
-### 🔗 A chave estrangeira
+### A chave estrangeira
 
 ```sql
 CONSTRAINT fk_products_category
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
 );
 ```
 
-### 🎯 `ENUM` — o tipo que só aceita o que você permitiu
+### `ENUM` — o tipo que só aceita o que você permitiu
 
 ```sql
 type ENUM('IN', 'OUT') NOT NULL
@@ -200,7 +200,7 @@ ativo: "sim"   // e se alguém escrever "Sim"? "S"? "yes"? "1"?
 
 O `ENUM` acaba com essa bagunça na origem.
 
-### ⚖️ `CASCADE` x `SET NULL` — a decisão de projeto
+### `CASCADE` x `SET NULL` — a decisão de projeto
 
 Repare que usamos comportamentos **diferentes** nas duas tabelas. Não é por acaso:
 
@@ -209,7 +209,7 @@ Repare que usamos comportamentos **diferentes** nas duas tabelas. Não é por ac
 | Apagar uma **categoria** | `ON DELETE SET NULL` | Perder a categoria não deve fazer você perder os produtos! Eles apenas ficam "sem categoria" |
 | Apagar um **produto** | `ON DELETE CASCADE` | O histórico de um produto que não existe mais não serve para nada — some junto |
 
-> 💭 **Para pensar:** e se quiséssemos manter o histórico mesmo após apagar o produto? Aí a solução seria não apagar o produto de verdade, e sim marcá-lo como `active = false`. Isso se chama *soft delete* e está nos exercícios da Etapa 22.
+> **Para pensar:** e se quiséssemos manter o histórico mesmo após apagar o produto? Aí a solução seria não apagar o produto de verdade, e sim marcá-lo como `active = false`. Isso se chama *soft delete* e está nos exercícios da Etapa 22.
 
 ---
 
@@ -241,7 +241,7 @@ Criamos índices nas colunas que vamos usar em **filtros** e **junções**:
 | `stock_movements (product_id)` | Buscar as movimentações de um produto |
 | `stock_movements (created_at)` | Ordenar por data e filtrar o mês atual (dashboard) |
 
-> ⚠️ **Índice não é de graça.** Ele acelera a leitura, mas deixa a escrita um pouco mais lenta e ocupa disco. Por isso criamos só onde há ganho real, e não em toda coluna.
+> **Índice não é de graça.** Ele acelera a leitura, mas deixa a escrita um pouco mais lenta e ocupa disco. Por isso criamos só onde há ganho real, e não em toda coluna.
 
 ---
 
@@ -294,14 +294,14 @@ Os números não são aleatórios — foram escolhidos para produzir situações
 
 | Produto | Quantidade | Mínimo | Situação |
 |---|---|---|---|
-| Cafe em graos | 40 | 10 | ✅ Tranquilo |
-| Agua mineral | 8 | 20 | 🔴 **Estoque baixo** |
-| Caneta esferografica | 5 | 25 | 🔴 **Estoque baixo** |
-| Teclado mecanico | 3 | 4 | 🔴 **Estoque baixo** |
+| Cafe em graos | 40 | 10 | Tranquilo |
+| Agua mineral | 8 | 20 | **Estoque baixo** |
+| Caneta esferografica | 5 | 25 | **Estoque baixo** |
+| Teclado mecanico | 3 | 4 | **Estoque baixo** |
 
 Assim, o card de alerta do dashboard já nasce mostrando 3 produtos — e a tela fica interessante desde o primeiro dia.
 
-> ⚠️ **Sem acentos nos dados!** Escrevemos "Cafe" e "Informatica" de propósito. Isso evita qualquer problema de codificação de caracteres entre o arquivo, o container e o navegador. Em um projeto real, você configuraria `utf8mb4` com cuidado; aqui, simplificamos.
+> **Sem acentos nos dados!** Escrevemos "Cafe" e "Informatica" de propósito. Isso evita qualquer problema de codificação de caracteres entre o arquivo, o container e o navegador. Em um projeto real, você configuraria `utf8mb4` com cuidado; aqui, simplificamos.
 
 ---
 
@@ -329,7 +329,7 @@ Ela entrega nosso `init.sql` para uma pasta especial da imagem do MySQL. Quando 
                                     na criação do volume
 ```
 
-### ⚠️ O detalhe que confunde todo mundo
+### O detalhe que confunde todo mundo
 
 **O `init.sql` roda apenas quando o volume é criado do zero.**
 
@@ -346,7 +346,7 @@ docker compose up -d
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 cat database/init.sql
@@ -364,7 +364,7 @@ Marque:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Problema | Causa | Solução |
 |---|---|---|
@@ -373,11 +373,11 @@ Marque:
 | Esqueci o `;` no final de um comando | — | Cada comando precisa terminar com `;` |
 | O nome ficou `init.sql.txt` | Extensão oculta do Windows | Renomeie no VS Code |
 
-> 💡 Erros neste arquivo só aparecem na Etapa 10, quando o banco subir. Se lá as tabelas não existirem, volte aqui e confira com calma.
+> Erros neste arquivo só aparecem na Etapa 10, quando o banco subir. Se lá as tabelas não existirem, volte aqui e confira com calma.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Banco modelado. Vamos escrever o código que lê o `.env` e conecta no MySQL.
 

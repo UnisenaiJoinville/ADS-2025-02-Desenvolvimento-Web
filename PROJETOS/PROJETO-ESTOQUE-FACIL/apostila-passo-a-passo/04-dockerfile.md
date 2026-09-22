@@ -1,6 +1,6 @@
 # Etapa 04 — Dockerfile
 
-📋 **Tipo:** prática (VS Code)
+**Tipo:** prática (VS Code)
 
 ---
 
@@ -41,7 +41,7 @@ Você pode servir **vários pratos** (containers) a partir do **mesmo bolo** (im
 
 Crie na raiz do projeto um arquivo chamado exatamente `Dockerfile`.
 
-> ⚠️ **Sem extensão!** Não é `Dockerfile.txt`, não é `dockerfile`. É `Dockerfile`, com **D** maiúsculo e mais nada.
+> **Sem extensão!** Não é `Dockerfile.txt`, não é `dockerfile`. É `Dockerfile`, com **D** maiúsculo e mais nada.
 
 Digite o conteúdo:
 
@@ -94,7 +94,7 @@ Este arquivo funciona igual ao `.gitignore`, mas para o Docker: diz o que **não
 | `.git` | Histórico do Git não serve para nada dentro do container |
 | `apostilas` | Material didático não faz parte do programa |
 
-> 📌 **Por que `node_modules` é tão importante aqui?** Alguns pacotes têm partes compiladas para o sistema operacional. Se você copiasse a pasta do Windows para dentro de um container Linux, ela poderia simplesmente não funcionar.
+> **Por que `node_modules` é tão importante aqui?** Alguns pacotes têm partes compiladas para o sistema operacional. Se você copiasse a pasta do Windows para dentro de um container Linux, ela poderia simplesmente não funcionar.
 
 ---
 
@@ -135,7 +135,7 @@ Define a pasta padrão **dentro** do container. Todos os comandos seguintes roda
 
 É como fazer `cd /app`, mas valendo para todas as instruções seguintes. Se a pasta não existir, o Docker a cria.
 
-> 💡 `/app` é apenas uma convenção. Poderia ser `/usr/src/app` ou qualquer outro nome. O importante é ser consistente.
+> `/app` é apenas uma convenção. Poderia ser `/usr/src/app` ou qualquer outro nome. O importante é ser consistente.
 
 ### `COPY package*.json ./`
 
@@ -183,7 +183,7 @@ EXPOSE 3000
 
 **Documenta** que a aplicação usa a porta 3000.
 
-> ⚠️ **Atenção:** esta instrução **não** abre a porta de verdade. É só documentação para quem lê o arquivo. Quem realmente publica a porta é o `docker-compose.yml` (Etapa 05).
+> **Atenção:** esta instrução **não** abre a porta de verdade. É só documentação para quem lê o arquivo. Quem realmente publica a porta é o `docker-compose.yml` (Etapa 05).
 
 ### `CMD ["npm", "run", "dev"]`
 
@@ -224,12 +224,12 @@ Agora imagine que você **mudou uma linha** de um arquivo `.js`:
 
 | | Jeito ruim | Nosso jeito |
 |---|---|---|
-| `COPY package*.json` | — | ✅ cache (não mudou) |
-| `RUN npm install` | ❌ **roda de novo** (lento) | ✅ cache (não mudou) |
-| `COPY . .` | — | ❌ roda de novo (rápido) |
+| `COPY package*.json` | — | cache (não mudou) |
+| `RUN npm install` | **roda de novo** (lento) | cache (não mudou) |
+| `COPY . .` | — | roda de novo (rápido) |
 | **Tempo** | ~40 segundos | ~1 segundo |
 
-> 📌 **Regra geral:** coloque no Dockerfile **primeiro o que muda pouco** (dependências) e **por último o que muda muito** (seu código).
+> **Regra geral:** coloque no Dockerfile **primeiro o que muda pouco** (dependências) e **por último o que muda muito** (seu código).
 
 ---
 
@@ -251,7 +251,7 @@ Pense assim:
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls -a
@@ -271,11 +271,11 @@ Marque:
 - [ ] O `COPY . .` vem **depois** do `RUN npm install`
 - [ ] O `.dockerignore` existe e lista `node_modules`
 
-> ⚠️ **Ainda não vamos construir a imagem.** Isso acontece na Etapa 10, quando o Compose estiver pronto. Se você tentar `docker build` agora, vai funcionar, mas a API ainda não existe para ser executada.
+> **Ainda não vamos construir a imagem.** Isso acontece na Etapa 10, quando o Compose estiver pronto. Se você tentar `docker build` agora, vai funcionar, mas a API ainda não existe para ser executada.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Problema | Causa | Solução |
 |---|---|---|
@@ -285,7 +285,7 @@ Marque:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Temos a receita da API. Agora vamos orquestrar API + banco juntos.
 

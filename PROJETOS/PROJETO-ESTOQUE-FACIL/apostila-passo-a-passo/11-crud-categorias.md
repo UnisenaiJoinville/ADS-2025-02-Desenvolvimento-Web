@@ -1,6 +1,6 @@
 # Etapa 11 — CRUD de Categorias
 
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
 
 ---
 
@@ -48,7 +48,7 @@ Vamos construir **de baixo para cima**, seguindo o fluxo de dados:
    1. category-validator.js    <- primeiro: valida os dados
 ```
 
-> 💡 **Por que essa ordem?** Porque cada arquivo usa o anterior. Se fizéssemos ao contrário, o VS Code ficaria reclamando de imports quebrados o tempo todo.
+> **Por que essa ordem?** Porque cada arquivo usa o anterior. Se fizéssemos ao contrário, o VS Code ficaria reclamando de imports quebrados o tempo todo.
 
 Todos os arquivos ficam em `src/modules/categories/`.
 
@@ -78,7 +78,7 @@ export function validateCategoryInput(input) {
 
 Salve.
 
-### 🔍 Dissecando a linha mais importante
+### Dissecando a linha mais importante
 
 ```javascript
 const name = String(input?.name ?? "").trim().replace(/\s+/g, " ");
@@ -97,11 +97,11 @@ Parece uma linha só, mas são **cinco proteções** encadeadas. Vamos da direit
 **Sem o optional chaining**, se alguém mandasse uma requisição com corpo vazio:
 
 ```javascript
-input.name              // 💥 TypeError: Cannot read properties of undefined
-input?.name             // ✅ undefined, sem quebrar
+input.name              // TypeError: Cannot read properties of undefined
+input?.name             // undefined, sem quebrar
 ```
 
-### 🧹 O validador sempre devolve dado limpo
+### O validador sempre devolve dado limpo
 
 ```javascript
 return { name };
@@ -109,7 +109,7 @@ return { name };
 
 Repare: ele não devolve `true`/`false`. Ele devolve o **dado já normalizado**.
 
-> 📌 **Princípio importante:** depois do validador, as camadas seguintes podem confiar 100% no dado. Ninguém precisa fazer `trim()` de novo, nem checar se é string.
+> **Princípio importante:** depois do validador, as camadas seguintes podem confiar 100% no dado. Ninguém precisa fazer `trim()` de novo, nem checar se é string.
 
 Isso se chama **validar nas fronteiras**: sujeira é limpa na porta de entrada, não espalhada pelo sistema.
 
@@ -181,7 +181,7 @@ Salve.
 
 ---
 
-## 🚨 O ponto mais importante desta etapa: SQL Injection
+## O ponto mais importante desta etapa: SQL Injection
 
 Repare que **todos** os valores entram por `?`:
 
@@ -194,7 +194,7 @@ pool.query("SELECT ... WHERE id = ?", [id]);
 Veja o jeito **errado**:
 
 ```javascript
-// ❌ NUNCA FAÇA ISSO
+// NUNCA FAÇA ISSO
 pool.query(`SELECT * FROM categories WHERE name = '${name}'`);
 ```
 
@@ -215,13 +215,13 @@ O banco executaria **dois comandos**: a busca e a **destruição da tabela**.
 ### Como o `?` protege
 
 ```javascript
-// ✅ CORRETO
+// CORRETO
 pool.query("SELECT * FROM categories WHERE name = ?", [name]);
 ```
 
 Com o `?`, o driver envia o **comando** e os **valores** separadamente. O banco monta a consulta sabendo que aquele valor é **dado**, jamais comando. O texto malicioso vira apenas... um nome esquisito de categoria.
 
-> ⚠️ **Regra absoluta:** valor de variável em SQL entra **sempre** por `?`. Sem exceção. Nunca use crase, `+` ou template string para inserir valores.
+> **Regra absoluta:** valor de variável em SQL entra **sempre** por `?`. Sem exceção. Nunca use crase, `+` ou template string para inserir valores.
 
 ---
 
@@ -284,7 +284,7 @@ Isso conta **quantos produtos** cada categoria tem.
 | Tipo | Comportamento com categoria vazia |
 |---|---|
 | `INNER JOIN` | A categoria **sumiria** da lista |
-| `LEFT JOIN` | A categoria aparece com `productCount = 0` ✅ |
+| `LEFT JOIN` | A categoria aparece com `productCount = 0` |
 
 Como queremos listar **todas** as categorias, usamos `LEFT JOIN`.
 
@@ -357,7 +357,7 @@ export async function deleteCategory(id) {
 
 Salve.
 
-### 🧠 Aqui moram as regras de negócio
+### Aqui moram as regras de negócio
 
 Compare as duas camadas:
 
@@ -373,9 +373,9 @@ Repare: nenhuma menção a `request`, `response`, `status`. Ele apenas **lança 
 
 Quem traduz `NotFoundError` em status 404 é o `errorHandler` da Etapa 08.
 
-> 📌 **Vantagem:** esse mesmo service poderia ser usado por um script de linha de comando, por um job agendado ou por testes automatizados — sem nenhuma adaptação.
+> **Vantagem:** esse mesmo service poderia ser usado por um script de linha de comando, por um job agendado ou por testes automatizados — sem nenhuma adaptação.
 
-### 🔍 O `import * as repository`
+### O `import * as repository`
 
 ```javascript
 import * as repository from "./category-repository.js";
@@ -393,10 +393,10 @@ repository.create({ name: "Bebidas" })
 
 ```javascript
 const category = await findById(id);              // de onde vem isso?
-const category = await repository.findById(id);   // ah, do banco ✅
+const category = await repository.findById(id);   // ah, do banco
 ```
 
-### ⚠️ A linha mais sutil do arquivo
+### A linha mais sutil do arquivo
 
 ```javascript
 if (existing && existing.id !== Number(id)) {
@@ -418,10 +418,10 @@ existing && existing.id !== Number(id)
 
 ```javascript
 "5" !== 5           // true  (tipos diferentes!) → bug
-Number("5") !== 5   // false (correto) ✅
+Number("5") !== 5   // false (correto)
 ```
 
-> 📌 Este é exatamente o problema clássico de coerção de tipos, aparecendo em um caso real.
+> Este é exatamente o problema clássico de coerção de tipos, aparecendo em um caso real.
 
 ### A ordem em `updateCategory`
 
@@ -481,7 +481,7 @@ export async function destroy(request, response) {
 
 Salve.
 
-### 👀 Repare como o controller é "magro"
+### Repare como o controller é "magro"
 
 Cada função tem 2 ou 3 linhas. Ele faz **só três coisas**:
 
@@ -503,7 +503,7 @@ Usamos um padrão consagrado (vem do Rails e do Laravel):
 | `update` | Atualizar |
 | `destroy` | Excluir |
 
-> 💡 `destroy` em vez de `delete` porque `delete` é **palavra reservada** do JavaScript.
+> `destroy` em vez de `delete` porque `delete` é **palavra reservada** do JavaScript.
 
 ### Os status HTTP corretos
 
@@ -521,7 +521,7 @@ response.status(204).send();
 
 Usamos `.send()` sem argumento, **não** `.json()`. O status 204 significa literalmente "sem conteúdo" — mandar um corpo aí seria contraditório.
 
-> ⚠️ Esse detalhe vai importar no front-end (Etapa 15): tentar ler JSON de uma resposta 204 dá erro.
+> **Atenção:** Esse detalhe vai importar no front-end (Etapa 15): tentar ler JSON de uma resposta 204 dá erro.
 
 ---
 
@@ -568,7 +568,7 @@ O `/` aqui é **relativo**. Como vamos montar este router em `/api/categories` (
 
 Porque **todos** são `async`. Sem o wrapper, um erro lançado lá dentro sumiria silenciosamente e o navegador ficaria travado (relembre a Etapa 08).
 
-> 📌 **Regra do projeto:** se o handler é `async`, ele vai dentro de `asyncHandler`. Sempre.
+> **Regra do projeto:** se o handler é `async`, ele vai dentro de `asyncHandler`. Sempre.
 
 ---
 
@@ -629,7 +629,7 @@ curl http://localhost:3000/api/categories
 [{"id":1,"name":"Bebidas","createdAt":"...","productCount":2}, ...]
 ```
 
-> 👀 Repare no `productCount` — é o `COUNT` com `LEFT JOIN` funcionando.
+> Repare no `productCount` — é o `COUNT` com `LEFT JOIN` funcionando.
 
 ### Criar
 
@@ -643,7 +643,7 @@ curl -X POST http://localhost:3000/api/categories \
 {"id":5,"name":"Hortifruti","createdAt":"2026-09-09 00:21:16"}
 ```
 
-> ⚠️ O `-H "Content-Type: application/json"` é **obrigatório**. Sem ele, o `express.json()` não interpreta o corpo e `request.body` chega vazio.
+> **Atenção:** O `-H "Content-Type: application/json"` é **obrigatório**. Sem ele, o `express.json()` não interpreta o corpo e `request.body` chega vazio.
 
 ### Testar a regra de duplicidade
 
@@ -657,7 +657,7 @@ curl -X POST http://localhost:3000/api/categories \
 {"error":"Ja existe uma categoria com esse nome"}
 ```
 
-> 🎯 **Repare no que acabou de acontecer:** mandamos `"  hortifruti  "` com espaços e em minúsculas, e o sistema reconheceu como duplicata de `"Hortifruti"`. Isso é o `trim()` do validador **somado** ao `LOWER()` da consulta.
+> **Repare no que acabou de acontecer:** mandamos `"  hortifruti  "` com espaços e em minúsculas, e o sistema reconheceu como duplicata de `"Hortifruti"`. Isso é o `trim()` do validador **somado** ao `LOWER()` da consulta.
 
 ### Testar a validação
 
@@ -699,7 +699,7 @@ curl http://localhost:3000/api/categories/abc
 {"error":"Parametro id invalido: abc"}
 ```
 
-> ✅ Aqui você vê o `parseId` da Etapa 08 protegendo a aplicação.
+> Aqui você vê o `parseId` da Etapa 08 protegendo a aplicação.
 
 ### Excluir
 
@@ -717,7 +717,7 @@ Sem corpo na resposta — exatamente como planejamos.
 
 ---
 
-## 🎯 Recapitulando o caminho completo
+## Recapitulando o caminho completo
 
 Acompanhe o que aconteceu quando você criou a categoria:
 
@@ -749,7 +749,7 @@ Acompanhe o que aconteceu quando você criou a categoria:
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls src/modules/categories
@@ -773,7 +773,7 @@ Marque:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -786,7 +786,7 @@ Marque:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Primeiro CRUD pronto! Agora o mesmo padrão, com mais campos e filtros.
 

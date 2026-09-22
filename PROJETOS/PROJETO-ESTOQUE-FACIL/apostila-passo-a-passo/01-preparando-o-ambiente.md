@@ -1,6 +1,6 @@
 # Etapa 01 — Preparando o ambiente
 
-📋 **Tipo:** prática (terminal)
+**Tipo:** prática (terminal)
 
 ---
 
@@ -8,7 +8,7 @@
 
 Confirmar que o Node.js e o Docker estão instalados e funcionando. Ao final, os quatro comandos de verificação devem responder sem erro.
 
-> ⚠️ **Não pule esta etapa.** 90% dos problemas nas etapas seguintes vêm de ambiente mal preparado.
+> **Não pule esta etapa.** 90% dos problemas nas etapas seguintes vêm de ambiente mal preparado.
 
 ---
 
@@ -75,7 +75,7 @@ npm -v
 10.9.2
 ```
 
-### ⚠️ Se aparecer "command not found"
+### Se aparecer "command not found"
 
 Significa que o Node não está instalado ou o terminal não o encontra.
 
@@ -94,7 +94,7 @@ Este passo é **manual** e todo mundo esquece:
 3. Aperte **Enter**
 4. **Aguarde** até o ícone da baleia parar de se mexer
 
-> 🐳 **Como saber se está pronto?** O ícone da baleia aparece na barra de tarefas (perto do relógio). Enquanto estiver "carregando", ele fica com uma animação. Espere ficar parado.
+> **Como saber se está pronto?** O ícone da baleia aparece na barra de tarefas (perto do relógio). Enquanto estiver "carregando", ele fica com uma animação. Espere ficar parado.
 
 Na primeira vez isso pode demorar **1 a 3 minutos**. Tenha paciência.
 
@@ -122,13 +122,13 @@ docker compose version
 Docker Compose version v2.31.0-desktop.2
 ```
 
-### ⚠️ Se aparecer "Cannot connect to the Docker daemon"
+### Se aparecer "Cannot connect to the Docker daemon"
 
 Este é **o erro mais comum do projeto inteiro**. Ele significa uma coisa só: **o Docker Desktop não está aberto**.
 
 Volte ao Passo 3, abra o programa, espere a baleia parar e teste de novo.
 
-### ⚠️ Se aparecer "docker: command not found"
+### Se aparecer "docker: command not found"
 
 O Docker não está instalado. Baixe em https://www.docker.com/products/docker-desktop, instale, **reinicie o computador** e teste outra vez.
 
@@ -152,7 +152,7 @@ Hello from Docker!
 This message shows that your installation appears to be working correctly.
 ```
 
-Se você viu **"Hello from Docker!"**, está tudo certo. 🎉
+Se você viu **"Hello from Docker!"**, está tudo certo.
 
 > **O que aconteceu aqui?** O Docker procurou a imagem `hello-world` no seu computador, não achou, baixou da internet, criou um container, executou, mostrou a mensagem e apagou o container (por causa do `--rm`). Em uma linha você viu o ciclo de vida inteiro de um container.
 
@@ -187,7 +187,7 @@ Guarde esta frase, ela vai fazer sentido total na Etapa 20:
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 Marque cada item antes de seguir:
 
@@ -202,7 +202,7 @@ Marque cada item antes de seguir:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | O que significa | Como resolver |
 |---|---|---|
@@ -215,7 +215,7 @@ Marque cada item antes de seguir:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Ambiente pronto. Vamos criar a pasta do projeto.
 

@@ -1,7 +1,8 @@
 # Aula 32 — Teste final, problemas comuns e exercícios
 
-⏱️ **Tempo estimado:** 45 minutos de teste + exercícios
-📋 **Tipo:** prática e avaliação
+**Tipo:** prática e avaliação
+
+**Tempo estimado:** 45 minutos de teste + exercícios
 
 ---
 
@@ -29,7 +30,7 @@ docker compose down -v
 docker compose up -d --build
 ```
 
-> ⚠️ O `-v` **apaga o volume do banco**. Tudo que você cadastrou some, e o `init.sql` roda de novo do início — inclusive a tabela `users` e o usuário de demonstração.
+> **Atenção:** O `-v` **apaga o volume do banco**. Tudo que você cadastrou some, e o `init.sql` roda de novo do início — inclusive a tabela `users` e o usuário de demonstração.
 
 Acompanhe a subida:
 
@@ -161,7 +162,7 @@ curl -i http://localhost:3000/api/health
 curl -i http://localhost:3000/api/products
 ```
 
-> 📎 Mais consultas prontas em `database/queries/auth-queries.sql`.
+> Mais consultas prontas em `database/queries/auth-queries.sql`.
 
 ---
 
@@ -295,7 +296,7 @@ Pesquise e escreva meia página comparando `localStorage` com cookie `httpOnly`:
 
 ## Parte 4 — Atividade de diagnóstico de código
 
-> 📋 **Formato:** individual ou em duplas · 40 minutos
+> **Formato:** individual ou em duplas · 40 minutos
 > **Enunciado:** o arquivo abaixo é um `auth-service.js` alternativo, escrito por outro "aluno". Ele **roda sem erro** e o login até funciona. Mas contém **10 problemas**, entre falhas de segurança, bugs e violações das camadas do projeto.
 >
 > Encontre todos, indique a **linha**, classifique (`segurança`, `bug` ou `arquitetura`) e escreva a correção.
@@ -354,7 +355,7 @@ Pesquise e escreva meia página comparando `localStorage` com cookie `httpOnly`:
 | ... | | | | |
 
 <details>
-<summary>🔑 Gabarito (só depois de tentar!)</summary>
+<summary>Gabarito (só depois de tentar!)</summary>
 
 | # | Linha | Tipo | Problema | Correção |
 |---|---|---|---|---|
@@ -436,7 +437,7 @@ Para o professor conferir a entrega, ou para você se autoavaliar.
 
 ---
 
-## 🎓 O que você sabe fazer agora
+## O que você sabe fazer agora
 
 Some aos objetivos da [Aula 22](22-exercicios-e-checklist.md):
 
@@ -451,7 +452,7 @@ Some aos objetivos da [Aula 22](22-exercicios-e-checklist.md):
 
 ---
 
-## 🚀 Para onde seguir
+## Para onde seguir
 
 | Tema | Por quê |
 |---|---|
@@ -463,4 +464,4 @@ Some aos objetivos da [Aula 22](22-exercicios-e-checklist.md):
 
 ---
 
-**[⬅️ Voltar ao índice](README.md)**
+← [Voltar ao índice](README.md)

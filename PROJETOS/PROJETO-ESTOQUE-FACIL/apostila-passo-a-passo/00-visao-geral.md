@@ -1,6 +1,6 @@
 # Etapa 00 — Visão geral do projeto
 
-📋 **Tipo:** leitura (nenhum código ainda)
+**Tipo:** leitura (nenhum código ainda)
 
 ---
 
@@ -231,7 +231,7 @@ Marque mentalmente estes objetivos:
 
 ---
 
-## ✅ Confira se você entendeu
+## Confira se você entendeu
 
 Antes de seguir, responda mentalmente:
 
@@ -252,7 +252,7 @@ Antes de seguir, responda mentalmente:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Agora que você tem o mapa, vamos preparar as ferramentas.
 

@@ -1,6 +1,6 @@
 # Etapa 15 — Base do front-end
 
-📋 **Tipo:** prática (JavaScript do navegador)
+**Tipo:** prática (JavaScript do navegador)
 
 ---
 
@@ -54,7 +54,7 @@ Basta uma linha no `<head>` de cada página:
 <script src="https://cdn.tailwindcss.com"></script>
 ```
 
-> ⚠️ **Aviso para produção:** o CDN compila o CSS no navegador do usuário. É perfeito para aprender e prototipar, mas pesado em produção. Em um projeto real, você instalaria o Tailwind via `npm` e geraria um CSS mínimo, só com as classes usadas.
+> **Aviso para produção:** o CDN compila o CSS no navegador do usuário. É perfeito para aprender e prototipar, mas pesado em produção. Em um projeto real, você instalaria o Tailwind via `npm` e geraria um CSS mínimo, só com as classes usadas.
 
 ### As classes que mais vamos repetir
 
@@ -105,7 +105,7 @@ Leia assim:
 | `sm:grid-cols-2` | A partir de 640px: 2 colunas |
 | `xl:grid-cols-4` | A partir de 1280px: 4 colunas |
 
-> 📌 Você escreve primeiro para o celular e vai **acrescentando** para telas maiores. É o contrário do CSS tradicional.
+> Você escreve primeiro para o celular e vai **acrescentando** para telas maiores. É o contrário do CSS tradicional.
 
 ---
 
@@ -187,14 +187,14 @@ Salve.
 
 ## Entendendo o `api.js`
 
-### 🚨 O erro nº 1 de quem começa com `fetch`
+### O erro nº 1 de quem começa com `fetch`
 
 **O `fetch` NÃO lança erro quando o servidor responde 404 ou 500.**
 
 Veja o código enganoso:
 
 ```javascript
-// ❌ ERRADO: o catch NUNCA será executado em um erro 404
+// ERRADO: o catch NUNCA será executado em um erro 404
 try {
   const response = await fetch("/api/products/999");
   const data = await response.json();
@@ -221,7 +221,7 @@ if (!response.ok) {
 
 E como nosso backend **sempre** responde `{ "error": "mensagem" }` (lembra do `errorHandler` da Etapa 08?), a mensagem real chega até a tela do usuário.
 
-> 🎯 **Repare no encaixe:** o backend padroniza a resposta de erro, e o front-end padroniza a leitura dela. Um combinado com o outro.
+> **Repare no encaixe:** o backend padroniza a resposta de erro, e o front-end padroniza a leitura dela. Um combinado com o outro.
 
 ### O status 204 sem corpo
 
@@ -233,7 +233,7 @@ if (response.status === 204) {
 
 Nosso `DELETE` responde 204 (No Content). Se tentássemos `.json()` numa resposta vazia, daria erro de parse.
 
-> 📌 Aqui você vê por que os detalhes do backend importam: a decisão da Etapa 11 (`response.status(204).send()`) tem consequência direta aqui.
+> Aqui você vê por que os detalhes do backend importam: a decisão da Etapa 11 (`response.status(204).send()`) tem consequência direta aqui.
 
 ### O `.catch(() => ({}))`
 
@@ -266,7 +266,7 @@ params.toString();     // "search=cafe%20especial"
 
 | Busca | Concatenando | Com URLSearchParams |
 |---|---|---|
-| `café & chá` | `?search=café & chá` 💥 | `?search=caf%C3%A9+%26+ch%C3%A1` ✅ |
+| `café & chá` | `?search=café & chá` (URL quebrada) | `?search=caf%C3%A9+%26+ch%C3%A1` |
 
 ### O objeto `api` como "cardápio"
 
@@ -285,7 +285,7 @@ const produtos = await api.listProducts({ lowStock: true });
 await api.createProduct({ name: "Café", sku: "BEB-001" });
 ```
 
-> 📌 **Vantagem:** se um dia a API mudar de `/api` para `/v2/api`, você muda **uma linha** neste arquivo. As 4 telas nem ficam sabendo.
+> **Vantagem:** se um dia a API mudar de `/api` para `/v2/api`, você muda **uma linha** neste arquivo. As 4 telas nem ficam sabendo.
 
 ---
 
@@ -398,7 +398,7 @@ Salve.
 
 ## Entendendo o `layout.js`
 
-### 💰 `Intl.NumberFormat` — moeda sem gambiarra
+### `Intl.NumberFormat` — moeda sem gambiarra
 
 ```javascript
 export const currency = new Intl.NumberFormat("pt-BR", {
@@ -412,13 +412,13 @@ currency.format(2744.7);    // "R$ 2.744,70"
 Compare com a gambiarra comum:
 
 ```javascript
-// ❌ Gambiarra: e o separador de milhar? e valores negativos?
+// Gambiarra: e o separador de milhar? e valores negativos?
 "R$ " + valor.toFixed(2).replace(".", ",")
 ```
 
 O `Intl` é **nativo do JavaScript** e cuida de tudo: símbolo, separador de milhar, casas decimais e a posição correta do sinal.
 
-### 🛡️ `escapeHtml` — proteção contra XSS
+### `escapeHtml` — proteção contra XSS
 
 ```javascript
 export function escapeHtml(value) {
@@ -439,20 +439,20 @@ export function escapeHtml(value) {
 Se jogássemos direto no `innerHTML`, o navegador **executaria** o script:
 
 ```javascript
-// ❌ PERIGOSO
+// PERIGOSO
 container.innerHTML = `<td>${product.name}</td>`;
 ```
 
 Com a função, os caracteres perigosos viram entidades HTML e o texto aparece como **texto**:
 
 ```javascript
-// ✅ SEGURO
+// SEGURO
 container.innerHTML = `<td>${escapeHtml(product.name)}</td>`;
 ```
 
 Isso se chama **XSS** (*Cross-Site Scripting*). Em um sistema real, um atacante usaria isso para roubar a sessão de quem abrisse a tela.
 
-> 🎯 **O paralelo que fecha o projeto:**
+> **O paralelo que fecha o projeto:**
 >
 > | Camada | Ameaça | Proteção |
 > |---|---|---|
@@ -500,13 +500,13 @@ mountLayout("/produtos.html");
 
 O parâmetro diz qual item deve aparecer **destacado**.
 
-### 📌 Os atributos `data-*`
+### Os atributos `data-*`
 
 Usamos `data-nav`, `data-rows`, `data-form` como pontos de ancoragem do JavaScript:
 
 ```javascript
-document.querySelector("[data-rows]")    // ✅ recomendado
-document.querySelector(".table-rows")    // ❌ frágil
+document.querySelector("[data-rows]")    // recomendado
+document.querySelector(".table-rows")    // frágil
 ```
 
 **Por quê?** Porque classes CSS servem para **estilo**. Se um dia você trocar o visual e remover a classe `.table-rows`, o JavaScript quebra sem aviso.
@@ -530,13 +530,13 @@ A animação funciona em três tempos:
 2. `requestAnimationFrame` espera o navegador desenhar
 3. Removemos as classes → o `transition` anima a entrada suavemente
 
-> 💡 **Por que o `requestAnimationFrame`?** Se removêssemos as classes na mesma linha, o navegador aplicaria tudo de uma vez e não haveria animação. Precisamos de um "respiro" entre criar e animar.
+> **Por que o `requestAnimationFrame`?** Se removêssemos as classes na mesma linha, o navegador aplicaria tudo de uma vez e não haveria animação. Precisamos de um "respiro" entre criar e animar.
 
 Depois de 3 segundos, o processo se inverte e o elemento é removido.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls public/js
@@ -566,7 +566,7 @@ Você deve ver o objeto do dashboard. Se aparecer, os arquivos estão sendo serv
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -577,7 +577,7 @@ Você deve ver o objeto do dashboard. Se aparecer, os arquivos estão sendo serv
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Base pronta. Vamos montar a primeira tela: o dashboard com os cards.
 

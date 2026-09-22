@@ -1,6 +1,6 @@
 # Etapa 08 — Tratamento de erros
 
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
 
 ---
 
@@ -22,7 +22,7 @@ Um código problemático faria assim:
 
 ```javascript
 if (a == undefined || a == "") {
-  console.log("erro");    // 😱
+  console.log("erro");    // repetitivo e confuso
   return;
 }
 ```
@@ -91,7 +91,7 @@ throw new ConflictError("SKU ja existe");          // status 409
 | `NotFoundError` | **404** Not Found | O registro pedido não existe |
 | `ConflictError` | **409** Conflict | Já existe algo com esse valor único |
 
-> 📌 O valor `400` é o **padrão** do `AppError`. Se você não passar status, ele assume 400 — que é o caso mais comum (erro de validação).
+> O valor `400` é o **padrão** do `AppError`. Se você não passar status, ele assume 400 — que é o caso mais comum (erro de validação).
 
 ---
 
@@ -149,7 +149,7 @@ Usaremos assim, em todas as rotas:
 router.get("/:id", asyncHandler(controller.show));
 ```
 
-> 💡 **Curiosidade:** o Express 5 (ainda em adoção) faz isso nativamente. Como a versão 4 ainda é a mais usada no mercado, é importante conhecer esse padrão.
+> **Curiosidade:** o Express 5 (ainda em adoção) faz isso nativamente. Como a versão 4 ainda é a mais usada no mercado, é importante conhecer esse padrão.
 
 ---
 
@@ -180,7 +180,7 @@ export function errorHandler(error, request, response, next) {
 
 Salve.
 
-### 🎯 Este é o coração do tratamento de erros
+### Este é o coração do tratamento de erros
 
 Toda a aplicação passa por aqui. Repare que ele trata **dois casos diferentes**:
 
@@ -212,7 +212,7 @@ Se for qualquer outra coisa (bug no código, banco fora do ar), fazemos duas coi
 | **Desenvolvedor** (log do servidor) | O erro **completo**, com stack trace |
 | **Usuário** (resposta HTTP) | Mensagem **genérica** |
 
-### ⚠️ Por que esconder o erro real do usuário?
+### Por que esconder o erro real do usuário?
 
 Porque a mensagem crua pode entregar informação valiosa para um atacante:
 
@@ -223,7 +223,7 @@ Error: ER_NO_SUCH_TABLE: Table 'estoque_db.usuarios_admin' doesn't exist
 
 Isso revelou: o nome do banco, o nome de uma tabela, a estrutura de pastas e a tecnologia usada. Tudo de graça.
 
-> 📌 **Regra de segurança:** log detalhado para dentro, mensagem genérica para fora.
+> **Regra de segurança:** log detalhado para dentro, mensagem genérica para fora.
 
 ### A assinatura de 4 parâmetros
 
@@ -238,7 +238,7 @@ Este detalhe é **obrigatório**. O Express identifica um middleware de erro **c
 | 3 (`req, res, next`) | Middleware normal |
 | **4** (`err, req, res, next`) | **Middleware de erro** |
 
-> ⚠️ Se você remover o `next` (mesmo sem usá-lo), o Express deixa de reconhecer a função como tratadora de erros e ela **nunca é chamada**. Deixe os quatro.
+> **Atenção:** Se você remover o `next` (mesmo sem usá-lo), o Express deixa de reconhecer a função como tratadora de erros e ela **nunca é chamada**. Deixe os quatro.
 
 ### O `notFoundHandler`
 
@@ -304,7 +304,7 @@ Com o `parseId`, o erro é detectado na porta de entrada:
 { "error": "Parametro id invalido: abc" }
 ```
 
-> 📌 Este é o princípio de **validar nas fronteiras**: todo dado que vem de fora (URL, corpo, query string) é suspeito até prova em contrário.
+> Este é o princípio de **validar nas fronteiras**: todo dado que vem de fora (URL, corpo, query string) é suspeito até prova em contrário.
 
 ---
 
@@ -343,7 +343,7 @@ Repare: **em nenhum momento** escrevemos `try/catch` no controller. A infraestru
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls src/shared/errors src/shared/http
@@ -370,7 +370,7 @@ Marque:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -380,7 +380,7 @@ Marque:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Base de erros pronta. Vamos montar o servidor web.
 

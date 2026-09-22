@@ -1,6 +1,6 @@
 # Etapa 02 — Criando o projeto
 
-📋 **Tipo:** prática (terminal + VS Code)
+**Tipo:** prática (terminal + VS Code)
 
 ---
 
@@ -51,7 +51,7 @@ pwd
 
 Deve terminar com `/projeto-docker-nodejs`.
 
-> ⚠️ **Todos os comandos das próximas etapas devem ser rodados de dentro desta pasta.** Se algo der errado, o primeiro passo é rodar `pwd` e conferir onde você está.
+> **Todos os comandos das próximas etapas devem ser rodados de dentro desta pasta.** Se algo der errado, o primeiro passo é rodar `pwd` e conferir onde você está.
 
 ---
 
@@ -102,7 +102,7 @@ categories  dashboard  movements  products
 errors  http
 ```
 
-> 💡 **Prefere usar o mouse?** Você pode criar essas pastas clicando com o botão direito no explorador de arquivos do VS Code → **New Folder**. O resultado é o mesmo. Só tome cuidado com a grafia: tudo em minúsculas, sem acento e sem espaço.
+> **Prefere usar o mouse?** Você pode criar essas pastas clicando com o botão direito no explorador de arquivos do VS Code → **New Folder**. O resultado é o mesmo. Só tome cuidado com a grafia: tudo em minúsculas, sem acento e sem espaço.
 
 ---
 
@@ -156,7 +156,7 @@ O arquivo abre vazio. Agora digite (ou cole) o conteúdo:
 
 **Salve com `Ctrl` + `S`** (ou `Cmd` + `S` no Mac).
 
-> ⚠️ **Atenção com JSON:** ele não aceita vírgula depois do último item nem comentários. Se o VS Code sublinhar algo de vermelho, confira as vírgulas e as aspas.
+> **Atenção com JSON:** ele não aceita vírgula depois do último item nem comentários. Se o VS Code sublinhar algo de vermelho, confira as vírgulas e as aspas.
 
 ---
 
@@ -173,7 +173,7 @@ import express from "express";        // ES Modules — é o que vamos usar
 const express = require("express");   // CommonJS — padrão antigo
 ```
 
-> ⚠️ **Se você esquecer esta linha**, todo `import` vai dar erro `Cannot use import statement outside a module`. É um dos erros mais comuns de quem está começando.
+> **Se você esquecer esta linha**, todo `import` vai dar erro `Cannot use import statement outside a module`. É um dos erros mais comuns de quem está começando.
 
 ### `"scripts"`
 
@@ -186,7 +186,7 @@ São atalhos para comandos. Em vez de digitar o comando inteiro, você digita `n
 
 **O que o `--watch` faz?** Ele fica de olho nos arquivos. Quando você salva qualquer `.js`, o servidor reinicia sozinho. Sem ele, você teria que parar e subir o servidor a cada alteração.
 
-> 💡 Antigamente isso exigia instalar uma biblioteca chamada `nodemon`. Desde o Node 18 isso é nativo — uma dependência a menos.
+> Antigamente isso exigia instalar uma biblioteca chamada `nodemon`. Desde o Node 18 isso é nativo — uma dependência a menos.
 
 ### `"dependencies"`
 
@@ -205,7 +205,7 @@ Documenta que o projeto precisa do Node 20.6 ou superior. Serve como aviso para 
 
 ---
 
-## ⚠️ Uma dúvida que sempre aparece
+## Uma dúvida que sempre aparece
 
 **"Não é para rodar `npm install` agora?"**
 
@@ -217,11 +217,11 @@ Quem vai instalar as dependências é o **Docker**, dentro do container, na Etap
 - ocupa espaço à toa;
 - pode confundir você quando algo der errado.
 
-> 📌 Guarde: **o projeto roda dentro do container, não na sua máquina.** Sua máquina só guarda os arquivos de código.
+> Guarde: **o projeto roda dentro do container, não na sua máquina.** Sua máquina só guarda os arquivos de código.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls
@@ -245,7 +245,7 @@ Marque:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Problema | Causa | Solução |
 |---|---|---|
@@ -257,7 +257,7 @@ Marque:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Estrutura criada. Agora vamos configurar as senhas e endereços do banco.
 
