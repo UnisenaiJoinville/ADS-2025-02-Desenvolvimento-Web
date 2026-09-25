@@ -18,8 +18,8 @@ E, de quebra, acrescentar dois erros novos ao projeto.
 
 ## Antes de começar
 
-- [ ] [Aula 24](24-tabela-usuarios.md) concluída (tabela `users` criada, bibliotecas instaladas)
-- [ ] `docker compose logs api --tail 5` mostra o servidor rodando
+- [x] [Aula 24](24-tabela-usuarios.md) concluída (tabela `users` criada, bibliotecas instaladas)
+- [x] `docker compose logs api --tail 5` mostra o servidor rodando
 
 ---
 
@@ -494,10 +494,10 @@ estoque-api  | Conexao com o MySQL estabelecida
 estoque-api  | Servidor rodando em http://localhost:3000
 ```
 
-- [ ] A pasta `src/modules/auth/` existe
-- [ ] Ela tem `user-validator.js` e `user-repository.js`
-- [ ] `app-error.js` tem `UnauthorizedError` e `ForbiddenError`
-- [ ] O servidor está no ar sem erros no log
+- [x] A pasta `src/modules/auth/` existe
+- [x] Ela tem `user-validator.js` e `user-repository.js`
+- [x] `app-error.js` tem `UnauthorizedError` e `ForbiddenError`
+- [x] O servidor está no ar sem erros no log
 
 ---
 

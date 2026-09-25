@@ -18,9 +18,9 @@ Escrever o **coração** do módulo de autenticação:
 
 ## Antes de começar
 
-- [ ] [Aula 25](25-auth-validator-repository.md) concluída
-- [ ] `user-validator.js` e `user-repository.js` criados
-- [ ] Você rodou `docker compose up -d --build api` na [Aula 24](24-tabela-usuarios.md)
+- [x] [Aula 25](25-auth-validator-repository.md) concluída
+- [x] `user-validator.js` e `user-repository.js` criados
+- [x] Você rodou `docker compose up -d --build api` na [Aula 24](24-tabela-usuarios.md)
 
 ---
 
