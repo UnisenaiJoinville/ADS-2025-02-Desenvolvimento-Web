@@ -7,10 +7,11 @@ export async function listMovements(filters) {
   return repository.findAll(filters);
 }
 
-export async function createMovement(input) {
+// userId vem do token (request.user.id), nunca do corpo da requisicao.
+export async function createMovement(input, userId) {
   const data = validateMovementInput(input);
 
-  const result = await repository.createWithStockUpdate(data);
+  const result = await repository.createWithStockUpdate({ ...data, userId });
 
   if (result.status === "PRODUCT_NOT_FOUND") {
     throw new NotFoundError("Produto nao encontrado");
