@@ -1,5 +1,6 @@
 import { api } from "./api.js";
-import { escapeHtml, mountLayout, toast } from "./layout.js";
+import { requireAuth } from "./auth.js";
+import { escapeHtml, mountLayout, toast, isAdmin } from "./layout.js";
 
 mountLayout("/categorias.html");
 
@@ -28,10 +29,14 @@ function renderRows(categories) {
               data-name="${escapeHtml(category.name)}"
               class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
             >Editar</button>
-            <button
+            ${
+              isAdmin()
+                ? `            <button
               data-delete="${category.id}"
               class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
-            >Excluir</button>
+            >Excluir</button>`
+                : ""
+            }
           </td>
         </tr>
       `
@@ -104,4 +109,8 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadCategories();
+// Porteiro da tela: requireAuth() manda para o login quando nao ha
+// sessao e devolve false, entao nada aqui chega a ser carregado.
+if (requireAuth()) {
+  loadCategories();
+}

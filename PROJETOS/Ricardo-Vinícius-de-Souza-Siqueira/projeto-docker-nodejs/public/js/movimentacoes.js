@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
 
 mountLayout("/movimentacoes.html");
@@ -24,7 +25,7 @@ function highlightFilters() {
 function renderRows(movements) {
   if (movements.length === 0) {
     rowsContainer.innerHTML = `
-      <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">
+      <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-slate-500">
         Nenhuma movimentacao registrada
       </td></tr>`;
     return;
@@ -48,6 +49,7 @@ function renderRows(movements) {
           <td class="px-4 py-3 text-right font-semibold ${
             isIn ? "text-emerald-600" : "text-rose-600"
           }">${isIn ? "+" : "-"}${movement.quantity}</td>
+          <td class="px-4 py-3 text-slate-600">${escapeHtml(movement.userName ?? "-")}</td>
           <td class="px-4 py-3 text-slate-600">${escapeHtml(movement.note ?? "-")}</td>
           <td class="px-6 py-3 text-right text-slate-500">${formatDateTime(movement.createdAt)}</td>
         </tr>
@@ -136,4 +138,8 @@ async function init() {
   }
 }
 
-init();
+// Porteiro da tela: requireAuth() manda para o login quando nao ha
+// sessao e devolve false, entao nada aqui chega a ser carregado.
+if (requireAuth()) {
+  init();
+}

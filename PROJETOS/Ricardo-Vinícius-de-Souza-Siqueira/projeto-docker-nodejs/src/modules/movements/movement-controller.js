@@ -22,7 +22,7 @@ export async function index(request, response) {
 }
 
 export async function store(request, response) {
-  const movement = await service.createMovement(request.body);
+  const movement = await service.createMovement(request.body, request.user.id);
 
   response.status(201).json(movement);
 }

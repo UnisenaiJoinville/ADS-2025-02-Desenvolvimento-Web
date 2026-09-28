@@ -1,5 +1,7 @@
 // Funcoes compartilhadas por todas as telas.
 
+import { getUser, logout } from "./auth.js";
+
 export const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -17,6 +19,22 @@ export function formatDateTime(value) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+// "22/09 as 19h" / "22/09 as 19h05". Sem acesso anterior: "Primeiro acesso".
+export function formatLastAccess(value) {
+  if (!value) return "Primeiro acesso";
+
+  const date = new Date(value.replace(" ", "T"));
+
+  if (Number.isNaN(date.getTime())) return "Primeiro acesso";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const minutes = date.getMinutes();
+  const time = `${date.getHours()}h${minutes ? String(minutes).padStart(2, "0") : ""}`;
+
+  return `Último acesso: ${day}/${month} às ${time}`;
 }
 
 // Evita injecao de HTML ao montar tabelas com dados do banco.
@@ -57,9 +75,50 @@ export function renderNav(active) {
           </div>
         </div>
         <nav class="flex flex-wrap items-center gap-1">${links}</nav>
+        ${renderUserBadge()}
       </div>
     </header>
   `;
+}
+
+// Mostra quem esta logado e o botao de sair.
+function renderUserBadge() {
+  const user = getUser();
+
+  if (!user) return "";
+
+  // As iniciais do nome: "Ana Paula Souza" -> "AS"
+  const initials = escapeHtml(
+    user.name
+      .split(" ")
+      .filter(Boolean)
+      .map((part) => part[0])
+      .filter((_, index, all) => index === 0 || index === all.length - 1)
+      .join("")
+      .toUpperCase()
+  );
+
+  return `
+    <div class="flex items-center gap-3 border-l border-slate-200 pl-4">
+      <div class="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">${initials}</div>
+      <div class="hidden sm:block">
+        <p class="text-sm font-semibold leading-tight text-slate-900">${escapeHtml(user.name)}</p>
+        <p class="text-xs leading-tight text-slate-500">${escapeHtml(user.email)}</p>
+        <p class="text-xs leading-tight text-slate-400">${escapeHtml(formatLastAccess(user.lastLoginAt))}</p>
+      </div>
+      <button
+        data-logout
+        class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+      >
+        Sair
+      </button>
+    </div>
+  `;
+}
+
+// Admin? (so para esconder botoes: quem BARRA e o servidor, com 403)
+export function isAdmin() {
+  return getUser()?.role === "ADMIN";
 }
 
 export function mountLayout(activeHref) {
@@ -67,6 +126,9 @@ export function mountLayout(activeHref) {
 
   if (container) {
     container.innerHTML = renderNav(activeHref);
+
+    // O botao so existe depois que o HTML acima foi inserido.
+    container.querySelector("[data-logout]")?.addEventListener("click", logout);
   }
 }
 
@@ -93,4 +155,4 @@ export function toast(message, variant = "success") {
     element.classList.add("translate-y-2", "opacity-0");
     setTimeout(() => element.remove(), 250);
   }, 3000);
-}
+}
