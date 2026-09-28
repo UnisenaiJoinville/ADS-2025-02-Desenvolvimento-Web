@@ -27,16 +27,37 @@ CREATE TABLE IF NOT EXISTS products (
     ON DELETE SET NULL
 );
 
+-- ============================================================
+-- Modulo de autenticacao (Aula 24 + exercicios)
+-- users vem antes de stock_movements porque ela referencia users.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('ADMIN', 'OPERATOR') NOT NULL DEFAULT 'OPERATOR',
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  last_login_at TIMESTAMP NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS stock_movements (
   id INT AUTO_INCREMENT PRIMARY KEY,
   product_id INT NOT NULL,
+  user_id INT NULL,
   type ENUM('IN', 'OUT') NOT NULL,
   quantity INT NOT NULL,
   note VARCHAR(180) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_movements_product
     FOREIGN KEY (product_id) REFERENCES products (id)
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
+  CONSTRAINT fk_movements_user
+    FOREIGN KEY (user_id) REFERENCES users (id)
+    ON DELETE SET NULL
 );
 
 CREATE INDEX idx_products_category ON products (category_id);
@@ -77,3 +98,39 @@ INSERT INTO stock_movements (product_id, type, quantity, note) VALUES
   (6, 'IN',  18, 'Compra inicial'),
   (7, 'IN',   5, 'Compra inicial'),
   (7, 'OUT',  2, 'Venda balcao');
+
+-- ------------------------------------------------------------
+-- Tokens de renovacao (3.2), tentativas de login (3.3) e
+-- redefinicao de senha (3.4)
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  revoked_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_refresh_tokens_user
+    FOREIGN KEY (user_id) REFERENCES users (id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS login_attempts (
+  email VARCHAR(160) NOT NULL PRIMARY KEY,
+  failed_count INT NOT NULL DEFAULT 0,
+  last_failed_at DATETIME NOT NULL,
+  locked_until DATETIME NULL
+);
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_password_resets_user
+    FOREIGN KEY (user_id) REFERENCES users (id)
+    ON DELETE CASCADE
+);
