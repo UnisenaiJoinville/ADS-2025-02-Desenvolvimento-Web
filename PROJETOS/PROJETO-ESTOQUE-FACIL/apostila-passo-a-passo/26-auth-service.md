@@ -582,10 +582,10 @@ estoque-api  | Conexao com o MySQL estabelecida
 estoque-api  | Servidor rodando em http://localhost:3000
 ```
 
-- [ ] `src/shared/auth/token.js` existe
-- [ ] `src/modules/auth/auth-service.js` existe
-- [ ] O log não mostra erro
-- [ ] `curl http://localhost:3000/api/health` responde
+- [x] `src/shared/auth/token.js` existe
+- [x] `src/modules/auth/auth-service.js` existe
+- [x] O log não mostra erro
+- [x] `curl http://localhost:3000/api/health` responde
 
 ---
 
