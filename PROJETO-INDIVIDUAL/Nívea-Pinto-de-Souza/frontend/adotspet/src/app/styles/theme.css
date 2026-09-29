@@ -1,0 +1,23 @@
+@theme {
+  --color-roxo: #4E59BF;
+  --color-roxo-hover: #32376D;
+  --color-roxo-bg: #6972BD;
+  --color-roxo-claro: #E8EAFF;
+
+  --color-laranja: #F07915;
+  --color-laranja-hover: #D05F00;
+  --color-laranja-claro: #F69E54;
+
+  --color-texto: #3B3D53;
+  --color-subtexto: #747474;
+  --color-fundo: #F5F7FD;
+
+  --font-sans: "Poppins", system-ui, sans-serif;
+
+  --radius-pill: 999px;
+  --radius-card: 16px;
+
+  --shadow-card: 0 4px 20px rgba(78, 89, 191, 0.12);
+  --shadow-suave: 0 2px 12px rgba(78, 89, 191, 0.08);
+  --shadow-forte: 0 8px 32px rgba(78, 89, 191, 0.18);
+}
