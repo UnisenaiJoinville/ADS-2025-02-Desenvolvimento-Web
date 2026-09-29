@@ -25,3 +25,5 @@ routes.use("/categories", categoryRoutes);
 routes.use("/products", productRoutes);
 routes.use("/movements", movementRoutes);
 routes.use("/dashboard", dashboardRoutes);
+
+//atenção: se for adicionar novas rotas, colocar antes do middleware de autenticação
