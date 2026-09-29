@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/categorias.html");
@@ -8,4 +9,6 @@ function render(list) { rows.innerHTML = list.length ? list.map((c) => `<tr><td 
 async function load() { try { render(await api.listCategories()); } catch (error) { toast(error.message, "error"); } }
 cancel.addEventListener("click", reset); rows.addEventListener("click", async (e) => { if (e.target.dataset.edit) { form.elements.id.value = e.target.dataset.edit; form.elements.name.value = e.target.dataset.name; cancel.classList.remove("hidden"); form.elements.name.focus(); } if (e.target.dataset.delete && window.confirm("Excluir esta categoria? Os produtos ficarao sem categoria.")) { try { await api.deleteCategory(e.target.dataset.delete); toast("Categoria excluida"); reset(); load(); } catch (error) { toast(error.message, "error"); } } });
 form.addEventListener("submit", async (e) => { e.preventDefault(); const data = new FormData(form); try { if (data.get("id")) { await api.updateCategory(data.get("id"), { name: data.get("name") }); toast("Categoria atualizada"); } else { await api.createCategory({ name: data.get("name") }); toast("Categoria cadastrada"); } reset(); load(); } catch (error) { toast(error.message, "error"); } });
-load();
+if (requireAuth()) {
+	load();
+}

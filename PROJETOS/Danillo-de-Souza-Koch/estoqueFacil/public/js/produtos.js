@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/produtos.html");
@@ -12,4 +13,6 @@ async function categories() { const list = await api.listCategories(); const opt
 filters.addEventListener("submit", (e) => { e.preventDefault(); load(); }); filters.addEventListener("reset", () => setTimeout(load, 0)); document.querySelector("[data-new]").addEventListener("click", () => open(null)); document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", close)); modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
 rows.addEventListener("click", async (e) => { if (e.target.dataset.edit) { try { open(await api.getProduct(e.target.dataset.edit)); } catch (error) { toast(error.message, "error"); } } if (e.target.dataset.delete && window.confirm("Deseja realmente excluir este produto?")) { try { await api.deleteProduct(e.target.dataset.delete); toast("Produto excluido"); load(); } catch (error) { toast(error.message, "error"); } } });
 form.addEventListener("submit", async (e) => { e.preventDefault(); const data = new FormData(form); const payload = { name: data.get("name"), sku: data.get("sku"), categoryId: data.get("categoryId") || null, costPrice: Number(data.get("costPrice")), salePrice: Number(data.get("salePrice")), quantity: Number(data.get("quantity")), minimumStock: Number(data.get("minimumStock")), active: data.get("active") === "on" }; try { const id = data.get("id"); if (id) { await api.updateProduct(id, payload); toast("Produto atualizado"); } else { await api.createProduct(payload); toast("Produto cadastrado"); } close(); load(); } catch (error) { toast(error.message, "error"); } });
-(async () => { try { await categories(); await load(); } catch (error) { toast(error.message, "error"); } })();
+if (requireAuth()) {
+	(async () => { try { await categories(); await load(); } catch (error) { toast(error.message, "error"); } })();
+}
