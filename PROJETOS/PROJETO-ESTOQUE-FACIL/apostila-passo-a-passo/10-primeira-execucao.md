@@ -1,6 +1,6 @@
-# Etapa 10 — Primeira execução 🚀
+# Etapa 10 — Primeira execução
 
-📋 **Tipo:** prática (terminal)
+**Tipo:** prática (terminal)
 
 ---
 
@@ -8,7 +8,7 @@
 
 **Subir a aplicação pela primeira vez.** Ao final desta etapa, a API estará respondendo no navegador e o banco estará com as tabelas criadas.
 
-> 🎉 Esta é a etapa mais empolgante do projeto. Tudo que fizemos até agora ganha vida aqui.
+> Esta é a etapa mais empolgante do projeto. Tudo que fizemos até agora ganha vida aqui.
 
 ---
 
@@ -40,7 +40,7 @@ ls -a
 
 E, muito importante:
 
-- [ ] 🐳 **O Docker Desktop está aberto** (baleia parada na barra de tarefas)
+- [ ] **O Docker Desktop está aberto** (baleia parada na barra de tarefas)
 
 ---
 
@@ -73,7 +73,7 @@ db Pulling
  => exporting to image
 ```
 
-> 👀 Repare: aqui você está vendo o `Dockerfile` da Etapa 04 sendo executado, linha por linha.
+> Repare: aqui você está vendo o `Dockerfile` da Etapa 04 sendo executado, linha por linha.
 
 **Fase 3 — Criando rede e volumes**
 
@@ -93,7 +93,7 @@ estoque-db  | [Entrypoint] running /docker-entrypoint-initdb.d/init.sql
 estoque-db  | [Entrypoint] MySQL init process done. Ready for start up.
 ```
 
-> 🪄 A linha `running /docker-entrypoint-initdb.d/init.sql` é a mágica da Etapa 06 acontecendo.
+> A linha `running /docker-entrypoint-initdb.d/init.sql` é a mágica da Etapa 06 acontecendo.
 
 **Fase 5 — A API subindo**
 
@@ -105,14 +105,14 @@ estoque-api  | Conexao com o MySQL estabelecida
 estoque-api  | Servidor rodando em http://localhost:3000
 ```
 
-### 🎉 Se você viu essas duas últimas linhas, deu certo!
+### Se você viu essas duas últimas linhas, deu certo!
 
 ```text
 Conexao com o MySQL estabelecida
 Servidor rodando em http://localhost:3000
 ```
 
-> ⏳ **Paciência na primeira vez.** Entre a Fase 1 e a Fase 5 podem passar 3 a 6 minutos. Nas próximas vezes, leva segundos.
+> **Paciência na primeira vez.** Entre a Fase 1 e a Fase 5 podem passar 3 a 6 minutos. Nas próximas vezes, leva segundos.
 
 ---
 
@@ -130,9 +130,9 @@ Você deve ver:
 {"status":"ok","timestamp":"2026-09-09T00:04:21.592Z"}
 ```
 
-**Essa é a sua API respondendo.** 🎊
+**Essa é a sua API respondendo.**
 
-> 💡 Instale a extensão **JSON Formatter** no navegador para ver o JSON organizado, com cores e indentação.
+> Instale a extensão **JSON Formatter** no navegador para ver o JSON organizado, com cores e indentação.
 
 ---
 
@@ -163,9 +163,9 @@ curl http://localhost:3000/api/naoexiste
 {"error":"Rota nao encontrada: GET /api/naoexiste"}
 ```
 
-> ✅ Isso confirma que o `notFoundHandler` da Etapa 08 está funcionando.
+> Isso confirma que o `notFoundHandler` da Etapa 08 está funcionando.
 
-### 👀 Olhe o outro terminal
+### Olhe o outro terminal
 
 Cada requisição que você faz aparece no log:
 
@@ -218,7 +218,7 @@ SHOW TABLES;
 +---------------------+
 ```
 
-> ✅ As três tabelas da Etapa 06 estão lá!
+> As três tabelas da Etapa 06 estão lá!
 
 ```sql
 SELECT id, name, sku, quantity FROM products;
@@ -314,14 +314,14 @@ estoque-api   Up 2 minutes              0.0.0.0:3000->3000/tcp
 estoque-db    Up 2 minutes (healthy)    0.0.0.0:3308->3306/tcp
 ```
 
-> 👀 Repare no `(healthy)` no banco. É o `healthcheck` da Etapa 05 aprovando o MySQL.
+> Repare no `(healthy)` no banco. É o `healthcheck` da Etapa 05 aprovando o MySQL.
 
-### ⚠️ Cuidado com o `-v`
+### Cuidado com o `-v`
 
 | Comando | O que acontece com os dados |
 |---|---|
-| `docker compose down` | ✅ Preservados no volume |
-| `docker compose down -v` | ❌ **APAGADOS** |
+| `docker compose down` | Preservados no volume |
+| `docker compose down -v` | **APAGADOS** |
 
 Use o `-v` **de propósito**, quando quiser recomeçar do zero e reprocessar o `init.sql`.
 
@@ -359,13 +359,13 @@ curl http://localhost:3000/api/health
 {"status":"tudo certo!","timestamp":"..."}
 ```
 
-> 🎉 **Isso é o `bind mount` + `node --watch` trabalhando juntos.** Você editou na sua máquina e o container reagiu na hora, sem reconstruir nada.
+> **Isso é o `bind mount` + `node --watch` trabalhando juntos.** Você editou na sua máquina e o container reagiu na hora, sem reconstruir nada.
 
 **Agora desfaça a alteração** (volte para `"ok"`) e salve.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 Esta é a etapa com mais chance de problemas. Procure sua mensagem na tabela:
 
@@ -468,7 +468,7 @@ estoque-api |     at file:///app/src/app.js:24
 
 ---
 
-## 🆘 O botão de pânico
+## O botão de pânico
 
 Quando nada mais funcionar e você quiser recomeçar do zero:
 
@@ -479,11 +479,11 @@ docker compose up -d --build
 
 Isso apaga os containers, o volume e reconstrói tudo. Os dados de exemplo voltam ao estado original do `init.sql`.
 
-> 📌 Guarde esses dois comandos. Eles resolvem a maioria dos problemas do dia a dia.
+> Guarde esses dois comandos. Eles resolvem a maioria dos problemas do dia a dia.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `docker compose ps` mostra os **dois** containers como `Up`
 - [ ] O banco aparece como `(healthy)`
@@ -497,7 +497,7 @@ Isso apaga os containers, o volume e reconstrói tudo. Os dados de exemplo volta
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Infraestrutura no ar. Vamos construir nosso primeiro CRUD completo.
 

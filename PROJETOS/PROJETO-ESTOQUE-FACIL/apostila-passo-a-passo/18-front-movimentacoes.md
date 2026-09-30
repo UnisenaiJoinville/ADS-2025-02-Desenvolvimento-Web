@@ -1,6 +1,6 @@
 # Etapa 18 — Tela de Movimentações
 
-📋 **Tipo:** prática (HTML + JavaScript)
+**Tipo:** prática (HTML + JavaScript)
 
 ---
 
@@ -170,7 +170,7 @@ Salve.
 
 ---
 
-## 🎨 O truque do `peer` — botões bonitos que ainda são radio
+## O truque do `peer` — botões bonitos que ainda são radio
 
 Esta é a parte mais interessante do HTML desta etapa:
 
@@ -201,7 +201,7 @@ Esta é a parte mais interessante do HTML desta etapa:
    +----------+----------+     +----------+----------+
 ```
 
-### 💡 Por que não usar dois botões comuns?
+### Por que não usar dois botões comuns?
 
 Porque aí você teria que:
 
@@ -211,7 +211,7 @@ Porque aí você teria que:
 
 Com o `peer`, o **navegador** cuida de tudo. O elemento continua sendo um `<input type="radio">` de verdade: funciona com `Tab`, setas do teclado, leitores de tela e é lido pelo `FormData` normalmente.
 
-> 📌 **Princípio:** use o elemento HTML semanticamente correto e estilize por cima. Não recrie comportamentos que o navegador já oferece de graça.
+> **Princípio:** use o elemento HTML semanticamente correto e estilize por cima. Não recrie comportamentos que o navegador já oferece de graça.
 
 ---
 
@@ -347,7 +347,7 @@ Quando o usuário escolhe um produto, aparece embaixo do select:
 Estoque atual: 40 unidade(s) - minimo 10
 ```
 
-#### 🔍 Dois detalhes importantes
+#### Dois detalhes importantes
 
 **1. Usa `find`, não `for` com flag**
 
@@ -358,7 +358,7 @@ const product = products.find((item) => item.id === productId);
 Compare com a abordagem problemática:
 
 ```javascript
-// ❌ Abordagem problemática: percorre TUDO mesmo depois de achar
+// Abordagem problemática: percorre TUDO mesmo depois de achar
 var achou = null;
 for (var i = 0; i < x.length; i++) {
   if (x[i].nome == n) {
@@ -380,10 +380,10 @@ products.find((item) => item.id === productId);
 O `value` de um `<select>` é sempre **string**. Sem o `Number()`:
 
 ```javascript
-"5" === 5     // false 😱 nunca encontraria o produto
+"5" === 5     // false: nunca encontraria o produto
 ```
 
-> 📌 Esse é o mesmo cuidado com coerção de tipos que aplicamos no backend. A regra vale nos dois lados.
+> Esse é o mesmo cuidado com coerção de tipos que aplicamos no backend. A regra vale nos dois lados.
 
 **3. Consulta local, sem ir à API**
 
@@ -442,7 +442,7 @@ async function init() {
 init();
 ```
 
-#### ⭐ A linha mais importante da tela
+#### A linha mais importante da tela
 
 ```javascript
 // Recarrega os produtos para refletir o novo saldo no seletor.
@@ -457,11 +457,11 @@ Porque a movimentação **mudou o saldo** do produto no banco. Se não recarreg�
    1. products em memória: Café tem 40
    2. usuário registra entrada de 15
    3. no banco agora: Café tem 55
-   4. sem recarregar, a dica ainda diria "40"  ❌
-   5. com recarregar, a dica diz "55"  ✅
+   4. sem recarregar, a dica ainda diria "40" 
+   5. com recarregar, a dica diz "55" 
 ```
 
-> 📌 **Lição geral:** sempre que uma ação mudar dados no servidor, recarregue o que depende deles. Estado desatualizado na tela é fonte de confusão para o usuário.
+> **Lição geral:** sempre que uma ação mudar dados no servidor, recarregue o que depende deles. Estado desatualizado na tela é fonte de confusão para o usuário.
 
 #### `data.get("type")` com radio buttons
 
@@ -487,7 +487,7 @@ Crie `public/js/movimentacoes.js` juntando as partes A até F, na ordem.
 
 ---
 
-## Passo 4 — 🧪 O teste que fecha o projeto
+## Passo 4 — O teste que fecha o projeto
 
 Acesse:
 
@@ -505,16 +505,16 @@ http://localhost:3000/movimentacoes.html
    → toast verde: *"Entrada registrada"*
 
 3. **Selecione o café de novo**
-   → agora a dica diz **90 unidades** ✅ (40 + 50)
+   → agora a dica diz **90 unidades** (40 + 50)
 
 4. **Clique em "Saida"** (o botão fica vermelho), quantidade `30`
    → **Registrar**
    → toast: *"Saida registrada"*, linha vermelha com `-30` no histórico
 
 5. **Selecione o café**
-   → agora **60 unidades** ✅ (90 - 30)
+   → agora **60 unidades** (90 - 30)
 
-6. **🎯 Teste o limite:** escolha o café, **Saida**, quantidade `9999`
+6. **Teste o limite:** escolha o café, **Saida**, quantidade `9999`
    → toast **vermelho**: *"Estoque insuficiente. Disponivel: 60 unidade(s)"*
 
 7. **Confirme que nada mudou:** selecione o café de novo → continua **60**
@@ -524,7 +524,7 @@ http://localhost:3000/movimentacoes.html
 
 9. **Volte ao Dashboard** → os cards de entrada/saída do mês refletem tudo
 
-### 🎉 O que você acabou de ver
+### O que você acabou de ver
 
 O toast vermelho do passo 6 é a **transação da Etapa 13** funcionando:
 
@@ -543,7 +543,7 @@ Todo o caminho que construímos ao longo do projeto, funcionando de ponta a pont
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `public/movimentacoes.html` e `public/js/movimentacoes.js` existem
 - [ ] Os botões Entrada/Saída mudam de cor ao serem selecionados
@@ -557,7 +557,7 @@ Todo o caminho que construímos ao longo do projeto, funcionando de ponta a pont
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Sintoma | Causa | Solução |
 |---|---|---|
@@ -570,7 +570,7 @@ Todo o caminho que construímos ao longo do projeto, funcionando de ponta a pont
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Falta a tela mais simples do sistema.
 

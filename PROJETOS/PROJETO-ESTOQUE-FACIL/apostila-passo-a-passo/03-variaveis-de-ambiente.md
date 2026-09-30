@@ -1,6 +1,6 @@
 # Etapa 03 — Variáveis de ambiente
 
-📋 **Tipo:** prática (VS Code)
+**Tipo:** prática (VS Code)
 
 ---
 
@@ -49,7 +49,7 @@ Este é o **modelo** do arquivo de configuração. Ele **vai** para o Git e serv
 
 Crie na raiz do projeto o arquivo `.env.example`:
 
-> 💡 O nome começa com **ponto**. No VS Code isso é normal; no explorador do Windows esses arquivos ficam ocultos.
+> O nome começa com **ponto**. No VS Code isso é normal; no explorador do Windows esses arquivos ficam ocultos.
 
 ```bash
 # Porta em que a API responde dentro do container
@@ -130,12 +130,12 @@ Este arquivo diz ao Git: "**nunca** envie estes itens para o repositório".
 
 | Arquivo | Vai para o Git? | Conteúdo |
 |---|---|---|
-| `.env.example` | ✅ **Sim** | A **lista** das variáveis, com valores de exemplo |
-| `.env` | ❌ **Não** | Os valores **reais**, incluindo senhas |
+| `.env.example` | **Sim** | A **lista** das variáveis, com valores de exemplo |
+| `.env` | **Não** | Os valores **reais**, incluindo senhas |
 
 Quando um colega clona o projeto, ele não recebe o `.env` (que tem senhas), mas recebe o `.env.example`. Aí ele sabe exatamente o que precisa configurar: basta rodar `cp .env.example .env` e ajustar.
 
-> 📌 É por isso que a primeira instrução de quase todo README de projeto profissional é: *"copie o `.env.example` para `.env`"*.
+> É por isso que a primeira instrução de quase todo README de projeto profissional é: *"copie o `.env.example` para `.env`"*.
 
 ### A variável mais importante: `DB_HOST=db`
 
@@ -155,14 +155,14 @@ Porque nossa aplicação vai rodar **dentro de um container**. E dentro do conta
    | container "api"  |          | container "db"   |
    |                  |          |                  |
    | procura o MySQL  |          |   MySQL está      |
-   | aqui dentro ✗    |          |   aqui  🗄️        |
+   | aqui dentro (X)  |          |   aqui           |
    +------------------+          +------------------+
 
 
    CERTO: DB_HOST=db
    +------------------+          +------------------+
    | container "api"  | -------> | container "db"   |
-   |                  |   "db"   |   MySQL 🗄️        |
+   |                  |   "db"   |   MySQL          |
    +------------------+          +------------------+
 ```
 
@@ -181,7 +181,7 @@ Repare que existem **duas** variáveis de porta para o MySQL:
 
 Muitos computadores já têm um MySQL instalado ocupando a porta 3306. Se tentássemos usar a mesma, daria conflito. Então expomos em uma porta livre.
 
-> 💡 Se a 3308 também estiver ocupada na sua máquina, mude **só** o `DB_HOST_PORT` para `3309` no `.env`. Nada mais precisa ser alterado — é exatamente para isso que a variável existe.
+> Se a 3308 também estiver ocupada na sua máquina, mude **só** o `DB_HOST_PORT` para `3309` no `.env`. Nada mais precisa ser alterado — é exatamente para isso que a variável existe.
 
 ### As duas senhas
 
@@ -192,11 +192,11 @@ Muitos computadores já têm um MySQL instalado ocupando a porta 3306. Se tentá
 
 O usuário `root` é o administrador total do MySQL. Nossa aplicação **não** usa ele — usa um usuário comum, com acesso só ao banco `estoque_db`.
 
-> 📌 Isso se chama **princípio do menor privilégio**: dê a cada parte do sistema apenas o acesso que ela realmente precisa. Se a aplicação for invadida, o estrago é menor.
+> Isso se chama **princípio do menor privilégio**: dê a cada parte do sistema apenas o acesso que ela realmente precisa. Se a aplicação for invadida, o estrago é menor.
 
 ---
 
-## ⚠️ Aviso importante sobre senhas
+## Aviso importante sobre senhas
 
 As senhas desta apostila (`estoque123`, `root123`) são **fracas de propósito**, para simplificar o ambiente local de desenvolvimento.
 
@@ -208,7 +208,7 @@ Em um projeto real:
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls -a
@@ -232,7 +232,7 @@ Marque:
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Problema | Causa | Solução |
 |---|---|---|
@@ -243,7 +243,7 @@ Marque:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Configuração pronta. Vamos escrever a receita da imagem Docker.
 

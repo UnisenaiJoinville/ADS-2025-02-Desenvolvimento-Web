@@ -1,6 +1,6 @@
 # Etapa 09 — Servidor Express
 
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
 
 ---
 
@@ -50,7 +50,7 @@ Por enquanto temos **uma rota só**, mas ela é muito útil.
 - ferramentas de monitoramento verificarem o serviço;
 - o balanceador de carga saber se pode mandar tráfego.
 
-> 📌 Praticamente toda API profissional tem uma rota assim. É a primeira coisa que se testa quando algo dá errado.
+> Praticamente toda API profissional tem uma rota assim. É a primeira coisa que se testa quando algo dá errado.
 
 Vamos voltar a este arquivo nas etapas 11 a 14 para adicionar os módulos.
 
@@ -108,7 +108,7 @@ import { fileURLToPath } from "node:url";
 
 O prefixo `node:` deixa explícito que o módulo é **nativo do Node**, não uma biblioteca baixada.
 
-> 💡 Além de ser mais claro para quem lê, isso evita que alguém instale um pacote malicioso chamado `path` no npm e sequestre seu import. Essa é uma técnica de ataque real, chamada *dependency confusion*.
+> Além de ser mais claro para quem lê, isso evita que alguém instale um pacote malicioso chamado `path` no npm e sequestre seu import. Essa é uma técnica de ataque real, chamada *dependency confusion*.
 
 ### `__dirname` não existe em ES Modules
 
@@ -128,9 +128,9 @@ Este trecho confunde bastante. Vamos por partes:
 
 **Por que tudo isso?** No padrão antigo (CommonJS) existia a variável mágica `__dirname`. Em ES Modules ela não existe, e esta é a forma oficial de obter o mesmo resultado.
 
-> ⚠️ **Por que não escrever `"./public"` direto?** Porque caminhos relativos dependem de **onde o comando foi executado**, não de onde o arquivo está. Se alguém rodasse a aplicação de outra pasta, quebraria. O `path.resolve` gera um caminho absoluto e confiável.
+> **Por que não escrever `"./public"` direto?** Porque caminhos relativos dependem de **onde o comando foi executado**, não de onde o arquivo está. Se alguém rodasse a aplicação de outra pasta, quebraria. O `path.resolve` gera um caminho absoluto e confiável.
 
-### 🔑 A ordem dos middlewares é tudo
+### A ordem dos middlewares é tudo
 
 Esta é a parte mais importante da etapa. O Express executa os `app.use` **na ordem exata em que foram escritos**.
 
@@ -168,7 +168,7 @@ Transforma o corpo da requisição (que chega como texto) em objeto JavaScript.
 |---|---|
 | `request.body` é `undefined` | `request.body` é `{ name: "Café" }` |
 
-> ⚠️ **Erro clássico:** colocar `express.json()` **depois** das rotas. O sintoma é `request.body` chegar `undefined` em todos os POSTs. Se isso acontecer com você, confira a ordem aqui.
+> **Erro clássico:** colocar `express.json()` **depois** das rotas. O sintoma é `request.body` chegar `undefined` em todos os POSTs. Se isso acontecer com você, confira a ordem aqui.
 
 ### O middleware de log
 
@@ -187,7 +187,7 @@ Este é um middleware escrito **por nós**, e ele mostra a anatomia de qualquer 
 | `response` | O que vamos devolver |
 | `next` | A função que passa a bola para o próximo |
 
-> ⚠️ **Se esquecer o `next()`**, a requisição **para aqui** e o navegador fica girando para sempre. Todo middleware que não responde precisa chamar `next()`.
+> **Se esquecer o `next()`**, a requisição **para aqui** e o navegador fica girando para sempre. Todo middleware que não responde precisa chamar `next()`.
 
 Em desenvolvimento isso é ótimo: você vê no terminal cada clique dado na interface.
 
@@ -347,7 +347,7 @@ process.on("SIGINT", () => shutdown("SIGINT"));
    5. process.exit(0) -> sai com código de sucesso
 ```
 
-> 📌 `exit(0)` significa "terminei bem". `exit(1)` significa "terminei com erro". É assim que scripts e orquestradores sabem o que aconteceu.
+> `exit(0)` significa "terminei bem". `exit(1)` significa "terminei com erro". É assim que scripts e orquestradores sabem o que aconteceu.
 
 ### O `catch` final
 
@@ -360,11 +360,11 @@ start().catch((error) => {
 
 Se algo falhar na inicialização (banco inacessível, variável faltando), mostramos a mensagem e saímos com código de erro.
 
-> ⚠️ **Por que não deixar o processo vivo?** Porque um servidor que subiu sem banco é pior que um servidor que não subiu: ele aceita requisições e falha em todas. Melhor morrer e deixar o Docker reiniciar (lembra do `restart: unless-stopped`?).
+> **Por que não deixar o processo vivo?** Porque um servidor que subiu sem banco é pior que um servidor que não subiu: ele aceita requisições e falha em todas. Melhor morrer e deixar o Docker reiniciar (lembra do `restart: unless-stopped`?).
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls src src/routes
@@ -400,7 +400,7 @@ Deve responder `9`.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -411,8 +411,8 @@ Deve responder `9`.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 O código está pronto para rodar. Vamos subir tudo pela primeira vez!
 
-**[Etapa 10 — Primeira execução](10-primeira-execucao.md)** 🚀
+**[Etapa 10 — Primeira execução](10-primeira-execucao.md)**

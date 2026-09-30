@@ -1,6 +1,6 @@
 # Etapa 21 — Solução de problemas
 
-📋 **Tipo:** material de consulta (não é uma etapa sequencial)
+**Tipo:** material de consulta (não é uma etapa sequencial)
 
 ---
 
@@ -248,15 +248,15 @@ docker compose exec db mysql -u estoque -pestoque123 estoque_db \
 1. **Faltou o `.js`** — em ES Modules a extensão é obrigatória:
 
 ```javascript
-import { env } from "./env";       // ❌
-import { env } from "./env.js";    // ✅
+import { env } from "./env";       // errado
+import { env } from "./env.js";    // correto
 ```
 
 2. **Número errado de `../`** — conte os níveis:
 
 ```text
 de src/modules/products/  para  src/shared/
-     └── ../../shared/                    ✅ (dois níveis)
+     └── ../../shared/                    correto (dois níveis)
 ```
 
 | De | Para `src/shared/` |
@@ -293,8 +293,8 @@ curl -X POST ... -H "Content-Type: application/json" -d '{...}'
 **Solução:** confira se a rota está envolvida no `asyncHandler`:
 
 ```javascript
-productRoutes.get("/", asyncHandler(controller.index));    // ✅
-productRoutes.get("/", controller.index);                  // ❌
+productRoutes.get("/", asyncHandler(controller.index));    // correto
+productRoutes.get("/", controller.index);                  // errado
 ```
 
 ---
@@ -328,8 +328,8 @@ routes.use("/products", productRoutes);
 3. Você está usando o prefixo `/api`?
 
 ```text
-/products         ❌
-/api/products     ✅
+/products         (errado)
+/api/products     (correto)
 ```
 
 ---
@@ -346,7 +346,7 @@ routes.use("/products", productRoutes);
 
 ## 4. Problemas de front-end
 
-> 📌 **Regra número 1 do front-end:** aperte `F12` e leia o **Console**. Erros de JavaScript não aparecem no terminal.
+> **Regra número 1 do front-end:** aperte `F12` e leia o **Console**. Erros de JavaScript não aparecem no terminal.
 
 ### A página está totalmente em branco
 
@@ -389,8 +389,8 @@ ls public/js
 ```
 
 ```javascript
-document.querySelector("[data-rows]")     // ✅
-document.querySelector("[data-row]")      // ❌ faltou o "s"
+document.querySelector("[data-rows]")     // correto
+document.querySelector("[data-row]")      // errado: faltou o "s"
 ```
 
 2. O script rodou antes do HTML existir — mas isso **não** acontece com `type="module"`, que já espera o documento carregar.
@@ -417,10 +417,10 @@ form.addEventListener("submit", async (event) => {
 **Solução:** use **delegação de eventos** no container:
 
 ```javascript
-// ❌ não funciona para linhas criadas depois
+// não funciona para linhas criadas depois
 document.querySelectorAll("[data-edit]").forEach(...);
 
-// ✅ funciona sempre
+// funciona sempre
 rowsContainer.addEventListener("click", (event) => {
   const id = event.target.dataset.edit;
   if (id) { ... }
@@ -487,7 +487,7 @@ docker compose ps
 
 Ambos devem estar `Up`, e o banco `(healthy)`.
 
-❌ Não estão? → veja a [seção 1](#1-problemas-de-docker)
+Não estão? → veja a [seção 1](#1-problemas-de-docker)
 
 ### Passo 2 — A API subiu?
 
@@ -502,7 +502,7 @@ Conexao com o MySQL estabelecida
 Servidor rodando em http://localhost:3000
 ```
 
-❌ Não subiu? → o log diz o motivo, veja a [seção 3](#3-problemas-de-backend)
+Não subiu? → o log diz o motivo, veja a [seção 3](#3-problemas-de-backend)
 
 ### Passo 3 — A API responde?
 
@@ -510,7 +510,7 @@ Servidor rodando em http://localhost:3000
 curl http://localhost:3000/api/health
 ```
 
-❌ Não responde? → problema de porta ou de inicialização
+Não responde? → problema de porta ou de inicialização
 
 ### Passo 4 — O banco tem dados?
 
@@ -518,7 +518,7 @@ curl http://localhost:3000/api/health
 curl http://localhost:3000/api/products
 ```
 
-❌ Erro de tabela? → veja a [seção 2](#2-problemas-de-banco-de-dados)
+Erro de tabela? → veja a [seção 2](#2-problemas-de-banco-de-dados)
 
 ### Passo 5 — O front carrega?
 
@@ -528,7 +528,7 @@ curl -I http://localhost:3000/
 
 Deve responder `200`.
 
-❌ Erro 404? → confira se os arquivos estão em `public/`
+Erro 404? → confira se os arquivos estão em `public/`
 
 ### Passo 6 — O JavaScript roda?
 
@@ -536,7 +536,7 @@ Deve responder `200`.
 
 ---
 
-## 🆘 O botão de pânico
+## O botão de pânico
 
 Quando nada mais resolver:
 
@@ -552,11 +552,11 @@ Isso:
 - reconstrói a imagem do zero;
 - recria o banco com o `init.sql`.
 
-> ⚠️ Você perde os dados que cadastrou, mas os 7 produtos de exemplo voltam.
+> **Atenção:** Você perde os dados que cadastrou, mas os 7 produtos de exemplo voltam.
 
 ---
 
-## 📋 Comandos de diagnóstico — cola rápida
+## Comandos de diagnóstico — cola rápida
 
 ```bash
 # Status
@@ -591,6 +591,6 @@ find src -name "*.js" | sort
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 **[Etapa 22 — Exercícios e checklist](22-exercicios-e-checklist.md)**
