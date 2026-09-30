@@ -1,5 +1,6 @@
 import { api } from "./api.js";
 import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+import { requireAuth } from "./auth.js";
 
 mountLayout("/index.html");
 
@@ -186,4 +187,8 @@ document.querySelector("[data-reload]").addEventListener("click", () => {
   toast("Dashboard atualizado", "info");
 });
 
-loadDashboard();
+// Porteiro da tela: requireAuth() manda para o login quando nao ha
+// sessao e devolve false, entao nada aqui chega a ser carregado.
+if (requireAuth()) {
+  loadDashboard();
+}
