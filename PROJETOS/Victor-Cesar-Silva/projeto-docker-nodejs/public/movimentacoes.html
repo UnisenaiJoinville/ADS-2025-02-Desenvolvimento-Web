@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movimentacoes | Estoque Facil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div data-nav></div>
+
+    <main class="mx-auto max-w-7xl px-6 py-8">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-slate-900">Movimentacoes</h1>
+        <p class="text-sm text-slate-500">
+          Cada entrada soma e cada saida subtrai a quantidade do produto
+        </p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        <!-- Formulario de movimentacao -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-1">
+          <h2 class="mb-4 text-lg font-semibold text-slate-900">Registrar movimentacao</h2>
+
+          <form data-form class="space-y-4">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Produto</label>
+              <select
+                name="productId"
+                required
+                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+              >
+                <option value="">Selecione...</option>
+              </select>
+              <p data-stock-hint class="mt-1 text-xs text-slate-500"></p>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Tipo</label>
+              <!-- peer + peer-checked: o navegador cuida do estado, sem JS -->
+              <div class="grid grid-cols-2 gap-2">
+                <label class="cursor-pointer">
+                  <input type="radio" name="type" value="IN" class="peer sr-only" checked />
+                  <span
+                    class="block rounded-xl border border-slate-300 px-3 py-2 text-center text-sm font-semibold text-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700"
+                  >
+                    Entrada
+                  </span>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="type" value="OUT" class="peer sr-only" />
+                  <span
+                    class="block rounded-xl border border-slate-300 px-3 py-2 text-center text-sm font-semibold text-slate-600 peer-checked:border-rose-500 peer-checked:bg-rose-50 peer-checked:text-rose-700"
+                  >
+                    Saida
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Quantidade</label>
+              <input
+                name="quantity"
+                type="number"
+                min="1"
+                value="1"
+                required
+                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Observacao</label>
+              <input
+                name="note"
+                placeholder="Compra, venda, ajuste..."
+                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+              />
+            </div>
+
+            <button
+              class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+            >
+              Registrar
+            </button>
+          </form>
+        </section>
+
+        <!-- Historico -->
+        <section class="rounded-2xl border border-slate-200 bg-white lg:col-span-2">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-900">Historico</h2>
+            <div class="flex gap-1 rounded-xl bg-slate-100 p-1">
+              <button data-filter="" class="rounded-lg px-3 py-1.5 text-xs font-semibold">Todas</button>
+              <button data-filter="IN" class="rounded-lg px-3 py-1.5 text-xs font-semibold">Entradas</button>
+              <button data-filter="OUT" class="rounded-lg px-3 py-1.5 text-xs font-semibold">Saidas</button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th class="px-6 py-3">Produto</th>
+                  <th class="px-4 py-3">Tipo</th>
+                  <th class="px-4 py-3 text-right">Qtd.</th>
+                  <th class="px-4 py-3">Observacao</th>
+                  <th class="px-6 py-3 text-right">Data</th>
+                </tr>
+              </thead>
+              <tbody data-rows class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div data-toast-stack class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <script type="module" src="/js/movimentacoes.js"></script>
+  </body>
+</html>
