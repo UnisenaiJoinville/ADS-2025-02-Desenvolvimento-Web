@@ -1,0 +1,1 @@
+export { default as BaseCarousel } from './BaseCarousel.vue'
