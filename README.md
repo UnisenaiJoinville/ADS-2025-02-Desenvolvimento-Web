@@ -9,7 +9,7 @@ Repositório da turma de Desenvolvimento Web — 2º semestre de 2025 (ADS, turm
 - [`DOCKER/`](DOCKER/) — projetos de Docker
 - [`PROJETO-INDIVIDUAL/`](PROJETO-INDIVIDUAL/) — Projeto Individual
 
-## Como enviar seu projeto
+## Como enviar sua atividade
 
 Você precisa ser **colaborador** deste repositório (o professor te adiciona pelo seu usuário do GitHub). Com isso, não precisa de fork — você clona o repositório direto e manda sua atividade por Pull Request.
 
@@ -20,9 +20,9 @@ git clone https://github.com/UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web.g
 cd ADS-2025-02-Desenvolvimento-Web
 ```
 
-2. Abra a pasta da matéria correspondente e **procure a subpasta com o seu nome** (ex.: `NODEJS/Ana-Carolina-da-Silveira/`). Coloque os arquivos da sua atividade dentro dessa subpasta.
+2. Abra a pasta da matéria correspondente e **procure a subpasta com o seu nome** (ex.: `NODEJS/Ana-Carolina-da-Silveira/`). Use essa pasta como base: não crie nova pasta de aluno na `main`, mas pode criar subpastas dentro dela se precisar.
 
-3. Copie e cole os comandos abaixo no terminal, dentro da pasta do repositório, trocando `<PASTA-DA-MATERIA>`, `<SUA-SUBPASTA>` e a mensagem do commit:
+3. Crie uma branch para o seu envio e depois copie e cole os comandos abaixo no terminal, dentro da pasta do repositório, trocando `<PASTA-DA-MATERIA>`, `<SUA-SUBPASTA>` e a mensagem do commit:
 
 ```
 git checkout -b envio-<sua-subpasta>
@@ -33,6 +33,6 @@ git push origin envio-<sua-subpasta>
 
 4. Abra um **Pull Request**: o GitHub mostra um botão **Compare & pull request** assim que você dá push na branch. Confira se o destino é a branch `main` e envie.
 
-Assim que o PR é aberto, um **check automático** (GitHub Actions) confere se os arquivos estão dentro da sua subpasta e se o PR não mexe em pasta de outra pessoa. O merge na `main` só acontece depois que o professor revisar e aprovar o PR — o push cria a proposta de envio, não publica direto.
+Assim que o PR é aberto, um **check automático** (GitHub Actions) confere se os arquivos ficam dentro de uma subpasta de aluno que já existe na `main`. Se aparecer erro, normalmente é porque o PR tentou mexer fora dessa subpasta ou criar uma nova pasta de aluno na raiz da matéria. O merge na `main` só acontece depois que o professor revisar e aprovar o PR — o push cria a proposta de envio, não publica direto.
 
 > Cada pasta de matéria (`BANCO-DE-DADOS/`, `NODEJS/`, `DOCKER/`, `PROJETO-INDIVIDUAL/`) também tem seu próprio README com esse passo a passo já com os comandos ajustados para aquela pasta.

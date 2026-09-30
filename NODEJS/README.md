@@ -13,9 +13,9 @@ git clone https://github.com/UnisenaiJoinville/ADS-2025-02-Desenvolvimento-Web.g
 cd ADS-2025-02-Desenvolvimento-Web
 ```
 
-2. Procure, aqui dentro de `NODEJS/`, a **subpasta com o seu nome** (ex.: `NODEJS/Ana-Carolina-da-Silveira/`) e coloque os arquivos da sua atividade dentro dela.
+2. Procure, aqui dentro de `NODEJS/`, a **subpasta com o seu nome** (ex.: `NODEJS/Ana-Carolina-da-Silveira/`) e coloque os arquivos da sua atividade dentro dela. Não crie nova pasta de aluno na `main`, mas pode criar subpastas dentro dela se precisar.
 
-3. Copie e cole os comandos abaixo no terminal (dentro da pasta do repositório), trocando `<SUA-SUBPASTA>` pelo nome exato da sua subpasta e a mensagem do commit pelo seu nome:
+3. Crie uma branch para o seu envio e depois copie e cole os comandos abaixo no terminal (dentro da pasta do repositório), trocando `<SUA-SUBPASTA>` pelo nome exato da sua subpasta e a mensagem do commit pelo seu nome:
 
 ```
 git checkout -b envio-<sua-subpasta>
