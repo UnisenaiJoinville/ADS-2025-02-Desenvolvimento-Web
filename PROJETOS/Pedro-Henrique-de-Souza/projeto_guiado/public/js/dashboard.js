@@ -1,8 +1,8 @@
 import { api } from "./api.js";
-import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
-import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+
+mountLayout("/index.html");
 
 mountLayout("/index.html");
 
