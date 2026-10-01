@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
 
 mountLayout("/index.html");
@@ -20,4 +21,6 @@ function render(data) {
 }
 async function load() { try { render(await api.getDashboard()); } catch (error) { toast(error.message, "error"); } }
 document.querySelector("[data-reload]").addEventListener("click", () => { load(); toast("Dashboard atualizado", "info"); });
-load();
+if (requireAuth()) {
+  load();
+}
