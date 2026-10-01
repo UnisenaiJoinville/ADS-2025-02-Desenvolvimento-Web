@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
 
 mountLayout("/movimentacoes.html");
@@ -9,4 +10,6 @@ async function loadMovements() { try { render(await api.listMovements({ type: ac
 function updateHint() { const product = products.find((p) => p.id === Number(form.elements.productId.value)); hint.textContent = product ? `Estoque atual: ${product.quantity} unidade(s) - minimo ${product.minimumStock}` : ""; }
 form.elements.productId.addEventListener("change", updateHint); buttons.forEach((button) => button.addEventListener("click", () => { activeFilter = button.dataset.filter; buttons.forEach((item) => item.className = item === button ? "rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-white" : "rounded-lg border px-3 py-1.5 text-xs"); loadMovements(); }));
 form.addEventListener("submit", async (e) => { e.preventDefault(); const data = new FormData(form); const payload = { productId: Number(data.get("productId")), type: data.get("type"), quantity: Number(data.get("quantity")), note: data.get("note") }; try { await api.createMovement(payload); toast(payload.type === "IN" ? "Entrada registrada" : "Saida registrada"); form.reset(); hint.textContent = ""; await loadProducts(); await loadMovements(); } catch (error) { toast(error.message, "error"); } });
-(async () => { try { await loadProducts(); await loadMovements(); } catch (error) { toast(error.message, "error"); } })();
+if (requireAuth()) {
+	(async () => { try { await loadProducts(); await loadMovements(); } catch (error) { toast(error.message, "error"); } })();
+}
