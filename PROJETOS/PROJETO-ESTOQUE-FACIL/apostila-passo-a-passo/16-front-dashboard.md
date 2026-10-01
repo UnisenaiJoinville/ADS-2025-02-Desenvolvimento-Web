@@ -1,6 +1,6 @@
 # Etapa 16 — Tela do Dashboard
 
-📋 **Tipo:** prática (HTML + JavaScript)
+**Tipo:** prática (HTML + JavaScript)
 
 ---
 
@@ -8,7 +8,7 @@
 
 Construir a primeira tela do sistema: o dashboard com **cards que somam e subtraem valores**, barras por categoria, alertas e tabela de movimentações recentes.
 
-> 🎉 Esta é a etapa em que o projeto finalmente "aparece".
+> Esta é a etapa em que o projeto finalmente "aparece".
 
 ---
 
@@ -128,7 +128,7 @@ Na pasta `public`, crie `index.html`:
 
 Salve.
 
-### 👀 Repare: o HTML está VAZIO de dados
+### Repare: o HTML está VAZIO de dados
 
 ```html
 <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-cards></section>
@@ -136,7 +136,7 @@ Salve.
 
 Não há nenhum número escrito no HTML. Existem apenas os **espaços reservados**, marcados com `data-*`. Quem preenche é o JavaScript, com os dados da API.
 
-> 📌 Isso se chama **renderização no cliente**. A vantagem: a mesma página serve para qualquer conteúdo, e atualizar não exige recarregar.
+> Isso se chama **renderização no cliente**. A vantagem: a mesma página serve para qualquer conteúdo, e atualizar não exige recarregar.
 
 ### As classes-chave desta página
 
@@ -148,7 +148,7 @@ Não há nenhum número escrito no HTML. Existem apenas os **espaços reservados
 | `overflow-x-auto` | A tabela ganha rolagem lateral em telas pequenas |
 | `fixed bottom-6 right-6 z-50` | Os toasts flutuam no canto inferior direito |
 
-### ⚠️ O `type="module"` é obrigatório
+### O `type="module"` é obrigatório
 
 ```html
 <script type="module" src="/js/dashboard.js"></script>
@@ -202,7 +202,7 @@ function card({ label, value, hint, accent }) {
 
 Um **componente**: uma função que recebe dados e devolve HTML. Os 4 cards usam o mesmo molde, mudando só o conteúdo.
 
-> 💡 Repare no parâmetro desestruturado `{ label, value, hint, accent }`. Chamar com um objeto nomeado é mais legível que `card("Produtos", 7, "146 unidades", "bg-slate-900")` — você não precisa lembrar a ordem.
+> Repare no parâmetro desestruturado `{ label, value, hint, accent }`. Chamar com um objeto nomeado é mais legível que `card("Produtos", 7, "146 unidades", "bg-slate-900")` — você não precisa lembrar a ordem.
 
 ### Parte C — Os quatro cards principais
 
@@ -317,7 +317,7 @@ function renderByCategory(rows) {
 }
 ```
 
-#### 📊 Como o gráfico de barras funciona
+#### Como o gráfico de barras funciona
 
 Sem biblioteca nenhuma! Só duas `div` aninhadas:
 
@@ -343,7 +343,7 @@ A **maior** categoria vira 100%, e as outras ficam proporcionais:
 | Bebidas | 1127 | 1127/1242 | 91% |
 | Papelaria | 267 | 267/1242 | 22% |
 
-#### ⚠️ O detalhe que evita um bug clássico
+#### O detalhe que evita um bug clássico
 
 ```javascript
 Math.max(...rows.map((row) => row.costValue), 1)
@@ -357,7 +357,7 @@ Esse `, 1` no final garante que `maxValue` **nunca** seja zero. Sem ele, se todo
 style="width: NaN%"    // barra quebrada
 ```
 
-> 🎯 **É exatamente a mesma armadilha da média sem itens!**
+> **É exatamente a mesma armadilha da média sem itens!**
 >
 > ```javascript
 > return soma / quantidade;   // 0 / 0 = NaN
@@ -437,7 +437,7 @@ A variável `isIn` é calculada **uma vez** e usada três vezes: para a cor da e
 const isIn = row.type === "IN";
 ```
 
-> 💡 Sem ela, você repetiria `row.type === "IN"` três vezes. Nomear a condição também documenta o código.
+> Sem ela, você repetiria `row.type === "IN"` três vezes. Nomear a condição também documenta o código.
 
 ### Parte H — Estado vazio, carregamento e o botão
 
@@ -480,7 +480,7 @@ Se preferir conferir o arquivo inteiro de uma vez, ele está na [apostila comple
 
 ---
 
-## 🧠 O padrão que se repete em todas as telas
+## O padrão que se repete em todas as telas
 
 Guarde este ciclo — as próximas três etapas usam exatamente ele:
 
@@ -505,7 +505,7 @@ const html = rows.map((row) => `<tr>${row.name}</tr>`).join("");
 | `.map(...)` | `["<tr>Café</tr>", "<tr>Água</tr>"]` (array) |
 | `.join("")` | `"<tr>Café</tr><tr>Água</tr>"` (string única) |
 
-> ⚠️ **Se esquecer o `.join("")`**, o JavaScript converte o array em string usando **vírgulas**, e você verá vírgulas soltas na tela: `<tr>Café</tr>,<tr>Água</tr>`.
+> **Se esquecer o `.join("")`**, o JavaScript converte o array em string usando **vírgulas**, e você verá vírgulas soltas na tela: `<tr>Café</tr>,<tr>Água</tr>`.
 
 ### Sempre trate a lista vazia
 
@@ -520,7 +520,7 @@ Uma área em branco parece **bug**. Uma mensagem explícita informa o usuário d
 
 ---
 
-## Passo 4 — 🎉 Ver funcionando
+## Passo 4 — Ver funcionando
 
 Abra o navegador:
 
@@ -536,9 +536,9 @@ Você deve ver o dashboard completo, com dados reais do banco!
 2. Vá na aba **Console**
 3. Leia a mensagem de erro em vermelho
 
-> 📌 **O Console é seu melhor amigo no front-end.** Diferente do backend, aqui os erros não aparecem no terminal — aparecem no navegador.
+> **O Console é seu melhor amigo no front-end.** Diferente do backend, aqui os erros não aparecem no terminal — aparecem no navegador.
 
-### 🧪 Teste que o dashboard é vivo
+### Teste que o dashboard é vivo
 
 1. Deixe o dashboard aberto
 2. Em outro terminal, registre uma entrada:
@@ -554,7 +554,7 @@ curl -X POST http://localhost:3000/api/movements \
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `public/index.html` existe
 - [ ] `public/js/dashboard.js` existe
@@ -569,7 +569,7 @@ curl -X POST http://localhost:3000/api/movements \
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Sintoma | Causa | Solução |
 |---|---|---|
@@ -584,7 +584,7 @@ curl -X POST http://localhost:3000/api/movements \
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 A tela mais bonita está pronta. Agora a mais completa: o CRUD visual de produtos.
 
