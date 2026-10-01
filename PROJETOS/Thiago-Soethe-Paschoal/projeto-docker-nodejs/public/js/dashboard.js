@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
 
 mountLayout("/index.html");
@@ -192,4 +193,6 @@ document.querySelector("[data-reload]").addEventListener("click", () => {
   toast("Dashboard atualizado", "info");
 });
 
-loadDashboard();
+if (requireAuth()) {
+  loadDashboard();
+}
