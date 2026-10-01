@@ -104,4 +104,6 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadCategories();
+if (requireAuth()) {
+  loadCategories(); 
+}
