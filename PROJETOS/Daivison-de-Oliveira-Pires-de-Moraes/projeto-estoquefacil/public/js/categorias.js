@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js"
 import { escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/categorias.html");
@@ -74,7 +75,9 @@ rowsContainer.addEventListener("click", async (event) => {
       await api.deleteCategory(deleteId);
       toast("Categoria excluida");
       resetForm();
-      loadCategories();
+      if (requireAuth()) {
+  loadCategories();
+}
     } catch (error) {
       toast(error.message, "error");
     }
@@ -104,4 +107,6 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadCategories();
+if (requireAuth()) {
+  loadCategories();
+}
