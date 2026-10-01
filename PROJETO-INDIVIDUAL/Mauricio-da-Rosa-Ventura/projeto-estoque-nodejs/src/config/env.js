@@ -21,6 +21,13 @@ function requirePort(key, fallback) {
   return port;
 }
 
+const jwtSecret = requireEnv("JWT_SECRET");
+
+// Fail fast: um segredo curto e o mesmo que nenhum segredo.
+if (jwtSecret.length < 32) {
+  throw new Error("JWT_SECRET deve ter pelo menos 32 caracteres");
+}
+
 export const env = {
   port: requirePort("PORT", 3000),
   database: {
@@ -29,5 +36,12 @@ export const env = {
     user: requireEnv("DB_USER"),
     password: requireEnv("DB_PASSWORD"),
     name: requireEnv("DB_NAME"),
+  },
+  auth: {
+    jwtSecret,
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || "1d",
+    // Custo do bcrypt: 2^10 = 1024 rodadas. Quanto maior, mais lento
+    // para nos e para quem tentar quebrar a senha na forca bruta.
+    saltRounds: 10,
   },
 };
