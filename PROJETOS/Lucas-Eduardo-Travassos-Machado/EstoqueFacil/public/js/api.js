@@ -1,13 +1,30 @@
 // Camada unica de acesso a API.
 // Centralizar o fetch evita repetir tratamento de erro em cada tela.
 
+import { clearSession, getToken, LOGIN_PAGE } from "./auth.js";
+
 const BASE_URL = "/api";
 
 async function request(path, options = {}) {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+  const token = getToken();
+
+  const headers = { "Content-Type": "application/json", ...options.headers };
+
+  // Se ha sessao, todo pedido leva o cracha junto.
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+
+  // 401 COM token = a sessao venceu. 401 SEM token = senha errada no login,
+  // e nessa tela nao pode haver redirecionamento.
+  if (response.status === 401 && token) {
+    clearSession();
+    window.location.replace(LOGIN_PAGE);
+
+    throw new Error("Sessao expirada. Faca login novamente");
+  }
 
   if (response.status === 204) {
     return null;
@@ -23,6 +40,11 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+    register: (payload) =>
+    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+  login: (payload) =>
+    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
+  me: () => request("/auth/me"),
   getDashboard: () => request("/dashboard"),
 
   listCategories: () => request("/categories"),

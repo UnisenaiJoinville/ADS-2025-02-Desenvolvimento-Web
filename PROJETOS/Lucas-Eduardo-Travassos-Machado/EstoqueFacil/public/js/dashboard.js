@@ -186,4 +186,6 @@ document.querySelector("[data-reload]").addEventListener("click", () => {
   toast("Dashboard atualizado", "info");
 });
 
-loadDashboard();
+if (requireAuth()) {
+  loadDashboard();
+}
