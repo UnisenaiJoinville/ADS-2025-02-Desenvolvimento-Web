@@ -22,7 +22,6 @@ export class ConflictError extends AppError {
   }
 }
 
-
 // 401: falta token, token invalido ou senha errada.
 export class UnauthorizedError extends AppError {
   constructor(message = "Nao autenticado") {

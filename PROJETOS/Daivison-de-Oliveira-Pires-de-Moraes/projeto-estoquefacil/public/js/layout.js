@@ -53,12 +53,17 @@ export function renderNav(active) {
       <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
         <div class="flex items-center gap-3">
           <div class="grid h-10 w-10 place-items-center rounded-xl bg-slate-900 text-lg font-bold text-white">EF</div>
+
           <div>
             <p class="text-base font-semibold text-slate-900">Estoque Facil</p>
             <p class="text-xs text-slate-500">Gestao de estoque</p>
           </div>
         </div>
-        <nav class="flex flex-wrap items-center gap-1">${links}</nav>
+
+        <nav class="flex flex-wrap items-center gap-1">
+          ${links}
+        </nav>
+
         ${renderUserBadge()}
       </div>
     </header>
@@ -71,24 +76,37 @@ function renderUserBadge() {
 
   if (!user) return "";
 
-  // As iniciais do nome: "Ana Paula Souza" -> "AS"
+  // As iniciais do nome:
+  // "Ana Paula Souza" -> "AS"
   const initials = escapeHtml(
     user.name
       .split(" ")
       .filter(Boolean)
       .map((part) => part[0])
-      .filter((_, index, all) => index === 0 || index === all.length - 1)
+      .filter(
+        (_, index, all) =>
+          index === 0 || index === all.length - 1
+      )
       .join("")
       .toUpperCase()
   );
 
   return `
     <div class="flex items-center gap-3 border-l border-slate-200 pl-4">
-      <div class="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">${initials}</div>
-      <div class="hidden sm:block">
-        <p class="text-sm font-semibold leading-tight text-slate-900">${escapeHtml(user.name)}</p>
-        <p class="text-xs leading-tight text-slate-500">${escapeHtml(user.email)}</p>
+      <div class="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">
+        ${initials}
       </div>
+
+      <div class="hidden sm:block">
+        <p class="text-sm font-semibold leading-tight text-slate-900">
+          ${escapeHtml(user.name)}
+        </p>
+
+        <p class="text-xs leading-tight text-slate-500">
+          ${escapeHtml(user.email)}
+        </p>
+      </div>
+
       <button
         data-logout
         class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
@@ -106,7 +124,9 @@ export function mountLayout(activeHref) {
     container.innerHTML = renderNav(activeHref);
 
     // O botao so existe depois que o HTML acima foi inserido.
-    container.querySelector("[data-logout]")?.addEventListener("click", logout);
+    container
+      .querySelector("[data-logout]")
+      ?.addEventListener("click", logout);
   }
 }
 
@@ -119,10 +139,15 @@ export function toast(message, variant = "success") {
   };
 
   const element = document.createElement("div");
-  element.className = `${colors[variant] ?? colors.info} pointer-events-none translate-y-2 rounded-xl px-4 py-3 text-sm font-medium text-white opacity-0 shadow-lg transition-all duration-200`;
+
+  element.className = `${
+    colors[variant] ?? colors.info
+  } pointer-events-none translate-y-2 rounded-xl px-4 py-3 text-sm font-medium text-white opacity-0 shadow-lg transition-all duration-200`;
+
   element.textContent = message;
 
   const stack = document.querySelector("[data-toast-stack]");
+
   stack.append(element);
 
   requestAnimationFrame(() => {
@@ -131,6 +156,7 @@ export function toast(message, variant = "success") {
 
   setTimeout(() => {
     element.classList.add("translate-y-2", "opacity-0");
+
     setTimeout(() => element.remove(), 250);
   }, 3000);
 }

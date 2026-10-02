@@ -1,6 +1,11 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
+import {
+  currency,
+  escapeHtml,
+  mountLayout,
+  toast,
+} from "./layout.js";
 
 mountLayout("/produtos.html");
 
@@ -50,14 +55,20 @@ document.querySelectorAll("[data-close]").forEach((button) => {
 });
 
 modal.addEventListener("click", (event) => {
-  if (event.target === modal) closeModal();
+  if (event.target === modal) {
+    closeModal();
+  }
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeModal();
+  if (event.key === "Escape") {
+    closeModal();
+  }
 });
 
-document.querySelector("[data-new]").addEventListener("click", () => openModal(null));
+document
+  .querySelector("[data-new]")
+  .addEventListener("click", () => openModal(null));
 
 // ------------------------------------------------------------
 // Listagem
@@ -66,9 +77,11 @@ document.querySelector("[data-new]").addEventListener("click", () => openModal(n
 function renderRows(products) {
   if (products.length === 0) {
     rowsContainer.innerHTML = `
-      <tr><td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">
-        Nenhum produto encontrado
-      </td></tr>`;
+      <tr>
+        <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">
+          Nenhum produto encontrado
+        </td>
+      </tr>`;
     return;
   }
 
@@ -77,32 +90,59 @@ function renderRows(products) {
       (product) => `
         <tr class="hover:bg-slate-50">
           <td class="px-4 py-3">
-            <p class="font-medium text-slate-800">${escapeHtml(product.name)}</p>
-            <p class="text-xs text-slate-500">${escapeHtml(product.sku)}</p>
+            <p class="font-medium text-slate-800">
+              ${escapeHtml(product.name)}
+            </p>
+
+            <p class="text-xs text-slate-500">
+              ${escapeHtml(product.sku)}
+            </p>
           </td>
+
           <td class="px-4 py-3 text-slate-600">
             ${escapeHtml(product.categoryName ?? "Sem categoria")}
           </td>
-          <td class="px-4 py-3 text-right text-slate-600">${currency.format(product.costPrice)}</td>
-          <td class="px-4 py-3 text-right text-slate-600">${currency.format(product.salePrice)}</td>
+
+          <td class="px-4 py-3 text-right text-slate-600">
+            ${currency.format(product.costPrice)}
+          </td>
+
+          <td class="px-4 py-3 text-right text-slate-600">
+            ${currency.format(product.salePrice)}
+          </td>
+
           <td class="px-4 py-3 text-right">
-            <span class="font-semibold ${product.lowStock ? "text-rose-600" : "text-slate-800"}">
+            <span class="font-semibold ${
+              product.lowStock
+                ? "text-rose-600"
+                : "text-slate-800"
+            }">
               ${product.quantity}
             </span>
-            <span class="text-xs text-slate-400"> / min ${product.minimumStock}</span>
+
+            <span class="text-xs text-slate-400">
+              / min ${product.minimumStock}
+            </span>
           </td>
+
           <td class="px-4 py-3 text-center">
             ${statusBadge(product)}
           </td>
+
           <td class="px-4 py-3 text-right whitespace-nowrap">
             <button
               data-edit="${product.id}"
               class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
-            >Editar</button>
+            >
+              Editar
+            </button>
+
             <button
               data-delete="${product.id}"
               class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
-            >Excluir</button>
+            >
+              Excluir
+            </button>
           </td>
         </tr>
       `
@@ -112,14 +152,26 @@ function renderRows(products) {
 
 function statusBadge(product) {
   if (!product.active) {
-    return '<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">Inativo</span>';
+    return `
+      <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+        Inativo
+      </span>
+    `;
   }
 
   if (product.lowStock) {
-    return '<span class="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">Estoque baixo</span>';
+    return `
+      <span class="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">
+        Estoque baixo
+      </span>
+    `;
   }
 
-  return '<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Ok</span>';
+  return `
+    <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+      Ok
+    </span>
+  `;
 }
 
 function currentFilters() {
@@ -135,6 +187,7 @@ function currentFilters() {
 async function loadProducts() {
   try {
     const products = await api.listProducts(currentFilters());
+
     renderRows(products);
   } catch (error) {
     toast(error.message, "error");
@@ -145,13 +198,19 @@ async function loadCategories() {
   categories = await api.listCategories();
 
   const options = categories
-    .map((category) => `<option value="${category.id}">${escapeHtml(category.name)}</option>`)
+    .map(
+      (category) =>
+        `<option value="${category.id}">${escapeHtml(
+          category.name
+        )}</option>`
+    )
     .join("");
 
   filtersForm.elements.categoryId.innerHTML =
     `<option value="">Todas as categorias</option>${options}`;
 
-  form.elements.categoryId.innerHTML = `<option value="">Sem categoria</option>${options}`;
+  form.elements.categoryId.innerHTML =
+    `<option value="">Sem categoria</option>${options}`;
 }
 
 // ------------------------------------------------------------
@@ -160,6 +219,7 @@ async function loadCategories() {
 
 filtersForm.addEventListener("submit", (event) => {
   event.preventDefault();
+
   loadProducts();
 });
 
@@ -174,6 +234,7 @@ rowsContainer.addEventListener("click", async (event) => {
   if (editId) {
     try {
       const product = await api.getProduct(editId);
+
       openModal(product);
     } catch (error) {
       toast(error.message, "error");
@@ -181,11 +242,19 @@ rowsContainer.addEventListener("click", async (event) => {
   }
 
   if (deleteId) {
-    if (!window.confirm("Deseja realmente excluir este produto?")) return;
+    if (
+      !window.confirm(
+        "Deseja realmente excluir este produto?"
+      )
+    ) {
+      return;
+    }
 
     try {
       await api.deleteProduct(deleteId);
+
       toast("Produto excluido");
+
       loadProducts();
     } catch (error) {
       toast(error.message, "error");
@@ -214,9 +283,11 @@ form.addEventListener("submit", async (event) => {
   try {
     if (id) {
       await api.updateProduct(id, payload);
+
       toast("Produto atualizado");
     } else {
       await api.createProduct(payload);
+
       toast("Produto cadastrado");
     }
 
@@ -236,6 +307,8 @@ async function init() {
   }
 }
 
+// Protege a tela de produtos.
+// Sem sessao, o usuario sera enviado para o login.
 if (requireAuth()) {
   init();
 }

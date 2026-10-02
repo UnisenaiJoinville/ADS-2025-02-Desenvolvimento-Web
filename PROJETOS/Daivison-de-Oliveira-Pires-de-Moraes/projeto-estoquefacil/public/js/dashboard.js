@@ -1,6 +1,12 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+import {
+  currency,
+  escapeHtml,
+  formatDateTime,
+  mountLayout,
+  toast,
+} from "./layout.js";
 
 mountLayout("/index.html");
 
@@ -61,14 +67,18 @@ function renderMonth(month) {
       <p class="mt-2 text-3xl font-bold text-emerald-700">+ ${month.unitsIn}</p>
       <p class="mt-1 text-xs text-emerald-600">unidades que entraram</p>
     </article>
+
     <article class="rounded-2xl border border-rose-200 bg-rose-50 p-5">
       <p class="text-sm font-medium text-rose-700">Saidas do mes</p>
       <p class="mt-2 text-3xl font-bold text-rose-700">- ${month.unitsOut}</p>
       <p class="mt-1 text-xs text-rose-600">unidades que sairam</p>
     </article>
+
     <article class="rounded-2xl border border-slate-200 bg-white p-5">
       <p class="text-sm font-medium text-slate-500">Saldo do mes</p>
-      <p class="mt-2 text-3xl font-bold ${balanceIsPositive ? "text-emerald-600" : "text-rose-600"}">
+      <p class="mt-2 text-3xl font-bold ${
+        balanceIsPositive ? "text-emerald-600" : "text-rose-600"
+      }">
         ${balanceIsPositive ? "+" : ""}${month.balance}
       </p>
       <p class="mt-1 text-xs text-slate-500">entradas menos saidas</p>
@@ -78,25 +88,42 @@ function renderMonth(month) {
 
 function renderByCategory(rows) {
   if (rows.length === 0) {
-    byCategoryContainer.innerHTML = emptyState("Nenhum produto cadastrado");
+    byCategoryContainer.innerHTML = emptyState(
+      "Nenhum produto cadastrado"
+    );
     return;
   }
 
-  const maxValue = Math.max(...rows.map((row) => row.costValue), 1);
+  const maxValue = Math.max(
+    ...rows.map((row) => row.costValue),
+    1
+  );
 
   byCategoryContainer.innerHTML = rows
     .map((row) => {
-      const percentage = Math.round((row.costValue / maxValue) * 100);
+      const percentage = Math.round(
+        (row.costValue / maxValue) * 100
+      );
 
       return `
         <div>
           <div class="flex items-baseline justify-between gap-3 text-sm">
-            <span class="font-medium text-slate-700">${escapeHtml(row.categoryName)}</span>
-            <span class="text-slate-500">${currency.format(row.costValue)}</span>
+            <span class="font-medium text-slate-700">
+              ${escapeHtml(row.categoryName)}
+            </span>
+
+            <span class="text-slate-500">
+              ${currency.format(row.costValue)}
+            </span>
           </div>
+
           <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-            <div class="h-full rounded-full bg-slate-900" style="width: ${percentage}%"></div>
+            <div
+              class="h-full rounded-full bg-slate-900"
+              style="width: ${percentage}%"
+            ></div>
           </div>
+
           <p class="mt-1 text-xs text-slate-500">
             ${row.productCount} produto(s) - ${row.units} unidades
           </p>
@@ -108,7 +135,9 @@ function renderByCategory(rows) {
 
 function renderLowStock(rows) {
   if (rows.length === 0) {
-    lowStockContainer.innerHTML = emptyState("Nenhum produto abaixo do minimo");
+    lowStockContainer.innerHTML = emptyState(
+      "Nenhum produto abaixo do minimo"
+    );
     return;
   }
 
@@ -117,12 +146,23 @@ function renderLowStock(rows) {
       (row) => `
         <div class="flex items-center justify-between gap-3 rounded-xl bg-rose-50 px-4 py-3">
           <div>
-            <p class="text-sm font-semibold text-slate-800">${escapeHtml(row.name)}</p>
-            <p class="text-xs text-slate-500">${escapeHtml(row.sku)}</p>
+            <p class="text-sm font-semibold text-slate-800">
+              ${escapeHtml(row.name)}
+            </p>
+
+            <p class="text-xs text-slate-500">
+              ${escapeHtml(row.sku)}
+            </p>
           </div>
+
           <div class="text-right">
-            <p class="text-sm font-bold text-rose-600">${row.quantity} un.</p>
-            <p class="text-xs text-slate-500">minimo ${row.minimumStock}</p>
+            <p class="text-sm font-bold text-rose-600">
+              ${row.quantity} un.
+            </p>
+
+            <p class="text-xs text-slate-500">
+              minimo ${row.minimumStock}
+            </p>
           </div>
         </div>
       `
@@ -133,9 +173,11 @@ function renderLowStock(rows) {
 function renderRecent(rows) {
   if (rows.length === 0) {
     recentContainer.innerHTML = `
-      <tr><td colspan="4" class="py-6 text-center text-sm text-slate-500">
-        Nenhuma movimentacao registrada
-      </td></tr>`;
+      <tr>
+        <td colspan="4" class="py-6 text-center text-sm text-slate-500">
+          Nenhuma movimentacao registrada
+        </td>
+      </tr>`;
     return;
   }
 
@@ -146,18 +188,34 @@ function renderRecent(rows) {
       return `
         <tr>
           <td class="py-3 pr-4">
-            <p class="font-medium text-slate-800">${escapeHtml(row.productName)}</p>
-            <p class="text-xs text-slate-500">${escapeHtml(row.productSku)}</p>
+            <p class="font-medium text-slate-800">
+              ${escapeHtml(row.productName)}
+            </p>
+
+            <p class="text-xs text-slate-500">
+              ${escapeHtml(row.productSku)}
+            </p>
           </td>
+
           <td class="py-3 pr-4">
             <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${
-              isIn ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-            }">${isIn ? "Entrada" : "Saida"}</span>
+              isIn
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-rose-100 text-rose-700"
+            }">
+              ${isIn ? "Entrada" : "Saida"}
+            </span>
           </td>
+
           <td class="py-3 pr-4 text-right font-semibold ${
             isIn ? "text-emerald-600" : "text-rose-600"
-          }">${isIn ? "+" : "-"}${row.quantity}</td>
-          <td class="py-3 text-right text-slate-500">${formatDateTime(row.createdAt)}</td>
+          }">
+            ${isIn ? "+" : "-"}${row.quantity}
+          </td>
+
+          <td class="py-3 text-right text-slate-500">
+            ${formatDateTime(row.createdAt)}
+          </td>
         </tr>
       `;
     })
@@ -165,7 +223,11 @@ function renderRecent(rows) {
 }
 
 function emptyState(message) {
-  return `<p class="rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">${message}</p>`;
+  return `
+    <p class="rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+      ${message}
+    </p>
+  `;
 }
 
 async function loadDashboard() {
@@ -182,11 +244,15 @@ async function loadDashboard() {
   }
 }
 
-document.querySelector("[data-reload]").addEventListener("click", () => {
-  loadDashboard();
-  toast("Dashboard atualizado", "info");
-});
+document
+  .querySelector("[data-reload]")
+  .addEventListener("click", () => {
+    loadDashboard();
+    toast("Dashboard atualizado", "info");
+  });
 
+// Protege o dashboard.
+// Se nao houver sessao, o usuario sera enviado para o login.
 if (requireAuth()) {
   loadDashboard();
 }

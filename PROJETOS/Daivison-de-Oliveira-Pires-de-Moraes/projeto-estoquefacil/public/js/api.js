@@ -8,18 +8,26 @@ const BASE_URL = "/api";
 async function request(path, options = {}) {
   const token = getToken();
 
-  const headers = { "Content-Type": "application/json", ...options.headers };
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
 
   // Se ha sessao, todo pedido leva o cracha junto.
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const response = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
 
-  // 401 COM token = a sessao venceu. Limpamos e voltamos para o login.
-  // 401 SEM token = e a propria tela de login dizendo "senha errada",
-  // e nela nao pode haver redirecionamento nenhum.
+  // 401 COM token = a sessao venceu.
+  // Limpamos a sessao e voltamos para o login.
+  //
+  // 401 SEM token = pode ser a propria tela de login
+  // informando usuario/senha incorretos.
   if (response.status === 401 && token) {
     clearSession();
     window.location.replace(LOGIN_PAGE);
@@ -41,49 +49,120 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  // ------------------------------------------------------------
+  // Autenticacao
+  // ------------------------------------------------------------
+
   register: (payload) =>
-    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+    request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   login: (payload) =>
-    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
+    request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   me: () => request("/auth/me"),
+
+  // ------------------------------------------------------------
+  // Dashboard
+  // ------------------------------------------------------------
 
   getDashboard: () => request("/dashboard"),
 
+  // ------------------------------------------------------------
+  // Categorias
+  // ------------------------------------------------------------
+
   listCategories: () => request("/categories"),
+
   createCategory: (payload) =>
-    request("/categories", { method: "POST", body: JSON.stringify(payload) }),
+    request("/categories", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   updateCategory: (id, payload) =>
-    request(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteCategory: (id) => request(`/categories/${id}`, { method: "DELETE" }),
+    request(`/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+
+  deleteCategory: (id) =>
+    request(`/categories/${id}`, {
+      method: "DELETE",
+    }),
+
+  // ------------------------------------------------------------
+  // Produtos
+  // ------------------------------------------------------------
 
   listProducts: (filters = {}) => {
     const params = new URLSearchParams();
 
-    if (filters.search) params.set("search", filters.search);
-    if (filters.categoryId) params.set("categoryId", filters.categoryId);
-    if (filters.lowStock) params.set("lowStock", "true");
+    if (filters.search) {
+      params.set("search", filters.search);
+    }
+
+    if (filters.categoryId) {
+      params.set("categoryId", filters.categoryId);
+    }
+
+    if (filters.lowStock) {
+      params.set("lowStock", "true");
+    }
 
     const query = params.toString();
 
     return request(query ? `/products?${query}` : "/products");
   },
-  getProduct: (id) => request(`/products/${id}`),
+
+  getProduct: (id) =>
+    request(`/products/${id}`),
+
   createProduct: (payload) =>
-    request("/products", { method: "POST", body: JSON.stringify(payload) }),
+    request("/products", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   updateProduct: (id, payload) =>
-    request(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteProduct: (id) => request(`/products/${id}`, { method: "DELETE" }),
+    request(`/products/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+
+  deleteProduct: (id) =>
+    request(`/products/${id}`, {
+      method: "DELETE",
+    }),
+
+  // ------------------------------------------------------------
+  // Movimentacoes
+  // ------------------------------------------------------------
 
   listMovements: (filters = {}) => {
     const params = new URLSearchParams();
 
-    if (filters.productId) params.set("productId", filters.productId);
-    if (filters.type) params.set("type", filters.type);
+    if (filters.productId) {
+      params.set("productId", filters.productId);
+    }
+
+    if (filters.type) {
+      params.set("type", filters.type);
+    }
 
     const query = params.toString();
 
     return request(query ? `/movements?${query}` : "/movements");
   },
+
   createMovement: (payload) =>
-    request("/movements", { method: "POST", body: JSON.stringify(payload) }),
+    request("/movements", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };
