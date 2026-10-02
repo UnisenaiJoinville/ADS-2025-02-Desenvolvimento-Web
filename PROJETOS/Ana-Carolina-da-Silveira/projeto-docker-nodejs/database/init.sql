@@ -91,3 +91,25 @@ INSERT INTO stock_movements (product_id, type, quantity, note) VALUES
 INSERT INTO users (name, email, password_hash)
 VALUES ('Administrador', 'admin@email.com', '$2a$10$w4r1R6cMv9lR5J6B9XoG9uY8hV2b7q2e9u7C9b7a1d5e3f1g2h3i4')
 ON DUPLICATE KEY UPDATE id=id;
+
+-- ============================================================
+-- Modulo de autenticacao (Etapa 24)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Usuario de demonstracao para testar o login antes de existir a tela.
+-- A senha em texto puro e "123456" - o que esta gravado abaixo e o HASH.
+-- NUNCA deixe um usuario com senha conhecida em um sistema real.
+INSERT INTO users (name, email, password_hash) VALUES
+  ('Professor Demo',
+   'professor@estoquefacil.com',
+   '$2b$10$xkAjZ..MHKdp.7cnXFMvVON.XZmd/foxiswJJS61thFcP/WLquT6m');
