@@ -1,5 +1,11 @@
 import { api } from "./api.js";
-import { escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+import { requireAuth } from "./auth.js";
+import {
+  escapeHtml,
+  formatDateTime,
+  mountLayout,
+  toast,
+} from "./layout.js";
 
 mountLayout("/movimentacoes.html");
 
@@ -24,9 +30,11 @@ function highlightFilters() {
 function renderRows(movements) {
   if (movements.length === 0) {
     rowsContainer.innerHTML = `
-      <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">
-        Nenhuma movimentacao registrada
-      </td></tr>`;
+      <tr>
+        <td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">
+          Nenhuma movimentacao registrada
+        </td>
+      </tr>`;
     return;
   }
 
@@ -37,19 +45,37 @@ function renderRows(movements) {
       return `
         <tr class="hover:bg-slate-50">
           <td class="px-6 py-3">
-            <p class="font-medium text-slate-800">${escapeHtml(movement.productName)}</p>
-            <p class="text-xs text-slate-500">${escapeHtml(movement.productSku)}</p>
+            <p class="font-medium text-slate-800">
+              ${escapeHtml(movement.productName)}
+            </p>
+            <p class="text-xs text-slate-500">
+              ${escapeHtml(movement.productSku)}
+            </p>
           </td>
+
           <td class="px-4 py-3">
             <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${
-              isIn ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-            }">${isIn ? "Entrada" : "Saida"}</span>
+              isIn
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-rose-100 text-rose-700"
+            }">
+              ${isIn ? "Entrada" : "Saida"}
+            </span>
           </td>
+
           <td class="px-4 py-3 text-right font-semibold ${
             isIn ? "text-emerald-600" : "text-rose-600"
-          }">${isIn ? "+" : "-"}${movement.quantity}</td>
-          <td class="px-4 py-3 text-slate-600">${escapeHtml(movement.note ?? "-")}</td>
-          <td class="px-6 py-3 text-right text-slate-500">${formatDateTime(movement.createdAt)}</td>
+          }">
+            ${isIn ? "+" : "-"}${movement.quantity}
+          </td>
+
+          <td class="px-4 py-3 text-slate-600">
+            ${escapeHtml(movement.note ?? "-")}
+          </td>
+
+          <td class="px-6 py-3 text-right text-slate-500">
+            ${formatDateTime(movement.createdAt)}
+          </td>
         </tr>
       `;
     })
@@ -64,14 +90,19 @@ async function loadProducts() {
     products
       .map(
         (product) =>
-          `<option value="${product.id}">${escapeHtml(product.name)} (${escapeHtml(product.sku)})</option>`
+          `<option value="${product.id}">${escapeHtml(
+            product.name
+          )} (${escapeHtml(product.sku)})</option>`
       )
       .join("");
 }
 
 async function loadMovements() {
   try {
-    const movements = await api.listMovements({ type: activeFilter });
+    const movements = await api.listMovements({
+      type: activeFilter,
+    });
+
     renderRows(movements);
   } catch (error) {
     toast(error.message, "error");
@@ -80,18 +111,24 @@ async function loadMovements() {
 
 function updateStockHint() {
   const productId = Number(form.elements.productId.value);
-  const product = products.find((item) => item.id === productId);
+  const product = products.find(
+    (item) => item.id === productId
+  );
 
   stockHint.textContent = product
     ? `Estoque atual: ${product.quantity} unidade(s) - minimo ${product.minimumStock}`
     : "";
 }
 
-form.elements.productId.addEventListener("change", updateStockHint);
+form.elements.productId.addEventListener(
+  "change",
+  updateStockHint
+);
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
     activeFilter = button.dataset.filter;
+
     highlightFilters();
     loadMovements();
   });
@@ -112,7 +149,11 @@ form.addEventListener("submit", async (event) => {
   try {
     await api.createMovement(payload);
 
-    toast(payload.type === "IN" ? "Entrada registrada" : "Saida registrada");
+    toast(
+      payload.type === "IN"
+        ? "Entrada registrada"
+        : "Saida registrada"
+    );
 
     form.reset();
     stockHint.textContent = "";
@@ -136,4 +177,8 @@ async function init() {
   }
 }
 
-init();
+// Protege a tela de movimentacoes.
+// Sem sessao, o usuario sera enviado para o login.
+if (requireAuth()) {
+  init();
+}
