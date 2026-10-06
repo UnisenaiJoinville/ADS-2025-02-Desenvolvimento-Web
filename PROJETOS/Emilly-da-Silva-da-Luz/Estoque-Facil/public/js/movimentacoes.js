@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
 
 mountLayout("/movimentacoes.html");
@@ -130,4 +131,6 @@ async function init() {
   }
 }
 
-init();
+if (requireAuth()) {
+  init();
+}
