@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/categorias.html");
@@ -104,4 +105,8 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadCategories();
+// Porteiro da tela: requireAuth() manda para o login quando nao ha
+// sessao e devolve false, entao nada aqui chega a ser carregado.
+if (requireAuth()) {
+  loadCategories();
+}
