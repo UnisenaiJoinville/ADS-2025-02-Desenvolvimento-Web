@@ -1,0 +1,64 @@
+services:
+
+  db:
+    image: mysql:8.0
+    container_name: adotspet-db
+
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: adotspet
+      MYSQL_USER: adotspet
+      MYSQL_PASSWORD: adotspet123
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - adotspet_mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-proot123"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  api:
+    build:
+      context: .
+
+    container_name: adotspet-api
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    command: npm run dev
+
+
+volumes:
+  adotspet_mysql_data:
