@@ -5,7 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import {
-  AdoptionForm,
-} from '@/features/adopt-pet'
+import { AdoptionForm,} from '@/features/adopt-pet'
 </script>

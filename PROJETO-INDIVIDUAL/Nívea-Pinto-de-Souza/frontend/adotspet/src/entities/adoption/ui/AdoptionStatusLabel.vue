@@ -1,19 +1,17 @@
 <template>
-  <span
-    :class="[
-      'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold',
-      classesStatus,
-    ]"
-  >
+
+  <span :class="[ 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold', classesStatus,]">
+
     <i :class="`bi bi-${iconeStatus}`"></i>
 
     {{ labelStatus }}
+
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 
+import { computed } from 'vue'
 import type { AdoptionStatus } from '../model/adoption.status'
 
 const props = defineProps<{

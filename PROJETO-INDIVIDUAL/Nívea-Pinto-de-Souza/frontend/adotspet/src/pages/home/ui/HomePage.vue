@@ -894,10 +894,6 @@ function solicitarAdocao(animal: Pet) {
 }
 
 
-/* ============================================================
-   FAQ
-============================================================ */
-
 function trocarAba(aba: AbaFaq) {
 
   abaAtiva.value = aba
