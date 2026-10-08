@@ -1,0 +1,16 @@
+{
+  "name": "cenario1-api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "author": "Victor Cesar Silva",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "redis": "^4.7.0"
+  }
+}

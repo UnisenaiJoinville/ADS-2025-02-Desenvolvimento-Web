@@ -1,0 +1,8 @@
+{
+  "name": "cenario3-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Victor Cesar Silva",
+  "scripts": { "start": "node worker.js" },
+  "dependencies": { "amqplib": "^0.10.5" }
+}

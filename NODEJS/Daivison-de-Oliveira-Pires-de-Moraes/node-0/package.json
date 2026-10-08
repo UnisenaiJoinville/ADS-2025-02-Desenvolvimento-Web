@@ -1,0 +1,25 @@
+{
+  "name": "node-0-atividade",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Atividade prática do Módulo 0 - Hello Node profissional",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "tsx src/index.ts",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "dayjs": "^1.11.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.43.0"
+  }
+}

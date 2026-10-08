@@ -1,0 +1,46 @@
+1. Explique com suas palavras a diferença entre backend, API e banco de dados.
+
+Banco de dados: guarda as informações (a "despensa").
+Backend: aplica as regras e processa os dados (a "cozinha").
+API: é a ponte de comunicação entre o app do usuário e o backend (o "garçom").
+
+2. No domínio de agendamentos, escreva três regras que devem obrigatoriamente ser garantidas no
+backend.
+
+Não permitir dois agendamentos no mesmo horário (evitar conflito).
+Não permitir agendar serviço desativado.
+Não permitir agendamento fora do horário de funcionamento ou no passado.
+
+3. Classifique cada item como validação sintática ou regra de negócio: e-mail sem @; preço
+negativo; conflito de horário; CPF com quantidade errada de dígitos; serviço desativado sendo
+agendado
+
+Item	=	Tipo
+E-mail sem @	=	Sintática
+Preço negativo	=	Sintática
+CPF com dígitos errados	=	Sintática
+Conflito de horário	=	Regra de negócio
+Serviço desativado agendado	=	Regra de negócio
+
+
+DESAFIO : 
+
+Ação do usuário: preencher e enviar o formulário de solicitação de orçamento.
+
+    1. Usuário (Front-end)
+    → Cliente preenche o formulário (nome, telefone, endereço, tipo de serviço) e clica em "Solicitar Orçamento".
+    
+    2. API (porta de entrada)
+    → O site envia os dados via requisição HTTP (ex: POST /orcamentos).
+    
+    3. Backend valida sintaxe
+    → Verifica formato: telefone com quantidade certa de dígitos, campos obrigatórios preenchidos, e-mail com @ (se houver).
+    
+    4. Backend valida regras de negócio
+    → Verifica se o tipo de serviço solicitado existe/está ativo, se a região informada é atendida pela empresa.
+    
+    5. Backend grava no banco de dados
+    → Salva a solicitação na tabela "orçamentos", junto com data/hora do pedido.
+    
+    6. Backend responde e front-end confirma
+    → API retorna sucesso, e o site mostra mensagem tipo "Recebemos sua solicitação! Em breve entraremos em contato."

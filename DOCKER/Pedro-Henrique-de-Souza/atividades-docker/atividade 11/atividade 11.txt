@@ -1,0 +1,253 @@
+Ele devolve um JSON detalhado com tudo sobre o container: Id e Created (identificador e data de criação), State (se está rodando, PID do processo, código de saída), Image (imagem de origem), Mounts (volumes montados), NetworkSettings (IP interno, portas mapeadas) e Config (variáveis de ambiente, comando de entrada).
+
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker ps -a
+CONTAINER ID   IMAGE                   COMMAND                  CREATED          STATUS                        PORTS                                                                                      NAMES
+7564a0d3540b   nginx                   "/docker-entrypoint.…"   19 seconds ago   Up 18 seconds                 80/tcp                                                                                     kind_hopper
+7db76ca9c137   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 3 minutes ago                                                                                                 romantic_wilson
+06a04802fefe   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 angry_hoover
+198f426033b0   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 gracious_vaughan
+851d51f4559b   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 nervous_kilby
+04d5eae9baa7   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 peaceful_rubin
+fe8e7e17bc8c   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 competent_driscoll
+747082b67367   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 pedantic_nightingale
+425f6f7a879a   minha-imagem            "/bin/bash"              4 minutes ago    Exited (0) 4 minutes ago                                                                                                 peaceful_gould
+d1d21c986889   ubuntu                  "bash"                   44 minutes ago   Up 44 minutes                                                                                                            focused_mccarthy
+550aa48a7086   ubuntu                  "bash"                   44 minutes ago   Up 44 minutes                                                                                                            dreamy_aryabhata
+c010ebeeefd1   hello-world             "/hello"                 22 hours ago     Exited (0) 22 hours ago                                                                                                  naughty_napier
+41ef4f21c6a2   projeto-guiado-worker   "docker-entrypoint.s…"   22 hours ago     Exited (255) 44 minutes ago                                                                                              projeto-guiado-worker-1
+9bc4c1e33467   rabbitmq:4-management   "docker-entrypoint.s…"   22 hours ago     Exited (255) 44 minutes ago   4369/tcp, 5671-5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   projeto-guiado-rabbitmq-1
+7adfbdf937a5   projeto-guiado-api      "docker-entrypoint.s…"   22 hours ago     Exited (255) 44 minutes ago   0.0.0.0:3000->3000/tcp                                                                     projeto-guiado-api-1
+ddbb452e523a   e73e3481e41e            "docker-entrypoint.s…"   22 hours ago     Exited (255) 44 minutes ago   3000/tcp                                                                                   boring_jones
+b70bbc1b12e3   rabbitmq:4-management   "docker-entrypoint.s…"   22 hours ago     Exited (255) 44 minutes ago   4369/tcp, 5671-5672/tcp, 15671-15672/tcp, 15691-15692/tcp, 25672/tcp                       condescending_colden
+1ae396d10256   redis:7.4-alpine        "docker-entrypoint.s…"   23 hours ago     Exited (255) 44 minutes ago   6379/tcp                                                                                   projeto-guiado-redis-1
+a4d8d19274f6   mysql:8.4               "docker-entrypoint.s…"   2 days ago       Exited (255) 44 minutes ago   3306/tcp, 33060/tcp                                                                        projeto-guiado-mysql-1
+d9ecb027ffb8   projeto-api             "docker-entrypoint.s…"   2 days ago       Exited (137) 2 days ago                                                                                                  friendly_euler
+d76d37772880   projeto-api             "docker-entrypoint.s…"   2 days ago       Created                                                                                                                  youthful_ganguly
+7a0b29907ded   projeto-api             "docker-entrypoint.s…"   2 days ago       Exited (137) 2 days ago                                                                                                  bold_cannon
+ba9fe4ef03f0   projeto-api             "docker-entrypoint.s…"   2 days ago       Exited (137) 2 days ago                                                                                                  youthful_bhaskara
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker ps nginx
+"docker ps" accepts no arguments.
+See 'docker ps --help'.
+
+Usage:  docker ps [OPTIONS]
+
+List containers
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker run -d -p 8080:80 nginx
+ba6ad5199473de83f5fb3fd06580d95edc1913ad09a59368fd87948040432dd3
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker volume create meu-volume
+meu-volume
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker run -d -v meu-volume:/data nginx
+61969e51c815159b8774e46be041154982a97488938cc1551f8657dd9de1767c
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker volume ls
+DRIVER    VOLUME NAME
+local     005af9e6cf9e267ca2c7ff1aaf1f0b7f01683f337f32e84ecfa6c1b9cc55caea
+local     f015d573f48993ab87a547b91710f0829e34d78800de062523e9b2241523aa0e
+local     meu-volume
+local     projeto-guiado_mysql_data
+local     projeto-guiado_redis_data
+local     projeto_mysql_data
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker> docker inspect 851d51f4559b
+[
+    {
+        "Id": "851d51f4559b2c0606b01218be755273889498b39025b62c01e73f8be6b669b9",
+        "Created": "2026-08-28T22:35:03.806774129Z",
+        "Path": "/bin/bash",
+        "Args": [],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-08-28T22:35:03.938594045Z",
+            "FinishedAt": "2026-08-28T22:35:04.19678541Z"
+        },
+        "Image": "sha256:0aa2b1553d8b4b959f3cfd6ce91a5792ba0b4d84b519423d5ad8acf1a8c4b338",
+        "ResolvConfPath": "/var/lib/docker/containers/851d51f4559b2c0606b01218be755273889498b39025b62c01e73f8be6b669b9/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/851d51f4559b2c0606b01218be755273889498b39025b62c01e73f8be6b669b9/hostname",
+        "HostsPath": "/var/lib/docker/containers/851d51f4559b2c0606b01218be755273889498b39025b62c01e73f8be6b669b9/hosts",
+        "LogPath": "/var/lib/docker/containers/851d51f4559b2c0606b01218be755273889498b39025b62c01e73f8be6b669b9/851d51f4559b2c0606b01218be755273889498b39025b62c01e73f8be6b669b9-json.log",
+        "Name": "/nervous_kilby",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                35,
+                148
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "host",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware",
+                "/sys/devices/virtual/powercap"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": null,
+            "Name": "overlayfs"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "851d51f4559b",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "Image": "minha-imagem",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "org.opencontainers.image.created": "2026-08-17T09:02:45.677319+00:00",
+                "org.opencontainers.image.description": "The Ubuntu container image maintained by Canonical\n\nUbuntu is a Debian-based Linux operating system that runs from the desktop to the cloud, to all your internet connected things.\nIt is the world's most popular operating system across public clouds and OpenStack clouds.\nIt is the number one platform for containers; from Docker to Kubernetes to LXD, Ubuntu can run your containers at scale.\nFast, secure and simple, Ubuntu powers millions of PCs worldwide.\n",
+                "org.opencontainers.image.title": "ubuntu",
+                "org.opencontainers.image.version": "26.04"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "",
+            "SandboxKey": "",
+            "Ports": {},
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "",
+                    "DriverOpts": null,
+                    "NetworkID": "d91e332a155ca0b05f0a52ba001cb622fb4d7cf87d4f3d8417f4fdc206c62533",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]
+PS C:\Users\pedro_souza4\Documents\GitHub\docker\atividades-docker>

@@ -1,0 +1,98 @@
+name: cenario3
+
+services:
+  # Unico servico publicado no host: e por ele que o navegador entra.
+  frontend:
+    build: ./frontend
+    ports:
+      - "8090:80"
+    depends_on:
+      - backend
+    networks: [app_net]
+
+  backend:
+    build: ./backend
+    restart: on-failure
+    expose:
+      - "3000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [app_net]
+
+  # Worker em container separado: consome a fila sem travar o backend.
+  worker:
+    build: ./worker
+    restart: on-failure
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks: [app_net]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # Volume nomeado: dado sobrevive ao "down" (so morre com "down -v").
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [app_net]
+
+  # Redis so na rede interna, referenciado pelo nome "redis".
+  redis:
+    image: redis:7.4-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [app_net]
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      # check_port_connectivity so passa quando a porta 5672 aceita conexao
+      # de fato - "ping" passa cedo demais e o backend morre no boot.
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+    networks: [app_net]
+
+networks:
+  app_net:
+
+volumes:
+  postgres_data:
+  redis_data:

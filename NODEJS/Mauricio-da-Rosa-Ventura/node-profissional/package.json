@@ -1,0 +1,22 @@
+{
+  "name": "node-profissional",
+  "version": "1.0.0",
+  "description": "Atividade 26.1/26.2/26.3 do Modulo 1 (Fundamentos de Backend, JavaScript Moderno e Node.js) - diagnostico de codigo, refatoracao e desafio de agendamento em memoria, continuando o projeto do Modulo 0 (ADS Unisenai)",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "node --watch src/app.js",
+    "start": "node src/app.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "Mauricio da Rosa Ventura",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6"
+  }
+}

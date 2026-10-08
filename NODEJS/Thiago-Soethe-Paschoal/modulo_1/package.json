@@ -1,0 +1,10 @@
+{
+  "name": "modulo-1-fundamentos-node",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "atividades": "node atividades/atividades.js"
+  }
+}

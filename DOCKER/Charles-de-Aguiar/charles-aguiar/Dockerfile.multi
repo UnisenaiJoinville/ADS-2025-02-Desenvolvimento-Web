@@ -1,0 +1,11 @@
+```dockerfile
+# Etapa 1: Build (Ambiente pesado de compilação)
+FROM ubuntu AS builder
+RUN apt-get update && apt-get install -y curl
+
+# Etapa 2: Produção (Imagem final limpa e leve)
+FROM alpine:latest
+WORKDIR /app
+# Copiando um arquivo ou recurso da etapa anterior se necessário
+COPY --from=builder /usr/bin/curl /usr/bin/curl
+```
