@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laboratorio Vue | Estoque Facil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <!-- ==========================================================
+         Pagina de laboratorio da Etapa 28.
+         Nao faz parte do sistema: serve para experimentar o Vue.
+         Pode ser apagada depois da aula.
+         ========================================================== -->
+    <main id="app" v-cloak class="mx-auto max-w-3xl space-y-6 px-6 py-10">
+      <header>
+        <h1 class="text-2xl font-bold">Laboratorio Vue</h1>
+        <p class="text-sm text-slate-500">Etapa 28 - experimente e veja o que acontece</p>
+      </header>
+
+      <!-- 1. REATIVIDADE -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 class="font-semibold">1. Reatividade</h2>
+        <p class="mb-4 text-sm text-slate-500">
+          Nenhuma linha de codigo toca no HTML. Mudou o dado, mudou a tela.
+        </p>
+
+        <div class="flex items-center gap-3">
+          <button
+            class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold"
+            @click="contador = contador - 1"
+          >
+            -
+          </button>
+          <span class="w-16 text-center text-2xl font-bold">{{ contador }}</span>
+          <button
+            class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold"
+            @click="contador = contador + 1"
+          >
+            +
+          </button>
+          <span class="ml-4 text-sm text-slate-500">o dobro e {{ contador * 2 }}</span>
+        </div>
+      </section>
+
+      <!-- 2. v-model -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 class="font-semibold">2. v-model: mao dupla</h2>
+        <p class="mb-4 text-sm text-slate-500">Digite e veja o dado acompanhar.</p>
+
+        <input
+          v-model="nome"
+          placeholder="Seu nome"
+          class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-900"
+        />
+        <p class="mt-3 text-sm">
+          Ola, <strong>{{ nome || "visitante" }}</strong> - voce digitou
+          {{ nome.length }} caractere(s).
+        </p>
+      </section>
+
+      <!-- 3. computed -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 class="font-semibold">3. computed: valor derivado</h2>
+        <p class="mb-4 text-sm text-slate-500">
+          O "e valido" se recalcula sozinho a cada tecla.
+        </p>
+
+        <input
+          v-model.trim="email"
+          placeholder="voce@empresa.com"
+          class="w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-slate-900"
+          :class="emailValido ? 'border-emerald-300' : 'border-rose-300'"
+        />
+        <p class="mt-3 text-sm" :class="emailValido ? 'text-emerald-700' : 'text-rose-700'">
+          {{ emailValido ? "E-mail com cara de valido" : "Ainda nao parece um e-mail" }}
+        </p>
+      </section>
+
+      <!-- 4. v-if e v-show -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 class="font-semibold">4. v-if x v-show</h2>
+        <p class="mb-4 text-sm text-slate-500">
+          Abra o inspetor (F12) e compare: o v-if some do HTML, o v-show so fica invisivel.
+        </p>
+
+        <button
+          class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+          @click="mostrar = !mostrar"
+        >
+          {{ mostrar ? "Esconder" : "Mostrar" }}
+        </button>
+
+        <p v-if="mostrar" class="mt-3 rounded-xl bg-emerald-50 px-4 py-2 text-sm">
+          Eu uso v-if (saio do HTML)
+        </p>
+        <p v-show="mostrar" class="mt-2 rounded-xl bg-amber-50 px-4 py-2 text-sm">
+          Eu uso v-show (fico no HTML com display:none)
+        </p>
+      </section>
+
+      <!-- 5. v-for -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 class="font-semibold">5. v-for: lista que se mantem sozinha</h2>
+        <p class="mb-4 text-sm text-slate-500">
+          Acrescente itens e repare que nao existe innerHTML em lugar nenhum.
+        </p>
+
+        <form class="flex gap-2" @submit.prevent="adicionar">
+          <input
+            v-model.trim="novoItem"
+            placeholder="Nome do produto"
+            class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-900"
+          />
+          <button
+            type="submit"
+            :disabled="!novoItem"
+            class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:bg-slate-300"
+          >
+            Adicionar
+          </button>
+        </form>
+
+        <ul class="mt-4 space-y-2">
+          <li
+            v-for="(item, indice) in itens"
+            :key="item.id"
+            class="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-2 text-sm"
+          >
+            <span>{{ indice + 1 }}. {{ item.nome }}</span>
+            <button class="text-xs font-semibold text-rose-600" @click="remover(item.id)">
+              remover
+            </button>
+          </li>
+        </ul>
+
+        <p v-if="itens.length === 0" class="mt-4 text-center text-sm text-slate-400">
+          Nenhum item ainda.
+        </p>
+        <p v-else class="mt-4 text-sm text-slate-500">Total: {{ itens.length }} item(ns)</p>
+      </section>
+    </main>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            contador: 0,
+            nome: "",
+            email: "",
+            mostrar: true,
+            novoItem: "",
+            itens: [
+              { id: 1, nome: "Cafe em graos" },
+              { id: 2, nome: "Papel A4" },
+            ],
+            proximoId: 3,
+          };
+        },
+
+        computed: {
+          emailValido() {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
+          },
+        },
+
+        // Nunca use arrow function em methods: ela nao tem "this" proprio.
+        methods: {
+          adicionar() {
+            this.itens.push({ id: this.proximoId, nome: this.novoItem });
+            this.proximoId = this.proximoId + 1;
+            this.novoItem = "";
+          },
+
+          remover(id) {
+            this.itens = this.itens.filter((item) => item.id !== id);
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

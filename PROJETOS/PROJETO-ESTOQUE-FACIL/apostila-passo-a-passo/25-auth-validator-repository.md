@@ -1,7 +1,8 @@
-# Aula 25 — O módulo `auth`: validador e repositório
+# Etapa 25 — O módulo `auth`: validador e repositório
 
-⏱️ **Tempo estimado:** 45 minutos
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
+
+**Tempo estimado:** 45 minutos
 
 ---
 
@@ -18,28 +19,28 @@ E, de quebra, acrescentar dois erros novos ao projeto.
 
 ## Antes de começar
 
-- [ ] [Aula 24](24-tabela-usuarios.md) concluída (tabela `users` criada, bibliotecas instaladas)
+- [ ] [Etapa 24](24-tabela-usuarios.md) concluída (tabela `users` criada, bibliotecas instaladas)
 - [ ] `docker compose logs api --tail 5` mostra o servidor rodando
 
 ---
 
 ## A ordem em que vamos criar os arquivos
 
-Igual à [Aula 11](11-crud-categorias.md): **de baixo para cima**.
+Igual à [Etapa 11](11-crud-categorias.md): **de baixo para cima**.
 
 ```text
-   5. auth-routes.js       (Aula 27)
+   5. auth-routes.js       (Etapa 27)
             ^
-   4. auth-controller.js   (Aula 27)
+   4. auth-controller.js   (Etapa 27)
             ^
-   3. auth-service.js      (Aula 26)
+   3. auth-service.js      (Etapa 26)
             ^
    2. user-repository.js   <- HOJE
             ^
    1. user-validator.js    <- HOJE
 ```
 
-> 💡 **Por que os arquivos começam com `user-` e não com `auth-`?** Porque eles tratam da **entidade** usuário (validar um usuário, gravar um usuário). Os arquivos `auth-` tratam do **caso de uso** autenticação. É uma distinção que aparece em projetos maiores: uma coisa é o que o dado *é*, outra é o que se *faz* com ele.
+> **Por que os arquivos começam com `user-` e não com `auth-`?** Porque eles tratam da **entidade** usuário (validar um usuário, gravar um usuário). Os arquivos `auth-` tratam do **caso de uso** autenticação. É uma distinção que aparece em projetos maiores: uma coisa é o que o dado *é*, outra é o que se *faz* com ele.
 
 Todos os arquivos ficam em `src/modules/auth/`.
 
@@ -71,9 +72,9 @@ export class ForbiddenError extends AppError {
 
 Salve.
 
-### 🔍 Por que isso já funciona sozinho
+### Por que isso já funciona sozinho
 
-Reveja o `error-handler.js` da [Aula 08](08-tratamento-de-erros.md):
+Reveja o `error-handler.js` da [Etapa 08](08-tratamento-de-erros.md):
 
 ```javascript
 if (error instanceof AppError) {
@@ -83,9 +84,9 @@ if (error instanceof AppError) {
 
 Ele não conhece `UnauthorizedError` — e nem precisa. Como a nova classe **estende** `AppError`, o `instanceof` continua verdadeiro e o `statusCode` sai certo.
 
-> 📌 Isso é herança sendo útil de verdade: você acrescenta comportamento novo **sem editar** o código que já funcionava. Repare que não mexemos em uma linha sequer do `error-handler.js`.
+> Isso é herança sendo útil de verdade: você acrescenta comportamento novo **sem editar** o código que já funcionava. Repare que não mexemos em uma linha sequer do `error-handler.js`.
 
-O `ForbiddenError` não será usado nestas aulas — ele fica pronto para o exercício de perfis de usuário da [Aula 32](32-teste-final-autenticacao.md).
+O `ForbiddenError` não será usado nestas etapas — ele fica pronto para o exercício de perfis de usuário da [Etapa 32](32-teste-final-autenticacao.md).
 
 ---
 
@@ -220,7 +221,7 @@ Lendo em voz alta:
 
 Ou seja: **algo@algo.algo**, sem espaços.
 
-> 🔍 **Isso valida e-mail de verdade?** Não, e nem tenta. A regra oficial de e-mail (RFC 5322) tem centenas de linhas e ainda assim aceita endereços que não existem. A única validação real é mandar uma mensagem e ver se chega. O que fazemos aqui é pegar erro de digitação, não garantir existência.
+> **Isso valida e-mail de verdade?** Não, e nem tenta. A regra oficial de e-mail (RFC 5322) tem centenas de linhas e ainda assim aceita endereços que não existem. A única validação real é mandar uma mensagem e ver se chega. O que fazemos aqui é pegar erro de digitação, não garantir existência.
 
 ### 3.2 Nome: por que `replace(/\s+/g, " ")`
 
@@ -228,7 +229,7 @@ Ou seja: **algo@algo.algo**, sem espaços.
 const name = String(value ?? "").trim().replace(/\s+/g, " ");
 ```
 
-É a mesma linha do `category-validator.js` da [Aula 11](11-crud-categorias.md). Ela transforma:
+É a mesma linha do `category-validator.js` da [Etapa 11](11-crud-categorias.md). Ela transforma:
 
 ```text
 "   Ana      Paula   Souza  "   ->   "Ana Paula Souza"
@@ -252,7 +253,7 @@ const password = String(value ?? "");
 
 Se você aplicasse `trim()` na senha, o cadastro gravaria o hash de `"senha"` e o login também faria `trim()` — funcionaria. Mas no dia em que alguém esquecesse o `trim()` de um lado só, o usuário ficaria trancado para fora sem entender por quê.
 
-> ⚠️ **Regra:** senha se usa **exatamente** como foi digitada. Nada de normalizar.
+> **Regra:** senha se usa **exatamente** como foi digitada. Nada de normalizar.
 
 ### 3.4 E-mail sempre em minúsculas
 
@@ -303,7 +304,7 @@ if (!email || !password) {
 }
 ```
 
-> 📌 **Princípio:** mensagens de erro de login são vagas de propósito. Mensagens de erro de cadastro são detalhadas de propósito. São públicos diferentes.
+> **Princípio:** mensagens de erro de login são vagas de propósito. Mensagens de erro de cadastro são detalhadas de propósito. São públicos diferentes.
 
 ---
 
@@ -389,7 +390,7 @@ Repare no que **não** está aí: `password_hash`.
 
 Esta constante existe justamente para isso. Se amanhã alguém acrescentar uma função `findAll()` e usar `PUBLIC_COLUMNS`, o hash não vaza por descuido.
 
-> ⚠️ **Nunca escreva `SELECT *` numa tabela de usuários.** Com `*`, qualquer coluna nova (o hash, um token de recuperação, um CPF) passa a ser devolvida automaticamente para quem chamar. Liste as colunas.
+> **Nunca escreva `SELECT *` numa tabela de usuários.** Com `*`, qualquer coluna nova (o hash, um token de recuperação, um CPF) passa a ser devolvida automaticamente para quem chamar. Liste as colunas.
 
 ### 4.2 A única função que devolve o hash
 
@@ -414,7 +415,7 @@ Compare as duas funções que buscam por e-mail:
 [email]
 ```
 
-Reveja a [Aula 11](11-crud-categorias.md): o `?` é **prepared statement**. O valor viaja separado do comando SQL, então não existe jeito de o conteúdo virar comando.
+Reveja a [Etapa 11](11-crud-categorias.md): o `?` é **prepared statement**. O valor viaja separado do comando SQL, então não existe jeito de o conteúdo virar comando.
 
 Numa tela de login isso é ainda mais crítico. A injeção de SQL clássica da internet é exatamente esta:
 
@@ -424,7 +425,7 @@ e-mail digitado:  ' OR '1'='1
 
 Com concatenação de string, o SQL viraria `WHERE email = '' OR '1'='1'` — verdadeiro para todo mundo, e o invasor entra como o primeiro usuário da tabela. Com `?`, o MySQL procura literalmente por alguém cujo e-mail seja `' OR '1'='1` e não acha nada.
 
-> 🔍 Repare que `${PUBLIC_COLUMNS}` é interpolado, mas `email` não. A diferença: `PUBLIC_COLUMNS` é uma constante escrita por nós, que o usuário nunca controla. O `?` é para **dado que vem de fora**.
+> Repare que `${PUBLIC_COLUMNS}` é interpolado, mas `email` não. A diferença: `PUBLIC_COLUMNS` é uma constante escrita por nós, que o usuário nunca controla. O `?` é para **dado que vem de fora**.
 
 ### 4.4 O `toUser` e o 0/1 do MySQL
 
@@ -437,7 +438,7 @@ function toUser(row) {
 }
 ```
 
-É o mesmo `toProduct` do `product-repository.js` da [Aula 12](12-crud-produtos.md). O MySQL não tem um tipo booleano de verdade: `BOOLEAN` é apelido para `TINYINT(1)`, e volta como `0` ou `1`.
+É o mesmo `toProduct` do `product-repository.js` da [Etapa 12](12-crud-produtos.md). O MySQL não tem um tipo booleano de verdade: `BOOLEAN` é apelido para `TINYINT(1)`, e volta como `0` ou `1`.
 
 Sem essa conversão, o JSON da API sairia assim:
 
@@ -481,7 +482,7 @@ No `SELECT` usamos `AS` para renomear; no `INSERT`, a ordem dos `?` faz a ligaç
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 Nada muda na tela ainda — ninguém chama esses arquivos. O que conferimos é que o servidor **continua subindo**, ou seja, não há erro de sintaxe:
 
@@ -501,7 +502,7 @@ estoque-api  | Servidor rodando em http://localhost:3000
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### `SyntaxError: Unexpected token`
 
@@ -519,12 +520,12 @@ O `node --watch` às vezes não percebe alterações através do *bind mount* do
 docker compose restart api
 ```
 
-> 💡 Guarde este comando: ele vai ser útil várias vezes até a Aula 32.
+> Guarde este comando: ele vai ser útil várias vezes até a Etapa 32.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 As duas camadas de baixo estão prontas. Agora vem o coração do módulo: onde a senha vira hash e onde nasce o token.
 
-**[Aula 26 — O service: bcrypt e o token JWT](26-auth-service.md)**
+**[Etapa 26 — O service: bcrypt e o token JWT](26-auth-service.md)**

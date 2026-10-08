@@ -235,5 +235,7 @@ async function init() {
   }
 }
 
-init();
+if (requireAuth()) {
+  init(); 
+}
 

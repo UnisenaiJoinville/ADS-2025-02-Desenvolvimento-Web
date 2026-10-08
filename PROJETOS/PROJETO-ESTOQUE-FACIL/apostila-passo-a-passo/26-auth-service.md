@@ -1,7 +1,8 @@
-# Aula 26 — O service: bcrypt e o token JWT
+# Etapa 26 — O service: bcrypt e o token JWT
 
-⏱️ **Tempo estimado:** 50 minutos
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
+
+**Tempo estimado:** 50 minutos
 
 ---
 
@@ -12,15 +13,15 @@ Escrever o **coração** do módulo de autenticação:
 - `src/shared/auth/token.js` — emite e confere o crachá
 - `src/modules/auth/auth-service.js` — as regras de cadastro e login
 
-É a aula mais densa deste bloco. Vá com calma.
+É a etapa mais densa deste bloco. Vá com calma.
 
 ---
 
 ## Antes de começar
 
-- [ ] [Aula 25](25-auth-validator-repository.md) concluída
+- [ ] [Etapa 25](25-auth-validator-repository.md) concluída
 - [ ] `user-validator.js` e `user-repository.js` criados
-- [ ] Você rodou `docker compose up -d --build api` na [Aula 24](24-tabela-usuarios.md)
+- [ ] Você rodou `docker compose up -d --build api` na [Etapa 24](24-tabela-usuarios.md)
 
 ---
 
@@ -36,11 +37,11 @@ Pense em quem vai usar cada coisa:
    (emite o token)       (confere o token, em TODAS as rotas)
 ```
 
-O `auth-service` **emite**. O middleware — que na próxima aula vai proteger produtos, categorias, movimentações e dashboard — **confere**.
+O `auth-service` **emite**. O middleware — que na próxima etapa vai proteger produtos, categorias, movimentações e dashboard — **confere**.
 
 Como dois lados diferentes do sistema precisam dele, ele não pertence a nenhum módulo em particular. Vai para `shared/`, junto de `errors/` e `http/`.
 
-> 📌 **Regra prática:** se dois módulos precisam do mesmo código, ele sobe para `shared/`. Se só um precisa, fica dentro do módulo.
+> **Regra prática:** se dois módulos precisam do mesmo código, ele sobe para `shared/`. Se só um precisa, fica dentro do módulo.
 
 ---
 
@@ -120,7 +121,7 @@ Três argumentos:
 | 2º | O **segredo** que assina | `JWT_SECRET` do `.env` |
 | 3º | As **opções** | quem é o dono e por quanto tempo vale |
 
-> ⚠️ Lembre da [Aula 23](23-autenticacao-conceitos.md): o payload é **legível por qualquer um**. Nome e e-mail já são conhecidos pelo próprio usuário, então tudo bem. Senha, hash, CPF ou cartão: jamais.
+> **Atenção:** Lembre da [Etapa 23](23-autenticacao-conceitos.md): o payload é **legível por qualquer um**. Nome e e-mail já são conhecidos pelo próprio usuário, então tudo bem. Senha, hash, CPF ou cartão: jamais.
 
 ### 2.2 `subject` e o campo `sub`
 
@@ -138,11 +139,11 @@ O JWT tem campos padronizados, com nomes de três letras:
 
 Passando `subject` nas opções, a biblioteca preenche o `sub` para nós. O `iat` e o `exp` ela preenche sozinha.
 
-> 🔍 **Por que `String(user.id)`?** A especificação do JWT exige que `sub` seja uma **string**. Se você passar o número `2`, a biblioteca reclama. Por isso, na volta, fazemos `Number(payload.sub)`.
+> **Por que `String(user.id)`?** A especificação do JWT exige que `sub` seja uma **string**. Se você passar o número `2`, a biblioteca reclama. Por isso, na volta, fazemos `Number(payload.sub)`.
 
 ### 2.3 O token pronto, por dentro
 
-Depois de rodar a próxima aula, um token nosso fica assim (quebrado em linhas para caber):
+Depois de rodar a próxima etapa, um token nosso fica assim (quebrado em linhas para caber):
 
 ```text
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
@@ -200,7 +201,7 @@ Por que separar o caso do token expirado? Porque a ação do usuário é diferen
 | "Sessão expirada" | "ah, fiquei fora muito tempo" | fazer login de novo, tranquilo |
 | "Token inválido" | "algo está errado" | idem, mas há algo suspeito |
 
-> 🔍 **Por que traduzir o erro?** Se deixássemos o erro da biblioteca subir, o usuário veria `JsonWebTokenError: invalid signature` — uma mensagem que só faz sentido para quem escreveu a biblioteca. Traduzir erros técnicos em erros de negócio é trabalho do nosso código.
+> **Por que traduzir o erro?** Se deixássemos o erro da biblioteca subir, o usuário veria `JsonWebTokenError: invalid signature` — uma mensagem que só faz sentido para quem escreveu a biblioteca. Traduzir erros técnicos em erros de negócio é trabalho do nosso código.
 
 ---
 
@@ -341,7 +342,7 @@ A sequência é sempre a mesma dos outros services do projeto:
 const passwordHash = await bcrypt.hash(data.password, env.auth.saltRounds);
 ```
 
-Esta é **a linha mais importante das dez aulas**.
+Esta é **a linha mais importante das dez etapas**.
 
 A partir daqui, `data.password` não é usado em lugar nenhum. Ele existe na memória por alguns milissegundos e some com a função. O que segue viagem é o hash.
 
@@ -353,13 +354,13 @@ A partir daqui, `data.password` não é usado em lugar nenhum. Ele existe na mem
 
 ### 3.2 Por que `await`
 
-O `bcrypt.hash` é lento **de propósito** (lembra do custo 10 da [Aula 23](23-autenticacao-conceitos.md)?). São cerca de 100 milissegundos.
+O `bcrypt.hash` é lento **de propósito** (lembra do custo 10 da [Etapa 23](23-autenticacao-conceitos.md)?). São cerca de 100 milissegundos.
 
 Se fosse síncrono, o Node ficaria 100 ms **inteiramente parado**, sem atender mais ninguém — porque, como vimos no Módulo 1, o Node tem uma única *thread* principal.
 
 Com `await`, o trabalho pesado acontece fora dela e o servidor continua respondendo.
 
-> ⚠️ O `bcryptjs` também oferece `hashSync` e `compareSync`. **Não use** em servidor. Eles travam o processo inteiro.
+> **Atenção:** O `bcryptjs` também oferece `hashSync` e `compareSync`. **Não use** em servidor. Eles travam o processo inteiro.
 
 ### 3.3 A checagem de e-mail duplicado
 
@@ -381,7 +382,7 @@ O banco já tem `UNIQUE` em `email`. Então por que checar aqui?
 
 O `UNIQUE` continua sendo essencial — ele é a **garantia**. A checagem aqui é a **boa mensagem**.
 
-> 🔍 **Curiosidade honesta:** entre o `findByEmail` e o `create` existe uma janela de milissegundos em que duas requisições simultâneas poderiam passar as duas. Nesse caso raríssimo, o `UNIQUE` do banco barra a segunda e ela vira erro 500. Feio, mas **correto**: nunca vão existir dois usuários com o mesmo e-mail. É exatamente por isso que a garantia fica no banco, e não só no código.
+> **Curiosidade honesta:** entre o `findByEmail` e o `create` existe uma janela de milissegundos em que duas requisições simultâneas poderiam passar as duas. Nesse caso raríssimo, o `UNIQUE` do banco barra a segunda e ela vira erro 500. Feio, mas **correto**: nunca vão existir dois usuários com o mesmo e-mail. É exatamente por isso que a garantia fica no banco, e não só no código.
 
 ### 3.4 `toPublicUser`: escolher o que sai
 
@@ -397,10 +398,10 @@ Existem duas formas de evitar vazar dados:
 
 ```javascript
 // Lista negra: "tire o que não pode"
-const { passwordHash, ...user } = found;      // ❌ frágil
+const { passwordHash, ...user } = found;      // frágil
 
 // Lista branca: "pegue só o que pode"
-const user = { id: found.id, name: found.name, email: found.email };  // ✅
+const user = { id: found.id, name: found.name, email: found.email };  // seguro
 ```
 
 A primeira depende de você **lembrar** de acrescentar cada campo novo perigoso. A segunda é segura por padrão: campo novo não sai até alguém escrever que ele sai.
@@ -476,7 +477,7 @@ Por quê? Veja o que aconteceria com mensagens específicas:
 
 Em poucos minutos ele monta a lista de todos os clientes da empresa — sem descobrir uma senha sequer. Isso se chama **enumeração de usuários**.
 
-> 📌 Você vai reparar nisso em qualquer site sério: a mensagem é sempre "e-mail ou senha inválidos", nunca uma das duas.
+> Você vai reparar nisso em qualquer site sério: a mensagem é sempre "e-mail ou senha inválidos", nunca uma das duas.
 
 ### 4.3 A ordem das checagens é uma decisão de segurança
 
@@ -499,7 +500,7 @@ if (!found.active) {
 }
 ```
 
-> 💡 Troque as duas checagens de lugar mentalmente e veja como uma linha fora de ordem vira um problema de segurança. É por isso que segurança se revisa lendo o código, não só testando a tela.
+> Troque as duas checagens de lugar mentalmente e veja como uma linha fora de ordem vira um problema de segurança. É por isso que segurança se revisa lendo o código, não só testando a tela.
 
 ### 4.4 O que o service devolve
 
@@ -528,7 +529,7 @@ Poderíamos devolver só o usuário e obrigar um login em seguida. Devolvemos o 
 - quem acabou de provar que sabe a senha **está autenticado**, por definição;
 - permite a experiência "cadastrou, já entrou", comum em apps.
 
-Nas nossas telas, ainda assim vamos mandar a pessoa para o login depois do cadastro — é mais claro em aula, e reforça que são dois passos. Fazer o cadastro entrar direto é um exercício da [Aula 32](32-teste-final-autenticacao.md).
+Nas nossas telas, ainda assim vamos mandar a pessoa para o login depois do cadastro — é mais claro em aula, e reforça que são dois passos. Fazer o cadastro entrar direto é um exercício da [Etapa 32](32-teste-final-autenticacao.md).
 
 ---
 
@@ -548,7 +549,7 @@ export async function getProfile(id) {
 
 Serve para a rota `GET /api/auth/me`, que o front usa para perguntar "meu token ainda vale?".
 
-> 🔍 **Como o usuário pode não existir se o token é válido?** O token vale 1 dia. Se a conta for excluída do banco nesse meio tempo, o token continua criptograficamente válido mas aponta para ninguém. Buscar no banco em vez de confiar cegamente no token cobre esse caso.
+> **Como o usuário pode não existir se o token é válido?** O token vale 1 dia. Se a conta for excluída do banco nesse meio tempo, o token continua criptograficamente válido mas aponta para ninguém. Buscar no banco em vez de confiar cegamente no token cobre esse caso.
 
 ---
 
@@ -565,11 +566,11 @@ Vale parar e olhar o que cada arquivo conhece:
 
 O service não sabe o que é `request` nem `response`. O repositório não sabe o que é hash — para ele, `passwordHash` é um texto qualquer que vai para uma coluna.
 
-É a regra de ouro da [Aula 00](00-visao-geral.md) valendo também aqui.
+É a regra de ouro da [Etapa 00](00-visao-geral.md) valendo também aqui.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 Ainda não há rota: ninguém chama o service. Confira que o servidor continua subindo:
 
@@ -589,7 +590,7 @@ estoque-api  | Servidor rodando em http://localhost:3000
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 ### `Cannot find package 'bcryptjs'` ou `'jsonwebtoken'`
 
@@ -624,8 +625,8 @@ Deve mostrar `$2b$` e `60`.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 O cérebro está pronto. Falta abrir as portas — e trancar as que já existiam.
 
-**[Aula 27 — Controller, rotas e o middleware que protege a API](27-auth-rotas-e-middleware.md)**
+**[Etapa 27 — Controller, rotas e o middleware que protege a API](27-auth-rotas-e-middleware.md)**

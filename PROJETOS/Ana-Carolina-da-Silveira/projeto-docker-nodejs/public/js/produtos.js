@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/produtos.html");
@@ -293,4 +294,8 @@ async function init() {
   }
 }
 
-init();
+// Porteiro da tela: requireAuth() manda para o login quando nao ha
+// sessao e devolve false, entao nada aqui chega a ser carregado.
+if (requireAuth()) {
+  init();
+}
