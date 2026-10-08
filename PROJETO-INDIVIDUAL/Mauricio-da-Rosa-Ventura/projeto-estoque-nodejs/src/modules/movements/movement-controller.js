@@ -22,7 +22,8 @@ export async function index(request, response) {
 }
 
 export async function store(request, response) {
-  const movement = await service.createMovement(request.body);
+  // request.user foi preenchido pelo ensureAuthenticated (Aula 27).
+  const movement = await service.createMovement(request.body, request.user.id);
 
   response.status(201).json(movement);
 }
