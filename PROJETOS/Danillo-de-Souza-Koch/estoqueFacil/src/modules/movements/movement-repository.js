@@ -8,9 +8,12 @@ const SELECT_MOVEMENT = `
          m.type,
          m.quantity,
          m.note,
-         m.created_at AS createdAt
+         m.created_at AS createdAt,
+         m.user_id    AS userId,
+         COALESCE(u.name, 'Nao informado') AS userName
     FROM stock_movements m
     INNER JOIN products p ON p.id = m.product_id
+    LEFT JOIN users u ON u.id = m.user_id
 `;
 
 export async function findAll({ productId = null, type = null, limit = 100 } = {}) {
@@ -41,7 +44,7 @@ export async function findById(id) {
   return rows[0];
 }
 
-export async function createWithStockUpdate({ productId, type, quantity, note }) {
+export async function createWithStockUpdate({ productId, userId, type, quantity, note }) {
   const connection = await pool.getConnection();
 
   try {
@@ -68,8 +71,8 @@ export async function createWithStockUpdate({ productId, type, quantity, note })
     }
 
     const [result] = await connection.query(
-      "INSERT INTO stock_movements (product_id, type, quantity, note) VALUES (?, ?, ?, ?)",
-      [productId, type, quantity, note]
+      "INSERT INTO stock_movements (product_id, user_id, type, quantity, note) VALUES (?, ?, ?, ?, ?)",
+      [productId, userId, type, quantity, note]
     );
 
     await connection.query(
