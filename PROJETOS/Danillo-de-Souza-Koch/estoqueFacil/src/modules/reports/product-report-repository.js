@@ -22,6 +22,7 @@ const PRODUCT_COLUMNS = `
 `;
 
 const FROM_PRODUCT = `
+    -- LEFT JOIN keeps products that do not have a category.
     FROM products p
     LEFT JOIN categories c ON c.id = p.category_id
 `;
@@ -42,6 +43,22 @@ function buildProductWhere(filters) {
   if (filters.categoryId) {
     conditions.push("p.category_id = ?");
     params.push(filters.categoryId);
+  }
+
+  if (filters.withoutCategory) {
+    conditions.push("p.category_id IS NULL");
+  }
+
+  if (filters.stockStatus === "OUT") {
+    conditions.push("p.quantity = 0");
+  }
+
+  if (filters.stockStatus === "LOW") {
+    conditions.push("p.quantity > 0 AND p.quantity <= p.minimum_stock");
+  }
+
+  if (filters.stockStatus === "OK") {
+    conditions.push("p.quantity > p.minimum_stock");
   }
 
   return {
@@ -119,6 +136,7 @@ export async function getStockByCategory() {
             COALESCE(SUM(p.quantity * p.cost_price), 0) AS totalCostValue,
             COALESCE(SUM(p.quantity * p.sale_price), 0) AS totalSaleValue
        FROM categories c
+       -- Keep categories with no active products in the summary.
        LEFT JOIN products p ON p.category_id = c.id AND p.active = TRUE
       GROUP BY c.id, c.name
 
@@ -150,6 +168,7 @@ export async function findProductsWithoutMovement() {
             p.created_at AS createdAt,
             COALESCE(c.name, 'Sem categoria') AS categoryName
        FROM products p
+       -- Keep products without movements so the NULL check can find them.
        LEFT JOIN categories c ON c.id = p.category_id
        LEFT JOIN stock_movements m ON m.product_id = p.id
       WHERE m.id IS NULL
@@ -158,6 +177,39 @@ export async function findProductsWithoutMovement() {
   );
 
   return rows.map((row) => ({ ...row, quantity: Number(row.quantity) }));
+}
+
+export async function getAbcCurve() {
+  const [rows] = await pool.query(
+    `SELECT base.id,
+            base.name,
+            base.sku,
+            base.categoryName,
+            base.stockCostValue,
+            ROUND(100 * base.stockCostValue / NULLIF(base.totalValue, 0), 2) AS sharePercent,
+            CASE
+              WHEN 100 * base.stockCostValue / NULLIF(base.totalValue, 0) >= 20 THEN 'A'
+              WHEN 100 * base.stockCostValue / NULLIF(base.totalValue, 0) >= 5 THEN 'B'
+              ELSE 'C'
+            END AS abcClass
+       FROM (
+             SELECT p.id,
+                    p.name,
+                    p.sku,
+                    COALESCE(c.name, 'Sem categoria') AS categoryName,
+                    (p.quantity * p.cost_price) AS stockCostValue,
+                    (SELECT COALESCE(SUM(p2.quantity * p2.cost_price), 0)
+                       FROM products p2
+                      WHERE p2.active = TRUE) AS totalValue
+               FROM products p
+               -- Keep products without a category in the ABC result.
+               LEFT JOIN categories c ON c.id = p.category_id
+              WHERE p.active = TRUE
+            ) AS base
+      ORDER BY base.stockCostValue DESC, base.name`
+  );
+
+  return rows;
 }
 
 function toProductRow(row) {

@@ -31,16 +31,58 @@ export async function getProductReport(filters) {
 }
 
 export async function getMovementReport(filters) {
-  const [rows, total] = await Promise.all([
+  const [rows, total, totals] = await Promise.all([
     movementRepository.findMovements(filters),
     movementRepository.countMovements(filters),
+    movementRepository.sumMovements(filters),
   ]);
+
+  const unitsIn = Number(totals.unitsIn);
+  const unitsOut = Number(totals.unitsOut);
 
   return {
     pagination: buildPagination(filters, total),
+    totals: { unitsIn, unitsOut, balance: unitsIn - unitsOut },
     sort: { key: filters.sort.key, direction: filters.direction.toLowerCase() },
     rows,
   };
+}
+
+export async function getMovementsByUser(filters) {
+  const rows = await movementRepository.getMovementsByUser(filters);
+
+  return rows.map((row) => {
+    const unitsIn = Number(row.unitsIn);
+    const unitsOut = Number(row.unitsOut);
+
+    return {
+      ...row,
+      movementCount: Number(row.movementCount),
+      entriesCount: Number(row.entriesCount),
+      exitsCount: Number(row.exitsCount),
+      productCount: Number(row.productCount),
+      unitsIn,
+      unitsOut,
+      balance: unitsIn - unitsOut,
+    };
+  });
+}
+
+export async function getTopProducts(filters, options) {
+  const rows = await movementRepository.getTopProducts(filters, options);
+
+  return rows.map((row) => ({
+    ...row,
+    currentStock: Number(row.currentStock),
+    movementCount: Number(row.movementCount),
+    unitsIn: Number(row.unitsIn),
+    unitsOut: Number(row.unitsOut),
+    unitsMoved: Number(row.unitsMoved),
+  }));
+}
+
+export async function getMovementsByMonth(filters) {
+  return movementRepository.getMovementsByMonth(filters);
 }
 
 export async function getStockSummary() {
@@ -86,4 +128,14 @@ export async function getStockByCategory() {
 
 export async function getProductsWithoutMovement() {
   return productRepository.findProductsWithoutMovement();
+}
+
+export async function getAbcCurve() {
+  const rows = await productRepository.getAbcCurve();
+
+  return rows.map((row) => ({
+    ...row,
+    stockCostValue: Number(row.stockCostValue),
+    sharePercent: Number(row.sharePercent ?? 0),
+  }));
 }

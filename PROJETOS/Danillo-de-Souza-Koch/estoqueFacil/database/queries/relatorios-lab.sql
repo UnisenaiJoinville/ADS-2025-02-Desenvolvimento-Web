@@ -78,3 +78,30 @@ HAVING COUNT(*) >= 1
 SELECT type, COUNT(*) AS movements, SUM(quantity) AS units
   FROM stock_movements
  GROUP BY type;
+
+-- Lessons 40 and 45: stock filters and subqueries.
+SELECT p.name, p.sku, p.quantity, p.minimum_stock,
+       CASE
+         WHEN p.quantity = 0 THEN 'OUT'
+         WHEN p.quantity <= p.minimum_stock THEN 'LOW'
+         ELSE 'OK'
+       END AS stock_status
+  FROM products p
+ WHERE p.active = TRUE
+   AND p.quantity > 0
+   AND p.quantity <= p.minimum_stock
+ ORDER BY p.minimum_stock - p.quantity DESC;
+
+SELECT p.name,
+       p.quantity * p.cost_price AS stock_cost_value,
+       (SELECT COALESCE(SUM(p2.quantity * p2.cost_price), 0)
+          FROM products p2
+         WHERE p2.active = TRUE) AS total_stock_cost_value
+  FROM products p
+ WHERE p.active = TRUE
+ ORDER BY stock_cost_value DESC;
+
+SELECT p.name, p.sku
+  FROM products p
+ WHERE p.active = TRUE
+   AND p.category_id IS NULL;

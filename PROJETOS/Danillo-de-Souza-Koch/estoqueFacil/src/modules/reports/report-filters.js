@@ -1,12 +1,16 @@
 import { AppError } from "../../shared/errors/app-error.js";
 
 const MAX_PAGE_SIZE = 200;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const STOCK_STATUS = ["ALL", "OK", "LOW", "OUT"];
+const MOVEMENT_TYPES = ["IN", "OUT"];
 
 const PRODUCT_SORT_COLUMNS = {
   name: "p.name",
   sku: "p.sku",
   category: "categoryName",
   quantity: "p.quantity",
+  minimumStock: "p.minimum_stock",
   costPrice: "p.cost_price",
   salePrice: "p.sale_price",
   stockValue: "stockCostValue",
@@ -44,6 +48,48 @@ function parseOptionalId(value, field) {
   }
 
   return id;
+}
+
+function parseChoice(value, { field, allowed, fallback }) {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  const choice = String(value).trim().toUpperCase();
+
+  if (!allowed.includes(choice)) {
+    throw new AppError(
+      `O filtro ${field} deve ser um destes valores: ${allowed.join(", ")}`
+    );
+  }
+
+  return choice;
+}
+
+function parseOptionalDate(value, field) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const date = String(value).trim();
+
+  if (!DATE_PATTERN.test(date)) {
+    throw new AppError(`O filtro ${field} deve estar no formato AAAA-MM-DD`);
+  }
+
+  const parsed = new Date(`${date}T00:00:00Z`);
+
+  if (Number.isNaN(parsed.getTime()) || !parsed.toISOString().startsWith(date)) {
+    throw new AppError(`O filtro ${field} nao e uma data valida: ${date}`);
+  }
+
+  return date;
+}
+
+function ensureDateOrder(startDate, endDate) {
+  if (startDate && endDate && startDate > endDate) {
+    throw new AppError("A data inicial nao pode ser maior que a data final");
+  }
 }
 
 function parseSort(value, { columns, fallback }) {
@@ -91,6 +137,12 @@ export function parseProductReportFilters(query = {}) {
   return {
     search: parseText(query.search, { field: "search" }),
     categoryId: parseOptionalId(query.categoryId, "categoryId"),
+    withoutCategory: String(query.withoutCategory ?? "") === "true",
+    stockStatus: parseChoice(query.stockStatus, {
+      field: "stockStatus",
+      allowed: STOCK_STATUS,
+      fallback: "ALL",
+    }),
     onlyActive: String(query.onlyActive ?? "true") !== "false",
     sort: parseSort(query.sort, { columns: PRODUCT_SORT_COLUMNS, fallback: "name" }),
     direction: parseDirection(query.direction),
@@ -102,21 +154,41 @@ export function parseProductReportFilters(query = {}) {
 
 export function parseMovementReportFilters(query = {}) {
   const { page, pageSize, offset } = parsePagination(query);
-  const type = parseText(query.type, { field: "type", maxLength: 3 }).toUpperCase();
+  const startDate = parseOptionalDate(query.startDate, "startDate");
+  const endDate = parseOptionalDate(query.endDate, "endDate");
 
-  if (type && type !== "IN" && type !== "OUT") {
-    throw new AppError('O filtro type deve ser "IN" ou "OUT"');
-  }
+  ensureDateOrder(startDate, endDate);
 
   return {
     productId: parseOptionalId(query.productId, "productId"),
     categoryId: parseOptionalId(query.categoryId, "categoryId"),
     userId: parseOptionalId(query.userId, "userId"),
-    type: type || null,
+    type: parseChoice(query.type, {
+      field: "type",
+      allowed: MOVEMENT_TYPES,
+      fallback: null,
+    }),
+    startDate,
+    endDate,
     sort: parseSort(query.sort, { columns: MOVEMENT_SORT_COLUMNS, fallback: "date" }),
     direction: parseDirection(query.direction ?? "desc"),
     page,
     pageSize,
     offset,
   };
+}
+
+export function parseTopProductsOptions(query = {}) {
+  const minUnits = Number(query.minUnits ?? 1);
+  const limit = Number(query.limit ?? 10);
+
+  if (!Number.isInteger(minUnits) || minUnits < 0) {
+    throw new AppError("O parametro minUnits deve ser um inteiro maior ou igual a zero");
+  }
+
+  if (!Number.isInteger(limit) || limit <= 0 || limit > 100) {
+    throw new AppError("O parametro limit deve ser um inteiro entre 1 e 100");
+  }
+
+  return { minUnits, limit };
 }

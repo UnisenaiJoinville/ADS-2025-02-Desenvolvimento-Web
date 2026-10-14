@@ -14,3 +14,7 @@ reportRoutes.get(
   "/products-without-movement",
   asyncHandler(controller.productsWithoutMovement)
 );
+reportRoutes.get("/abc-curve", asyncHandler(controller.abcCurve));
+reportRoutes.get("/movements-by-user", asyncHandler(controller.movementsByUser));
+reportRoutes.get("/movements-by-month", asyncHandler(controller.movementsByMonth));
+reportRoutes.get("/top-products", asyncHandler(controller.topProducts));

@@ -46,3 +46,36 @@ SELECT COALESCE(u.name, '(sem responsavel)') AS user_name, COUNT(*) AS movement_
   LEFT JOIN users u ON u.id = m.user_id
  GROUP BY u.id, u.name
  ORDER BY movement_count DESC;
+
+-- Lesson 39: aggregate after joining and filter groups with HAVING.
+SELECT c.name AS category,
+       COUNT(p.id) AS product_count,
+       COALESCE(SUM(p.quantity), 0) AS total_units
+  FROM categories c
+  LEFT JOIN products p ON p.category_id = c.id
+ GROUP BY c.id, c.name
+HAVING COUNT(p.id) > 2
+ ORDER BY product_count DESC;
+
+SELECT COALESCE(u.name, 'Nao informado') AS user_name,
+       COUNT(*) AS movement_count,
+       COUNT(DISTINCT m.product_id) AS product_count,
+       COALESCE(SUM(CASE WHEN m.type = 'IN' THEN m.quantity ELSE 0 END), 0) AS units_in,
+       COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END), 0) AS units_out
+  FROM stock_movements m
+  LEFT JOIN users u ON u.id = m.user_id
+ GROUP BY u.id, u.name
+HAVING COUNT(*) >= 1
+ ORDER BY movement_count DESC;
+
+SELECT c.name AS category,
+       COUNT(DISTINCT p.id) AS products,
+       SUM(m.quantity) AS units_moved_out
+  FROM stock_movements m
+ INNER JOIN products p ON p.id = m.product_id
+ INNER JOIN categories c ON c.id = p.category_id
+ WHERE m.type = 'OUT'
+ GROUP BY c.id, c.name
+HAVING SUM(m.quantity) > 10
+ ORDER BY units_moved_out DESC
+ LIMIT 5;
