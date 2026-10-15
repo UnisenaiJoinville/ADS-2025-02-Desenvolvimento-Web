@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-import { ensureRole } from "../../shared/auth/ensure-role.js";
 import { asyncHandler } from "../../shared/http/async-handler.js";
 
 import * as controller from "./product-controller.js";
@@ -11,4 +10,4 @@ productRoutes.get("/", asyncHandler(controller.index));
 productRoutes.get("/:id", asyncHandler(controller.show));
 productRoutes.post("/", asyncHandler(controller.store));
 productRoutes.put("/:id", asyncHandler(controller.update));
-productRoutes.delete("/:id", ensureRole("ADMIN"), asyncHandler(controller.destroy));
+productRoutes.delete("/:id", asyncHandler(controller.destroy));

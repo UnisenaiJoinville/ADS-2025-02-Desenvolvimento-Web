@@ -21,22 +21,6 @@ export function formatDateTime(value) {
   });
 }
 
-// "22/09 as 19h" / "22/09 as 19h05". Sem acesso anterior: "Primeiro acesso".
-export function formatLastAccess(value) {
-  if (!value) return "Primeiro acesso";
-
-  const date = new Date(value.replace(" ", "T"));
-
-  if (Number.isNaN(date.getTime())) return "Primeiro acesso";
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const minutes = date.getMinutes();
-  const time = `${date.getHours()}h${minutes ? String(minutes).padStart(2, "0") : ""}`;
-
-  return `Último acesso: ${day}/${month} às ${time}`;
-}
-
 // Evita injecao de HTML ao montar tabelas com dados do banco.
 export function escapeHtml(value) {
   return String(value ?? "")
@@ -47,6 +31,7 @@ export function escapeHtml(value) {
 }
 
 const NAV_ITEMS = [
+  { href: "/relatorios.html", label: "Relatorios", icon: "chart" },
   { href: "/index.html", label: "Dashboard", icon: "grid" },
   { href: "/produtos.html", label: "Produtos", icon: "box" },
   { href: "/movimentacoes.html", label: "Movimentacoes", icon: "swap" },
@@ -87,7 +72,7 @@ function renderUserBadge() {
 
   if (!user) return "";
 
-  // As iniciais do nome: "Ana Paula Souza" -> "AS"
+  // "Ana Paula Souza" -> "AS"
   const initials = escapeHtml(
     user.name
       .split(" ")
@@ -104,7 +89,6 @@ function renderUserBadge() {
       <div class="hidden sm:block">
         <p class="text-sm font-semibold leading-tight text-slate-900">${escapeHtml(user.name)}</p>
         <p class="text-xs leading-tight text-slate-500">${escapeHtml(user.email)}</p>
-        <p class="text-xs leading-tight text-slate-400">${escapeHtml(formatLastAccess(user.lastLoginAt))}</p>
       </div>
       <button
         data-logout
@@ -116,18 +100,13 @@ function renderUserBadge() {
   `;
 }
 
-// Admin? (so para esconder botoes: quem BARRA e o servidor, com 403)
-export function isAdmin() {
-  return getUser()?.role === "ADMIN";
-}
-
 export function mountLayout(activeHref) {
   const container = document.querySelector("[data-nav]");
 
   if (container) {
     container.innerHTML = renderNav(activeHref);
 
-    // O botao so existe depois que o HTML acima foi inserido.
+    // O botao so existe depois do innerHTML acima.
     container.querySelector("[data-logout]")?.addEventListener("click", logout);
   }
 }
@@ -155,4 +134,4 @@ export function toast(message, variant = "success") {
     element.classList.add("translate-y-2", "opacity-0");
     setTimeout(() => element.remove(), 250);
   }, 3000);
-}
+}
