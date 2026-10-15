@@ -34,6 +34,29 @@ async function request(path, options = {}) {
   return data;
 }
 
+function buildQuery(filters = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== "" && value !== null && value !== undefined && value !== false) {
+      params.set(key, value);
+    }
+  });
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+export async function downloadReport(path, filters, fileName) {
+  const token = getToken();
+  const response = await fetch(`${BASE_URL}${path}${buildQuery({ ...filters, format: "csv" })}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!response.ok) throw new Error("Nao foi possivel gerar o arquivo");
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url; link.download = fileName; document.body.append(link); link.click(); link.remove();
+  URL.revokeObjectURL(url);
+}
+
 export const api = {
   register: (payload) =>
     request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
@@ -132,4 +155,14 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  reportProducts: (filters = {}) => request(`/reports/products${buildQuery(filters)}`),
+  reportStockSummary: () => request("/reports/stock-summary"),
+  reportStockByCategory: () => request("/reports/stock-by-category"),
+  reportProductsWithoutMovement: () => request("/reports/products-without-movement"),
+  reportAbcCurve: () => request("/reports/abc-curve"),
+  reportMovements: (filters = {}) => request(`/reports/movements${buildQuery(filters)}`),
+  reportMovementsByUser: (filters = {}) => request(`/reports/movements-by-user${buildQuery(filters)}`),
+  reportMovementsByMonth: (filters = {}) => request(`/reports/movements-by-month${buildQuery(filters)}`),
+  reportTopProducts: (filters = {}) => request(`/reports/top-products${buildQuery(filters)}`),
 };
