@@ -43,7 +43,7 @@ export async function findById(id) {
   return rows[0];
 }
 
-export async function createWithStockUpdate({ productId, type, quantity, note }) {
+export async function createWithStockUpdate({ productId, userId, type, quantity, note }) {
   const connection = await pool.getConnection();
 
   try {
@@ -73,8 +73,8 @@ export async function createWithStockUpdate({ productId, type, quantity, note })
     }
 
     const [result] = await connection.query(
-      "INSERT INTO stock_movements (product_id, type, quantity, note) VALUES (?, ?, ?, ?)",
-      [productId, type, quantity, note]
+      "INSERT INTO stock_movements (product_id, user_id, type, quantity, note) VALUES (?, ?, ?, ?, ?)",
+      [productId, userId, type, quantity, note]
     );
 
     await connection.query(

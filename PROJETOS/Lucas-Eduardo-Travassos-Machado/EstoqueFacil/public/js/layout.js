@@ -31,6 +31,7 @@ export function escapeHtml(value) {
 }
 
 const NAV_ITEMS = [
+  { href: "/relatorios.html", label: "Relatorios", icon: "chart" },
   { href: "/index.html", label: "Dashboard", icon: "grid" },
   { href: "/produtos.html", label: "Produtos", icon: "box" },
   { href: "/movimentacoes.html", label: "Movimentacoes", icon: "swap" },
