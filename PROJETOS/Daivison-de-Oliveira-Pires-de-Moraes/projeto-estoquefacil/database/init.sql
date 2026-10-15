@@ -56,13 +56,13 @@ INSERT INTO categories (name) VALUES
 INSERT INTO products
   (name, sku, category_id, cost_price, sale_price, quantity, minimum_stock)
 VALUES
-  ('Cafe em graos 1kg',      'BEB-001', 1, 28.00,  45.90, 40, 10),
-  ('Agua mineral 500ml',     'BEB-002', 1,  0.90,   2.50, 8,  20),
-  ('Detergente neutro 500ml','LIM-001', 2,  1.80,   3.90, 60, 15),
-  ('Papel A4 500 folhas',    'PAP-001', 3, 22.00,  34.90, 12, 10),
-  ('Caneta esferografica',   'PAP-002', 3,  0.70,   2.00, 5,  25),
-  ('Mouse sem fio',          'INF-001', 4, 39.00,  79.90, 18,  5),
-  ('Teclado mecanico',       'INF-002', 4, 180.00, 299.00, 3,  4);
+  ('Cafe em graos 1kg',       'BEB-001', 1, 28.00,  45.90, 40, 10),
+  ('Agua mineral 500ml',      'BEB-002', 1,  0.90,   2.50, 8, 20),
+  ('Detergente neutro 500ml', 'LIM-001', 2,  1.80,   3.90, 60, 15),
+  ('Papel A4 500 folhas',     'PAP-001', 3, 22.00,  34.90, 12, 10),
+  ('Caneta esferografica',    'PAP-002', 3,  0.70,   2.00, 5, 25),
+  ('Mouse sem fio',           'INF-001', 4, 39.00,  79.90, 18, 5),
+  ('Teclado mecanico',        'INF-002', 4, 180.00, 299.00, 3, 4);
 
 INSERT INTO stock_movements (product_id, type, quantity, note) VALUES
   (1, 'IN',  50, 'Compra inicial'),
@@ -77,3 +77,24 @@ INSERT INTO stock_movements (product_id, type, quantity, note) VALUES
   (6, 'IN',  18, 'Compra inicial'),
   (7, 'IN',   5, 'Compra inicial'),
   (7, 'OUT',  2, 'Venda balcao');
+
+-- ------------------------------------------------------------
+-- Modulo de autenticacao
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT IGNORE INTO users (name, email, password_hash) VALUES
+  (
+    'Professor Demo',
+    'professor@estoquefacil.com',
+    '$2b$10$xkAjZ..MHKdp.7cnXFMvVON.XZmd/foxiswJJS61thFcP/WLquT6m'
+  );

@@ -1,94 +1,89 @@
-const API_BASE_URL = "/api"; // Ajuste para "" (vazio) caso suas rotas no backend não usem o prefixo /api
+// Camada unica de acesso a API.
+// Centralizar o fetch evita repetir tratamento de erro em cada tela.
 
-async function request(endpoint, options = {}) {
-  const token = localStorage.getItem("@estoque:token");
+import { clearSession, getToken, LOGIN_PAGE } from "./auth.js";
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
+const BASE_URL = "/api";
 
+async function request(path, options = {}) {
+  const token = getToken();
+
+  const headers = { "Content-Type": "application/json", ...options.headers };
+
+  // Se ha sessao, todo pedido leva o cracha junto.
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
-  const data = await response.json().catch(() => null);
+  // 401 COM token = a sessao venceu. Limpamos e voltamos para o login.
+  // 401 SEM token = e a propria tela de login dizendo "senha errada",
+  // e nela nao pode haver redirecionamento nenhum.
+  if (response.status === 401 && token) {
+    clearSession();
+    window.location.replace(LOGIN_PAGE);
+
+    throw new Error("Sessao expirada. Faca login novamente");
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || "Ocorreu um erro ao processar a requisição.");
+    throw new Error(data.error ?? "Erro ao comunicar com o servidor");
   }
 
   return data;
 }
 
 export const api = {
-  // Autenticação
-  login: (credentials) =>
-    request("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(credentials),
-    }),
+  register: (payload) =>
+    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+  login: (payload) =>
+    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
+  me: () => request("/auth/me"),
 
-  // Dashboard
   getDashboard: () => request("/dashboard"),
 
-  // Categorias
   listCategories: () => request("/categories"),
-  createCategory: (data) =>
-    request("/categories", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+  createCategory: (payload) =>
+    request("/categories", { method: "POST", body: JSON.stringify(payload) }),
+  updateCategory: (id, payload) =>
+    request(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  deleteCategory: (id) => request(`/categories/${id}`, { method: "DELETE" }),
 
-  // Produtos
   listProducts: (filters = {}) => {
     const params = new URLSearchParams();
+
     if (filters.search) params.set("search", filters.search);
     if (filters.categoryId) params.set("categoryId", filters.categoryId);
-    if (filters.page) params.set("page", filters.page);
-    if (filters.perPage) params.set("perPage", filters.perPage);
+    if (filters.lowStock) params.set("lowStock", "true");
 
     const query = params.toString();
+
     return request(query ? `/products?${query}` : "/products");
   },
+  getProduct: (id) => request(`/products/${id}`),
+  createProduct: (payload) =>
+    request("/products", { method: "POST", body: JSON.stringify(payload) }),
+  updateProduct: (id, payload) =>
+    request(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  deleteProduct: (id) => request(`/products/${id}`, { method: "DELETE" }),
 
-  createProduct: (data) =>
-    request("/products", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  updateProduct: (id, data) =>
-    request(`/products/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    }),
-
-  deleteProduct: (id) =>
-    request(`/products/${id}`, {
-      method: "DELETE",
-    }),
-
-  // Movimentações
   listMovements: (filters = {}) => {
     const params = new URLSearchParams();
+
     if (filters.productId) params.set("productId", filters.productId);
     if (filters.type) params.set("type", filters.type);
-    if (filters.from) params.set("from", filters.from);
-    if (filters.to) params.set("to", filters.to);
 
     const query = params.toString();
+
     return request(query ? `/movements?${query}` : "/movements");
   },
-
-  createMovement: (data) =>
-    request("/movements", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+  createMovement: (payload) =>
+    request("/movements", { method: "POST", body: JSON.stringify(payload) }),
 };
