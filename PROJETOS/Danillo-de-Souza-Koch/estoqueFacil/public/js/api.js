@@ -40,6 +40,65 @@ async function request(path, options = {}) {
   return data;
 }
 
+function buildQuery(filters = {}) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === undefined || value === null || value === "" || value === false) {
+      continue;
+    }
+
+    params.set(key, String(value));
+  }
+
+  const query = params.toString();
+
+  return query ? `?${query}` : "";
+}
+
+export async function downloadReport(path, filters, fileName) {
+  const token = getToken();
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(filters ?? {})) {
+    if (value === undefined || value === null || value === "" || value === false) {
+      continue;
+    }
+
+    params.set(key, String(value));
+  }
+
+  params.set("format", "csv");
+
+  const response = await fetch(
+    `${BASE_URL}${path}?${params.toString()}`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  );
+
+  if (response.status === 401 && token) {
+    clearSession();
+    window.location.replace(LOGIN_PAGE);
+    throw new Error("Sessao expirada. Faca login novamente");
+  }
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error ?? "Erro ao exportar relatorio");
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export const api = {
   register: (payload) =>
     request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
@@ -86,4 +145,17 @@ export const api = {
   },
   createMovement: (payload) =>
     request("/movements", { method: "POST", body: JSON.stringify(payload) }),
+
+  reportProducts: (filters = {}) => request(`/reports/products${buildQuery(filters)}`),
+  reportStockSummary: () => request("/reports/stock-summary"),
+  reportStockByCategory: () => request("/reports/stock-by-category"),
+  reportProductsWithoutMovement: () => request("/reports/products-without-movement"),
+  reportAbcCurve: () => request("/reports/abc-curve"),
+  reportMovements: (filters = {}) => request(`/reports/movements${buildQuery(filters)}`),
+  reportMovementsByUser: (filters = {}) =>
+    request(`/reports/movements-by-user${buildQuery(filters)}`),
+  reportMovementsByMonth: (filters = {}) =>
+    request(`/reports/movements-by-month${buildQuery(filters)}`),
+  reportTopProducts: (filters = {}) =>
+    request(`/reports/top-products${buildQuery(filters)}`),
 };

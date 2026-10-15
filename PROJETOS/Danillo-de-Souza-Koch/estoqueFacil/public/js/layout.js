@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   ["/produtos.html", "Produtos"],
   ["/movimentacoes.html", "Movimentacoes"],
   ["/categorias.html", "Categorias"],
+  ["/relatorios.html", "Relatorios"],
 ];
 
 function renderUserBadge() {
