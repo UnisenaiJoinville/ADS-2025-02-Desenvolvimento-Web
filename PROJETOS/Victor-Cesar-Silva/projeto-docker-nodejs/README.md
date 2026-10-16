@@ -16,6 +16,8 @@ docker compose up -d --build
 Acesse `http://localhost:3000`. O sistema pede login: use a conta de demonstracao
 `professor@estoquefacil.com` / `123456` ou crie uma conta em `/cadastro.html`.
 
+Os dados de apoio dos relatorios (etapas 33 e 38) estao em `database/migrations/002` e `003`, cada uma com o seu rollback.
+
 Quem ja tinha o banco criado antes da autenticacao precisa so da tabela `users`,
 sem perder dados (o `init.sql` so roda na primeira criacao do volume):
 
@@ -31,6 +33,7 @@ docker compose exec -T db mysql -uestoque -pestoque123 estoque_db < database/mig
 | Produtos | http://localhost:3000/produtos.html |
 | Movimentacoes | http://localhost:3000/movimentacoes.html |
 | Categorias | http://localhost:3000/categorias.html |
+| Relatorios | http://localhost:3000/relatorios.html |
 
 ## Endpoints
 
@@ -46,6 +49,10 @@ docker compose exec -T db mysql -uestoque -pestoque123 estoque_db < database/mig
 | GET/PUT/DELETE | `/api/products/:id` | Busca, atualiza e exclui |
 | GET/POST | `/api/movements` | Lista o historico e registra entrada/saida |
 | GET | `/api/dashboard` | Totais, saldo do mes, estoque baixo e recentes |
+| GET | `/api/reports/products` | Produtos com filtros, ordenacao, paginacao e totais (`?format=csv` exporta) |
+| GET | `/api/reports/movements` | Movimentacoes com filtros e periodo (`?format=csv` exporta) |
+| GET | `/api/reports/stock-summary`, `stock-by-category`, `products-without-movement`, `abc-curve` | Resumos e analises do estoque |
+| GET | `/api/reports/movements-by-user`, `movements-by-month`, `top-products` | Movimentacoes agrupadas e ranking |
 
 Apenas `/api/health`, `/api/auth/register` e `/api/auth/login` sao publicas. Todas as
 outras rotas exigem o cabecalho `Authorization: Bearer <token>`; sem ele a API responde `401`.
