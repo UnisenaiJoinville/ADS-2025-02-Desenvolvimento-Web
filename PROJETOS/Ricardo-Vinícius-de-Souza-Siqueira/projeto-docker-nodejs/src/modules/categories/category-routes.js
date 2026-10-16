@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-import { ensureRole } from "../../shared/auth/ensure-role.js";
 import { asyncHandler } from "../../shared/http/async-handler.js";
 
 import * as controller from "./category-controller.js";
@@ -11,4 +10,4 @@ categoryRoutes.get("/", asyncHandler(controller.index));
 categoryRoutes.get("/:id", asyncHandler(controller.show));
 categoryRoutes.post("/", asyncHandler(controller.store));
 categoryRoutes.put("/:id", asyncHandler(controller.update));
-categoryRoutes.delete("/:id", ensureRole("ADMIN"), asyncHandler(controller.destroy));
+categoryRoutes.delete("/:id", asyncHandler(controller.destroy));

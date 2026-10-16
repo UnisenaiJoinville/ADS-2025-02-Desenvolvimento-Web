@@ -98,3 +98,7 @@ INSERT INTO users (name, email, password_hash) VALUES
   ('Professor Demo',
    'professor@estoquefacil.com',
    '$2b$10$xkAjZ..MHKdp.7cnXFMvVON.XZmd/foxiswJJS61thFcP/WLquT6m');
+
+-- Dados e estrutura das aulas 33 e 38.
+SOURCE /docker-entrypoint-initdb.d/migrations/002-dados-relatorios.sql;
+SOURCE /docker-entrypoint-initdb.d/migrations/003-movimentacoes-por-usuario.sql;

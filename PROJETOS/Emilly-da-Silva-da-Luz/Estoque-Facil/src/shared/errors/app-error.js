@@ -19,3 +19,17 @@ export class ConflictError extends AppError {
     this.name = "ConflictError";
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message = "Nao autenticado") {
+    super(message, 401);
+    this.name = "UnauthorizedError";
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor(message = "Acesso negado") {
+    super(message, 403);
+    this.name = "ForbiddenError";
+  }
+}

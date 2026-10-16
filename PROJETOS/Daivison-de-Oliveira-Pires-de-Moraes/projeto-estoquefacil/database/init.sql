@@ -97,6 +97,7 @@ INSERT IGNORE INTO users (name, email, password_hash) VALUES
     'Professor Demo',
     'professor@estoquefacil.com',
     '$2b$10$xkAjZ..MHKdp.7cnXFMvVON.XZmd/foxiswJJS61thFcP/WLquT6m'
+<<<<<<< HEAD
   );
 
 
@@ -259,3 +260,6 @@ UPDATE stock_movements m
    SET m.user_id = (SELECT id FROM users WHERE email = 'ana@estoquefacil.com')
  WHERE p.sku IN ('DIV-001', 'LIM-002', 'BEB-003', 'PAP-003')
    AND DAY(m.created_at) % 2 = 1;
+=======
+  );
+>>>>>>> 2ba8bbc3c6315d7df1eb2b70172e01dc4cc591f3

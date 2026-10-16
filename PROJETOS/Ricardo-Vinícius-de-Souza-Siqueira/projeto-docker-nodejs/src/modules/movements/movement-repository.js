@@ -8,12 +8,9 @@ const SELECT_MOVEMENT = `
          m.type,
          m.quantity,
          m.note,
-         m.user_id    AS userId,
-         u.name       AS userName,
          m.created_at AS createdAt
     FROM stock_movements m
     INNER JOIN products p ON p.id = m.product_id
-    LEFT JOIN users u ON u.id = m.user_id
 `;
 
 export async function findAll({ productId = null, type = null, limit = 100 } = {}) {

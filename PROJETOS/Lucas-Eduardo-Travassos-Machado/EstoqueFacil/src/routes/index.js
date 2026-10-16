@@ -1,3 +1,4 @@
+import { reportRoutes } from "../modules/reports/report-routes.js";
 import { Router } from "express";
 
 import { authRoutes } from "../modules/auth/auth-routes.js";
@@ -21,3 +22,5 @@ routes.use("/categories", categoryRoutes);
 routes.use("/products", productRoutes);
 routes.use("/movements", movementRoutes);
 routes.use("/dashboard", dashboardRoutes);
+
+routes.use("/reports", reportRoutes);
