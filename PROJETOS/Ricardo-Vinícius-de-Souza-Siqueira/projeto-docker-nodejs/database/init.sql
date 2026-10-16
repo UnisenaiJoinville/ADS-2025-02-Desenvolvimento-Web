@@ -27,19 +27,12 @@ CREATE TABLE IF NOT EXISTS products (
     ON DELETE SET NULL
 );
 
--- ============================================================
--- Modulo de autenticacao (Aula 24 + exercicios)
--- users vem antes de stock_movements porque ela referencia users.
--- ============================================================
-
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,
   email VARCHAR(160) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('ADMIN', 'OPERATOR') NOT NULL DEFAULT 'OPERATOR',
   active BOOLEAN NOT NULL DEFAULT TRUE,
-  last_login_at TIMESTAMP NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -61,6 +54,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
 );
 
 CREATE INDEX idx_products_category ON products (category_id);
+CREATE INDEX idx_movements_user ON stock_movements (user_id);
 CREATE INDEX idx_movements_product ON stock_movements (product_id);
 CREATE INDEX idx_movements_created_at ON stock_movements (created_at);
 
@@ -99,38 +93,128 @@ INSERT INTO stock_movements (product_id, type, quantity, note) VALUES
   (7, 'IN',   5, 'Compra inicial'),
   (7, 'OUT',  2, 'Venda balcao');
 
+-- ============================================================
+-- Modulo de autenticacao (Etapa 24)
+-- ============================================================
+
+
+INSERT INTO users (name, email, password_hash) VALUES
+  ('Professor Demo',
+   'professor@estoquefacil.com',
+   '$2b$10$xkAjZ..MHKdp.7cnXFMvVON.XZmd/foxiswJJS61thFcP/WLquT6m');
+
+-- Dados de apoio aos relatorios (etapas 33 a 45).
+-- 1. Categoria sem nenhum produto
 -- ------------------------------------------------------------
--- Tokens de renovacao (3.2), tentativas de login (3.3) e
--- redefinicao de senha (3.4)
+-- O name e UNIQUE, entao INSERT IGNORE basta para nao duplicar.
+INSERT IGNORE INTO categories (name) VALUES ('Ferramentas');
+
+
 -- ------------------------------------------------------------
+-- 2. Produtos novos
+-- ------------------------------------------------------------
+-- O sku e UNIQUE, entao INSERT IGNORE tambem resolve aqui.
 
-CREATE TABLE IF NOT EXISTS refresh_tokens (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  token_hash CHAR(64) NOT NULL UNIQUE,
-  expires_at DATETIME NOT NULL,
-  revoked_at DATETIME NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_refresh_tokens_user
-    FOREIGN KEY (user_id) REFERENCES users (id)
-    ON DELETE CASCADE
-);
+-- Produto SEM categoria: category_id fica NULL de proposito.
+INSERT IGNORE INTO products
+  (name, sku, category_id, cost_price, sale_price, quantity, minimum_stock, active)
+VALUES
+  ('Fita adesiva transparente', 'DIV-001', NULL, 2.50, 6.90, 24, 10, TRUE);
 
-CREATE TABLE IF NOT EXISTS login_attempts (
-  email VARCHAR(160) NOT NULL PRIMARY KEY,
-  failed_count INT NOT NULL DEFAULT 0,
-  last_failed_at DATETIME NOT NULL,
-  locked_until DATETIME NULL
-);
+-- Os demais precisam do id da categoria, que descobrimos pelo nome.
+INSERT IGNORE INTO products
+  (name, sku, category_id, cost_price, sale_price, quantity, minimum_stock, active)
+SELECT d.name, d.sku, c.id, d.cost_price, d.sale_price, d.quantity, d.minimum_stock, TRUE
+  FROM (
+          SELECT 'Cabo HDMI 2m'              AS name, 'INF-003' AS sku, 'Informatica' AS category,
+                 12.00 AS cost_price, 29.90 AS sale_price, 15 AS quantity,  5 AS minimum_stock
+    UNION SELECT 'Alcool em gel 500ml',            'LIM-002',       'Limpeza',
+                  4.20,        9.90,       0,        12
+    UNION SELECT 'Cha verde 50 saches',            'BEB-003',       'Bebidas',
+                  8.90,       19.90,      45,        15
+    UNION SELECT 'Bloco de notas adesivas',        'PAP-003',       'Papelaria',
+                  3.40,        8.50,       7,        20
+       ) d
+  INNER JOIN categories c ON c.name = d.category;
 
-CREATE TABLE IF NOT EXISTS password_resets (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  token_hash CHAR(64) NOT NULL UNIQUE,
-  expires_at DATETIME NOT NULL,
-  used_at DATETIME NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_password_resets_user
-    FOREIGN KEY (user_id) REFERENCES users (id)
-    ON DELETE CASCADE
-);
+
+-- ------------------------------------------------------------
+-- 3. Historico de movimentacoes espalhado por varios meses
+-- ------------------------------------------------------------
+-- Repare que o produto INF-003 (Cabo HDMI) NAO aparece aqui:
+-- ele foi cadastrado com saldo inicial 15 e nunca foi movimentado.
+-- E justamente ele que vai sumir do INNER JOIN na Aula 37.
+--
+-- As quantidades fecham com o saldo de cada produto:
+--   DIV-001:  +40 -16              = 24
+--   LIM-002:  +24 -24              =  0
+--   BEB-003:  +60 -5 -10 +20 -20   = 45
+--   PAP-003:  +30 -12 -11          =  7
+--
+-- O NOT EXISTS no final garante que rodar o script duas vezes
+-- nao duplique as linhas: (produto + data) ja identifica a linha.
+INSERT INTO stock_movements (product_id, type, quantity, note, created_at)
+SELECT p.id, d.type, d.quantity, d.note, d.created_at
+  FROM (
+          SELECT 'DIV-001' AS sku, 'IN'  AS type, 40 AS quantity,
+                 'Compra trimestral'      AS note, '2026-06-10 09:15:00' AS created_at
+    UNION SELECT 'DIV-001',        'OUT', 16, 'Venda balcao',        '2026-08-14 15:40:00'
+
+    UNION SELECT 'LIM-002',        'IN',  24, 'Compra inicial',      '2026-05-20 08:30:00'
+    UNION SELECT 'LIM-002',        'OUT', 24, 'Consumo interno',     '2026-09-02 11:05:00'
+
+    UNION SELECT 'BEB-003',        'IN',  60, 'Compra inicial',      '2026-05-08 10:00:00'
+    UNION SELECT 'BEB-003',        'OUT',  5, 'Venda balcao',        '2026-06-19 14:20:00'
+    UNION SELECT 'BEB-003',        'OUT', 10, 'Venda balcao',        '2026-07-23 16:45:00'
+    UNION SELECT 'BEB-003',        'IN',  20, 'Reposicao',           '2026-08-11 09:50:00'
+    UNION SELECT 'BEB-003',        'OUT', 20, 'Venda corporativa',   '2026-09-15 13:30:00'
+
+    UNION SELECT 'PAP-003',        'IN',  30, 'Compra inicial',      '2026-06-02 08:10:00'
+    UNION SELECT 'PAP-003',        'OUT', 12, 'Uso interno',         '2026-07-18 10:25:00'
+    UNION SELECT 'PAP-003',        'OUT', 11, 'Uso interno',         '2026-09-09 17:00:00'
+       ) d
+  INNER JOIN products p ON p.sku = d.sku
+ WHERE NOT EXISTS (
+         SELECT 1
+           FROM stock_movements m
+          WHERE m.product_id = p.id
+            AND m.created_at = d.created_at
+       );
+
+
+-- ------------------------------------------------------------
+-- 4. Um segundo usuario
+-- ------------------------------------------------------------
+-- Senha em texto puro: "123456" (o que esta gravado e o HASH).
+-- Serve para os relatorios de movimentacoes por usuario (Aula 38).
+INSERT IGNORE INTO users (name, email, password_hash) VALUES
+  ('Ana Paula Souza',
+   'ana@estoquefacil.com',
+   '$2b$10$iQHvaAxA22NsuZUXJGsXwO5JIjSkDwbJpKm.h7s32PwLIiUrd6TJq');
+
+
+
+-- Responsaveis apenas dos dados de demonstracao.
+UPDATE stock_movements m
+ INNER JOIN products p ON p.id = m.product_id
+   SET m.user_id = (SELECT id FROM users WHERE email = 'professor@estoquefacil.com')
+ WHERE p.sku IN ('DIV-001', 'LIM-002', 'BEB-003', 'PAP-003')
+   AND m.user_id IS NULL
+   AND m.created_at IN ('2026-06-10 09:15:00', '2026-08-14 15:40:00',
+       '2026-05-20 08:30:00', '2026-09-02 11:05:00', '2026-05-08 10:00:00',
+       '2026-06-19 14:20:00', '2026-07-23 16:45:00', '2026-08-11 09:50:00',
+       '2026-09-15 13:30:00', '2026-06-02 08:10:00', '2026-07-18 10:25:00',
+       '2026-09-09 17:00:00')
+   AND DAY(m.created_at) % 2 = 0;
+
+UPDATE stock_movements m
+ INNER JOIN products p ON p.id = m.product_id
+   SET m.user_id = (SELECT id FROM users WHERE email = 'ana@estoquefacil.com')
+ WHERE p.sku IN ('DIV-001', 'LIM-002', 'BEB-003', 'PAP-003')
+   AND m.user_id IS NULL
+   AND m.created_at IN ('2026-06-10 09:15:00', '2026-08-14 15:40:00',
+       '2026-05-20 08:30:00', '2026-09-02 11:05:00', '2026-05-08 10:00:00',
+       '2026-06-19 14:20:00', '2026-07-23 16:45:00', '2026-08-11 09:50:00',
+       '2026-09-15 13:30:00', '2026-06-02 08:10:00', '2026-07-18 10:25:00',
+       '2026-09-09 17:00:00')
+   AND DAY(m.created_at) % 2 = 1;

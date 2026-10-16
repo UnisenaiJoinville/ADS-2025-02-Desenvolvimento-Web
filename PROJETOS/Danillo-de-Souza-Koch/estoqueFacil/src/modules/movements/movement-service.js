@@ -7,9 +7,9 @@ export async function listMovements(filters) {
   return repository.findAll(filters);
 }
 
-export async function createMovement(input) {
+export async function createMovement(input, userId = null) {
   const data = validateMovementInput(input);
-  const result = await repository.createWithStockUpdate(data);
+  const result = await repository.createWithStockUpdate({ ...data, userId });
 
   if (result.status === "PRODUCT_NOT_FOUND") {
     throw new NotFoundError("Produto nao encontrado");

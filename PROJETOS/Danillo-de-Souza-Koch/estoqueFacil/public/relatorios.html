@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatorios | Estoque Facil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>[v-cloak] { display: none; }</style>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div data-nav></div>
+
+    <main id="app" v-cloak class="mx-auto max-w-7xl px-6 py-8">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold">Relatorios</h1>
+        <p class="text-sm text-slate-500">Consultas do estoque, movimentacoes e analises</p>
+      </div>
+
+      <section class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article v-for="card in summaryCards" :key="card.label"
+          class="rounded-2xl border border-slate-200 bg-white p-5">
+          <p class="text-sm font-medium text-slate-500">{{ card.label }}</p>
+          <p class="mt-3 text-3xl font-bold">{{ card.value }}</p>
+          <p class="mt-1 text-xs text-slate-500">{{ card.hint }}</p>
+        </article>
+      </section>
+      <p v-if="errors.summary" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        {{ errors.summary }}
+      </p>
+
+      <nav class="mb-4 flex flex-wrap gap-1 rounded-2xl border border-slate-200 bg-white p-1.5">
+        <button v-for="tab in tabs" :key="tab.id"
+          class="rounded-xl px-4 py-2 text-sm font-medium"
+          :class="activeTab === tab.id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          @click="changeTab(tab.id)">
+          {{ tab.label }}
+        </button>
+      </nav>
+
+      <section v-if="activeTab === 'products'">
+        <div class="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <input v-model.trim="productFilters.search" type="search" placeholder="Buscar por nome ou SKU"
+              class="rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              @input="debouncedProductSearch" />
+            <select v-model="productFilters.categoryId" class="rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              @change="resetAndLoadProducts">
+              <option value="">Todas as categorias</option>
+              <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+            </select>
+            <select v-model="productFilters.stockStatus" class="rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              @change="resetAndLoadProducts">
+              <option value="ALL">Toda situacao de estoque</option>
+              <option value="OK">Estoque saudavel</option>
+              <option value="LOW">Abaixo do minimo</option>
+              <option value="OUT">Zerado</option>
+            </select>
+            <label class="flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm">
+              <input v-model="productFilters.withoutCategory" type="checkbox" @change="resetAndLoadProducts" />
+              Somente sem categoria
+            </label>
+          </div>
+          <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <label class="text-xs text-slate-500">
+              Linhas por pagina
+              <select v-model.number="productFilters.pageSize" class="ml-2 rounded-lg border border-slate-300 px-2 py-1"
+                @change="resetAndLoadProducts">
+                <option :value="10">10</option><option :value="25">25</option><option :value="50">50</option>
+              </select>
+            </label>
+            <div class="flex gap-2">
+              <button class="rounded-xl border border-slate-200 px-4 py-2 text-sm" @click="clearProductFilters">Limpar filtros</button>
+              <button :disabled="loading.products || productReport.pagination.total === 0"
+                class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:bg-slate-300"
+                @click="exportProducts">Exportar CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white">
+          <div v-if="loading.products" class="p-10 text-center text-sm text-slate-500">Carregando relatorio...</div>
+          <p v-else-if="errors.products" class="m-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ errors.products }}</p>
+          <div v-else-if="productReport.rows.length === 0" class="p-10 text-center text-sm text-slate-500">Nenhum produto encontrado.</div>
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+                <tr><th v-for="column in productColumns" :key="column.key"
+                  class="cursor-pointer whitespace-nowrap px-4 py-3 hover:text-slate-900"
+                  :class="column.align === 'right' ? 'text-right' : ''" @click="sortProducts(column.key)">
+                  {{ column.label }} <span v-if="productFilters.sort === column.key">{{ productFilters.direction === 'asc' ? '▲' : '▼' }}</span>
+                </th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr v-for="row in productReport.rows" :key="row.id" class="hover:bg-slate-50">
+                  <td class="px-4 py-3 font-mono text-xs">{{ row.sku }}</td>
+                  <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                  <td class="px-4 py-3 text-slate-500">{{ row.categoryName }}</td>
+                  <td class="px-4 py-3 text-right"><span class="rounded-lg px-2 py-0.5 text-xs font-semibold" :class="statusClass(row.stockStatus)">{{ row.quantity }}</span></td>
+                  <td class="px-4 py-3 text-right">{{ row.minimumStock }}</td>
+                  <td class="px-4 py-3 text-right">{{ money(row.costPrice) }}</td>
+                  <td class="px-4 py-3 text-right">{{ money(row.salePrice) }}</td>
+                  <td class="px-4 py-3 text-right font-semibold">{{ money(row.stockCostValue) }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="border-t border-slate-200 bg-slate-50">
+                <tr><td colspan="3" class="px-4 py-3 font-semibold">Total da selecao</td>
+                  <td class="px-4 py-3 text-right font-semibold">{{ productReport.totals.totalUnits }}</td>
+                  <td colspan="3"></td><td class="px-4 py-3 text-right font-semibold">{{ money(productReport.totals.totalCostValue) }}</td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div v-if="!loading.products && productReport.pagination.total > 0"
+            class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3">
+            <p class="text-xs text-slate-500">Mostrando {{ productRangeLabel }} de {{ productReport.pagination.total }} registro(s)</p>
+            <div class="flex items-center gap-2">
+              <button :disabled="productFilters.page <= 1" class="rounded-lg border px-3 py-1.5 text-sm disabled:text-slate-300"
+                @click="changeProductPage(productFilters.page - 1)">Anterior</button>
+              <span class="text-sm">{{ productReport.pagination.page }} / {{ productReport.pagination.totalPages }}</span>
+              <button :disabled="productFilters.page >= productReport.pagination.totalPages" class="rounded-lg border px-3 py-1.5 text-sm disabled:text-slate-300"
+                @click="changeProductPage(productFilters.page + 1)">Proxima</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="activeTab === 'movements'">
+        <div class="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <select v-model="movementFilters.categoryId" class="rounded-xl border px-3 py-2 text-sm" @change="resetAndLoadMovements">
+              <option value="">Todas as categorias</option><option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+            </select>
+            <select v-model="movementFilters.type" class="rounded-xl border px-3 py-2 text-sm" @change="resetAndLoadMovements">
+              <option value="">Entradas e saidas</option><option value="IN">Entrada</option><option value="OUT">Saida</option>
+            </select>
+            <input v-model="movementFilters.startDate" type="date" class="rounded-xl border px-3 py-2 text-sm" @change="resetAndLoadMovements" />
+            <input v-model="movementFilters.endDate" type="date" class="rounded-xl border px-3 py-2 text-sm" @change="resetAndLoadMovements" />
+          </div>
+          <div class="mt-3 flex justify-between">
+            <label class="text-xs text-slate-500">Linhas por pagina
+              <select v-model.number="movementFilters.pageSize" class="ml-2 rounded-lg border px-2 py-1" @change="resetAndLoadMovements">
+                <option :value="10">10</option><option :value="25">25</option><option :value="50">50</option>
+              </select>
+            </label>
+            <div class="flex gap-2">
+              <button class="rounded-xl border border-slate-200 px-4 py-2 text-sm" @click="clearMovementFilters">Limpar filtros</button>
+              <button :disabled="loading.movements || movementReport.pagination.total === 0"
+                class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:bg-slate-300"
+                @click="exportMovements">Exportar CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-4 grid gap-3 sm:grid-cols-3">
+          <article v-for="item in movementTotals" :key="item.label" class="rounded-xl border bg-white p-4">
+            <p class="text-xs text-slate-500">{{ item.label }}</p><p class="mt-1 text-xl font-semibold">{{ item.value }}</p>
+          </article>
+        </div>
+        <div class="rounded-2xl border bg-white">
+          <div v-if="loading.movements" class="p-10 text-center text-sm text-slate-500">Carregando movimentacoes...</div>
+          <p v-else-if="errors.movements" class="m-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{{ errors.movements }}</p>
+          <p v-else-if="movementReport.rows.length === 0" class="p-10 text-center text-sm text-slate-500">Nenhuma movimentacao encontrada.</p>
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="border-b text-xs uppercase text-slate-500"><tr>
+                <th v-for="column in movementColumns" :key="column.key" class="cursor-pointer whitespace-nowrap px-4 py-3"
+                  @click="sortMovements(column.key)">{{ column.label }} <span v-if="movementFilters.sort === column.key">{{ movementFilters.direction === 'asc' ? '▲' : '▼' }}</span></th>
+              </tr></thead>
+              <tbody class="divide-y divide-slate-100"><tr v-for="row in movementReport.rows" :key="row.id">
+                <td class="whitespace-nowrap px-4 py-3">{{ formatDate(row.createdAt) }}</td>
+                <td class="px-4 py-3"><p class="font-medium">{{ row.productName }}</p><p class="font-mono text-xs text-slate-400">{{ row.productSku }}</p></td>
+                <td class="px-4 py-3">{{ row.categoryName }}</td>
+                <td class="px-4 py-3">{{ row.type === 'IN' ? 'Entrada' : 'Saida' }}</td>
+                <td class="px-4 py-3 text-right font-semibold" :class="row.type === 'IN' ? 'text-emerald-700' : 'text-rose-700'">{{ row.signedQuantity > 0 ? '+' : '' }}{{ row.signedQuantity }}</td>
+                <td class="px-4 py-3" :class="row.userId ? '' : 'italic text-slate-400'">{{ row.userName }}</td>
+                <td class="px-4 py-3 text-slate-500">{{ row.note || '-' }}</td>
+              </tr></tbody>
+            </table>
+          </div>
+          <div v-if="!loading.movements && movementReport.pagination.total > 0" class="flex items-center justify-between border-t px-4 py-3">
+            <p class="text-xs text-slate-500">Mostrando {{ movementRangeLabel }} de {{ movementReport.pagination.total }} registro(s)</p>
+            <div class="flex items-center gap-2">
+              <button :disabled="movementFilters.page <= 1" class="rounded-lg border px-3 py-1.5 text-sm disabled:text-slate-300"
+                @click="changeMovementPage(movementFilters.page - 1)">Anterior</button>
+              <span class="text-sm">{{ movementReport.pagination.page }} / {{ movementReport.pagination.totalPages }}</span>
+              <button :disabled="movementFilters.page >= movementReport.pagination.totalPages" class="rounded-lg border px-3 py-1.5 text-sm disabled:text-slate-300"
+                @click="changeMovementPage(movementFilters.page + 1)">Proxima</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="activeTab === 'summaries'" class="grid gap-6 lg:grid-cols-2">
+        <article class="rounded-2xl border bg-white p-5">
+          <h2 class="mb-4 font-semibold">Estoque por categoria</h2>
+          <p v-if="loading.summaries" class="text-sm text-slate-500">Carregando...</p>
+          <p v-else-if="errors.summaries" class="text-sm text-rose-700">{{ errors.summaries }}</p>
+          <div v-else class="overflow-x-auto"><table class="w-full text-left text-sm">
+            <thead class="border-b text-xs text-slate-500"><tr><th class="py-2">Categoria</th><th class="py-2 text-right">Produtos</th><th class="py-2 text-right">Unidades</th><th class="py-2 text-right">Custo</th></tr></thead>
+            <tbody><tr v-for="row in stockByCategory" :key="row.categoryId ?? 'none'" class="border-b">
+              <td class="py-2">{{ row.categoryName }}</td><td class="py-2 text-right">{{ row.productCount }}</td><td class="py-2 text-right">{{ row.totalUnits }}</td><td class="py-2 text-right">{{ money(row.totalCostValue) }}</td>
+            </tr></tbody>
+          </table></div>
+        </article>
+        <article class="rounded-2xl border bg-white p-5">
+          <h2 class="mb-4 font-semibold">Movimentacoes por mes</h2>
+          <p v-if="loading.summaries" class="text-sm text-slate-500">Carregando...</p>
+          <p v-else-if="errors.summaries" class="text-sm text-rose-700">{{ errors.summaries }}</p>
+          <div v-else class="overflow-x-auto"><table class="w-full text-left text-sm">
+            <thead class="border-b text-xs text-slate-500"><tr><th class="py-2">Mes</th><th class="py-2 text-right">Movimentos</th><th class="py-2 text-right">Entradas</th><th class="py-2 text-right">Saidas</th><th class="py-2 text-right">Saldo</th></tr></thead>
+            <tbody><tr v-for="row in movementsByMonth" :key="row.period" class="border-b">
+              <td class="py-2">{{ row.period }}</td><td class="py-2 text-right">{{ row.movementCount }}</td><td class="py-2 text-right">{{ row.unitsIn }}</td><td class="py-2 text-right">{{ row.unitsOut }}</td><td class="py-2 text-right">{{ row.balance }}</td>
+            </tr></tbody>
+          </table></div>
+        </article>
+        <article class="rounded-2xl border bg-white p-5 lg:col-span-2">
+          <h2 class="mb-4 font-semibold">Movimentacoes por responsavel</h2>
+          <p v-if="loading.summaries" class="text-sm text-slate-500">Carregando...</p>
+          <div v-else-if="!errors.summaries" class="overflow-x-auto"><table class="w-full text-left text-sm">
+            <thead class="border-b text-xs text-slate-500"><tr><th class="py-2">Responsavel</th><th class="py-2 text-right">Movimentos</th><th class="py-2 text-right">Produtos</th><th class="py-2 text-right">Entradas</th><th class="py-2 text-right">Saidas</th><th class="py-2 text-right">Saldo</th></tr></thead>
+            <tbody><tr v-for="row in movementsByUser" :key="row.userId ?? 'unknown'" class="border-b">
+              <td class="py-2">{{ row.userName }}</td><td class="py-2 text-right">{{ row.movementCount }}</td><td class="py-2 text-right">{{ row.productCount }}</td><td class="py-2 text-right">{{ row.unitsIn }}</td><td class="py-2 text-right">{{ row.unitsOut }}</td><td class="py-2 text-right">{{ row.balance }}</td>
+            </tr></tbody>
+          </table></div>
+        </article>
+      </section>
+
+      <section v-if="activeTab === 'analysis'" class="grid gap-6 lg:grid-cols-2">
+        <article class="rounded-2xl border bg-white p-5">
+          <h2 class="mb-4 font-semibold">Produtos mais movimentados</h2>
+          <p v-if="loading.analysis" class="text-sm text-slate-500">Carregando...</p><p v-else-if="errors.analysis" class="text-sm text-rose-700">{{ errors.analysis }}</p>
+          <div v-else class="overflow-x-auto"><table class="w-full text-left text-sm">
+            <thead class="border-b text-xs text-slate-500"><tr><th class="py-2">Produto</th><th class="py-2 text-right">Movimentos</th><th class="py-2 text-right">Unidades</th><th class="py-2 text-right">Saldo atual</th></tr></thead>
+            <tbody><tr v-for="row in topProducts" :key="row.productId" class="border-b"><td class="py-2">{{ row.productName }}</td><td class="py-2 text-right">{{ row.movementCount }}</td><td class="py-2 text-right">{{ row.unitsMoved }}</td><td class="py-2 text-right">{{ row.currentStock }}</td></tr></tbody>
+          </table></div>
+        </article>
+        <article class="rounded-2xl border bg-white p-5">
+          <h2 class="mb-4 font-semibold">Curva ABC por valor em estoque</h2>
+          <p v-if="loading.analysis" class="text-sm text-slate-500">Carregando...</p>
+          <div v-else-if="!errors.analysis" class="overflow-x-auto"><table class="w-full text-left text-sm">
+            <thead class="border-b text-xs text-slate-500"><tr><th class="py-2">Classe</th><th class="py-2">Produto</th><th class="py-2">Categoria</th><th class="py-2 text-right">Valor</th><th class="py-2 text-right">Participacao</th></tr></thead>
+            <tbody><tr v-for="row in abcCurve" :key="row.id" class="border-b"><td class="py-2 font-bold">{{ row.abcClass }}</td><td class="py-2">{{ row.name }}</td><td class="py-2">{{ row.categoryName }}</td><td class="py-2 text-right">{{ money(row.stockCostValue) }}</td><td class="py-2 text-right">{{ row.sharePercent }}%</td></tr></tbody>
+          </table></div>
+        </article>
+        <article class="rounded-2xl border bg-white p-5 lg:col-span-2">
+          <h2 class="mb-4 font-semibold">Produtos sem movimentacao</h2>
+          <p v-if="loading.analysis" class="text-sm text-slate-500">Carregando...</p>
+          <div v-else-if="!errors.analysis" class="overflow-x-auto"><table class="w-full text-left text-sm">
+            <thead class="border-b text-xs text-slate-500"><tr><th class="py-2">SKU</th><th class="py-2">Produto</th><th class="py-2">Categoria</th><th class="py-2 text-right">Saldo</th></tr></thead>
+            <tbody><tr v-for="row in productsWithoutMovement" :key="row.id" class="border-b"><td class="py-2 font-mono">{{ row.sku }}</td><td class="py-2">{{ row.name }}</td><td class="py-2">{{ row.categoryName }}</td><td class="py-2 text-right">{{ row.quantity }}</td></tr></tbody>
+          </table></div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="/js/relatorios.js"></script>
+  </body>
+</html>

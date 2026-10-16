@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/categorias.html");
@@ -28,6 +29,7 @@ function renderRows(categories) {
               data-name="${escapeHtml(category.name)}"
               class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
             >Editar</button>
+
             <button
               data-delete="${category.id}"
               class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
@@ -68,10 +70,17 @@ rowsContainer.addEventListener("click", async (event) => {
   }
 
   if (deleteId) {
-    if (!window.confirm("Excluir esta categoria? Os produtos ficarao sem categoria.")) return;
+    if (
+      !window.confirm(
+        "Excluir esta categoria? Os produtos ficarao sem categoria."
+      )
+    ) {
+      return;
+    }
 
     try {
       await api.deleteCategory(deleteId);
+
       toast("Categoria excluida");
       resetForm();
       loadCategories();
@@ -86,7 +95,9 @@ form.addEventListener("submit", async (event) => {
 
   const data = new FormData(form);
   const id = data.get("id");
-  const payload = { name: data.get("name") };
+  const payload = {
+    name: data.get("name"),
+  };
 
   try {
     if (id) {
@@ -104,4 +115,7 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadCategories();
+// Protege a página e só carrega os dados se houver uma sessão válida.
+if (requireAuth()) {
+  loadCategories();
+}

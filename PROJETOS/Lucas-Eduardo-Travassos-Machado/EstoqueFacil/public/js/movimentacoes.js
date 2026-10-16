@@ -1,3 +1,4 @@
+import { requireAuth } from "./auth.js";
 import { api } from "./api.js";
 import { escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
 

@@ -7,8 +7,9 @@ export async function listMovements(filters) {
   return repository.findAll(filters);
 }
 
-// userId vem do token (request.user.id), nunca do corpo da requisicao.
-export async function createMovement(input, userId) {
+// userId vem do token (request.user.id), nunca do corpo da requisicao:
+// quem registrou a movimentacao e quem esta logado, e ponto.
+export async function createMovement(input, userId = null) {
   const data = validateMovementInput(input);
 
   const result = await repository.createWithStockUpdate({ ...data, userId });
