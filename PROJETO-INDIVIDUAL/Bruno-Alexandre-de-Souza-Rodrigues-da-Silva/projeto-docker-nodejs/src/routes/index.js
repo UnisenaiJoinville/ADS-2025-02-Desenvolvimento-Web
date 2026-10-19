@@ -5,6 +5,7 @@ import { categoryRoutes } from "../modules/categories/category-routes.js";
 import { dashboardRoutes } from "../modules/dashboard/dashboard-routes.js";
 import { movementRoutes } from "../modules/movements/movement-routes.js";
 import { productRoutes } from "../modules/products/product-routes.js";
+import { reportRoutes } from "../modules/reports/report-routes.js";
 import { ensureAuthenticated } from "../shared/auth/ensure-authenticated.js";
 
 export const routes = Router();
@@ -25,3 +26,4 @@ routes.use("/categories", categoryRoutes);
 routes.use("/products", productRoutes);
 routes.use("/movements", movementRoutes);
 routes.use("/dashboard", dashboardRoutes);
+routes.use("/reports", reportRoutes);
