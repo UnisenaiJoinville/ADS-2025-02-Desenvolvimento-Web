@@ -1,6 +1,6 @@
 # Estoque Fácil — Apostila em Mini-Aulas
 
-Bem-vindo! Esta pasta contém o projeto **Estoque Fácil** dividido em **46 mini-aulas**.
+Bem-vindo! Esta pasta contém o projeto **Estoque Fácil** dividido em **60 mini-aulas**.
 
 Cada arquivo é uma etapa curta, com passos numerados, o que você deve ver na tela e o que fazer se der erro.
 
@@ -110,7 +110,30 @@ Bloco novo. Usa o banco real do projeto para ensinar SQL do zero até vários `J
 | 44 | [Paginação, ordenação e CSV](44-paginacao-ordenacao-csv.md) | 55 min | Exportar para a planilha |
 | 45 | [Subqueries e avançado](45-subqueries-e-relatorios-avancados.md) | 60 min | Curva ABC, teste final e exercícios |
 
-**Tempo total estimado:** cerca de 11 h (aulas 00–22) + 7 h (aulas 23–32) + 11 h (aulas 33–45).
+### Parte 8 — Hospedagem em VPS (aulas 46 a 59)
+
+Bloco novo. Leva o sistema do `localhost` para a **internet**: configura um servidor Linux via **SSH**, protege-o contra invasões e publica o Estoque Fácil com **HTTPS** e **backups**.
+
+> 💰 **Este bloco exige uma VPS contratada** (Ubuntu 24.04 LTS, 2 GB de RAM recomendados) e, para ter HTTPS, um **domínio ou subdomínio**. Veja a [Aula 46](46-hospedagem-visao-geral.md) antes de decidir.
+
+| # | Aula | Tempo | O que você faz |
+|---|---|---|---|
+| 46 | [Visão geral e contratação da VPS](46-hospedagem-visao-geral.md) | 40 min | Entende a arquitetura e as camadas de defesa; contrata o servidor |
+| 47 | [Preparando os arquivos para produção](47-preparando-arquivos-producao.md) | 60 min | `Dockerfile.prod`, Compose de produção, Caddy e **ensaio local** |
+| 48 | [SSH: chaves e primeiro acesso](48-ssh-chaves-primeiro-acesso.md) | 45 min | Gera o par de chaves, entra e **vê os ataques** nos logs |
+| 49 | [Primeiros ajustes do servidor](49-primeiros-ajustes-servidor.md) | 35 min | Atualiza o sistema, fuso horário e swap |
+| 50 | [Usuário comum, sudo e chave](50-usuario-sudo-chave.md) | 40 min | **Menor privilégio:** usuário `deploy` com a sua chave |
+| 51 | [Blindando o SSH](51-blindando-ssh.md) | 45 min | **Sem root, sem senha**, sem se trancar para fora |
+| 52 | [Firewall, Fail2ban e atualizações](52-firewall-fail2ban-atualizacoes.md) | 50 min | UFW, bloqueio de quem erra e **a pegadinha Docker x UFW** |
+| 53 | [Docker no servidor](53-docker-no-servidor.md) | 30 min | Instala pela fonte oficial e limita os logs |
+| 54 | [Domínio, DNS e HTTPS](54-dominio-dns-https.md) | 35 min | Aponta o nome para o IP e entende o certificado |
+| 55 | [Enviando o projeto e os segredos](55-enviando-projeto-segredos.md) | 45 min | `tar` + `scp` e `.env` com segredos **aleatórios** |
+| 56 | [Publicando o sistema](56-publicando-o-sistema.md) | 60 min | **Sistema no ar**, banco invisível, cadastro fechado |
+| 57 | [Backups do banco](57-backups-do-banco.md) | 50 min | `cron`, **restauração testada** e regra 3-2-1 |
+| 58 | [Manutenção e novas versões](58-manutencao-atualizacoes.md) | 50 min | Deploy, rollback, saúde do servidor |
+| 59 | [Teste final e exercícios](59-teste-final-hospedagem.md) | 60 min | 30 verificações, checklist e **diagnóstico de 20 problemas** |
+
+**Tempo total estimado:** cerca de 11 h (aulas 00–22) + 7 h (aulas 23–32) + 11 h (aulas 33–45) + 11 h (aulas 46–59).
 
 ---
 
@@ -130,12 +153,18 @@ Bloco novo. Usa o banco real do projeto para ensinar SQL do zero até vários `J
 | 10 | 36 a 39 | **JOINs dominados** |
 | 11 | 40 a 41 | Relatórios de estoque e por período |
 | 12 | 42 a 45 | **Tela de relatórios completa** |
+| 13 | 46 a 47 | Arquivos de produção prontos e ensaiados localmente |
+| 14 | 48 a 50 | Servidor acessado por **chave SSH**, com usuário próprio |
+| 15 | 51 a 52 | **Servidor blindado** (SSH, firewall, Fail2ban) |
+| 16 | 53 a 55 | Docker instalado, domínio apontado, projeto enviado |
+| 17 | 56 a 57 | **Sistema no ar com HTTPS** e backups funcionando |
+| 18 | 58 a 59 | Operação do servidor e teste final |
 
 ---
 
 ## Antes da primeira aula
 
-Peça aos alunos que já tenham instalado:
+Peça aos alunos que já tenham instalado (e, para o bloco de hospedagem, veja a [Aula 46](46-hospedagem-visao-geral.md)):
 
 1. **Node.js** (versão LTS) — https://nodejs.org
 2. **Docker Desktop** — https://www.docker.com/products/docker-desktop
@@ -151,6 +180,9 @@ Peça aos alunos que já tenham instalado:
 - [`../apostila.md`](../apostila.md) — as aulas 00 a 22 em **arquivo único**, boa para consulta e impressão
 - [`../apostila-autenticacao.md`](../apostila-autenticacao.md) — as aulas 23 a 32 em arquivo único
 - [`../apostila-relatorios.md`](../apostila-relatorios.md) — as aulas 33 a 45 em arquivo único
+- [`../apostila-hospedagem.md`](../apostila-hospedagem.md) — as aulas 46 a 59 em arquivo único
+- [`../apostilas/atividade-59-1-diagnostico-configuracao.md`](../apostilas/atividade-59-1-diagnostico-configuracao.md) e a [resolução](../apostilas/atividade-59-1-resolucao.md) — diagnóstico de 20 problemas de configuração
+- [`../docker-compose.prod.yml`](../docker-compose.prod.yml), [`../Dockerfile.prod`](../Dockerfile.prod) e [`../deploy/`](../deploy/caddy/Caddyfile) — os arquivos de produção
 - [`../database/queries/relatorios-lab.sql`](../database/queries/relatorios-lab.sql) e [`joins-lab.sql`](../database/queries/joins-lab.sql) — os cadernos de SQL
 - [`../ferramentas/`](../ferramentas/LEIA-ME.md) — scripts que mantêm as apostilas em sincronia com o código
 - [`../database/queries/auth-queries.sql`](../database/queries/auth-queries.sql) — consultas de apoio do módulo de autenticação
