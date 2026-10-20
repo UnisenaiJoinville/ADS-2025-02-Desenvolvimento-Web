@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+<html lang="pt">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/estilo.css">
+
+    <title>Petisqueira Chicão</title>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header>
+
+        <nav>
+
+            <a class="logo" href="index.html">Petisqueira Chicão</a>
+
+            <button
+                class="hamburger"
+                id="hamburgerBtn"
+                aria-label="Abrir menu"
+                aria-expanded="false"
+                aria-controls="navList">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+            <ul class="nav-list" id="navList">
+
+                <li>
+                    <a href="index.html">Início</a>
+                </li>
+
+                <li>
+                    <a href="jantar.html">Jantar</a>
+                </li>
+
+                <li>
+                    <a href="loja.html">Loja</a>
+                </li>
+
+                <li>
+                    <a href="contato.html">Contato</a>
+                </li>
+
+                <li><a href="login.html" id="link-conta" data-texto-logado="Minha conta">Entrar</a></li>
+
+            </ul>
+
+            <a class="reserva" href="reserva.html">
+                Reservar Mesa
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- RESERVA -->
+
+    <section class="mesa">
+
+        <h2>Reserve Sua Mesa</h2>
+
+        <p>
+            Faça sua reserva conosco e garanta uma experiência gastronômica inesquecível!
+            Preencha o formulário abaixo com seus dados pessoais, a quantidade de pessoas
+            e suas preferências. Nossa equipe entrará em contato para confirmar sua reserva
+            e garantir que tudo esteja perfeito para sua visita.
+        </p>
+
+
+        <div class="container-mesa">
+
+            <form
+                name="frmreserva"
+                method="post"
+                action="#"
+                onsubmit="valida(event)"
+            >
+
+                <!-- NOME -->
+
+                <label for="nome" class="sr-only">
+                    Seu nome
+                </label>
+
+                <input
+                    class="campos-res"
+                    type="text"
+                    name="txtnome"
+                    id="nome"
+                    placeholder="Seu nome"
+                    required
+                >
+
+
+                <!-- QUANTIDADE DE PESSOAS -->
+
+                <label for="numero" class="sr-only">
+                    Quantidade de pessoas
+                </label>
+
+                <input
+                    class="campos-res"
+                    type="number"
+                    name="txtnumber"
+                    id="numero"
+                    placeholder="Quantidade de pessoas"
+                    min="1"
+                    required
+                >
+
+
+                <!-- DATA -->
+
+                <label
+                    for="data"
+                    class="campo-visivel-label"
+                >
+                    Data da reserva
+                </label>
+
+                <input
+                    class="campos-res"
+                    type="date"
+                    name="txtdata"
+                    id="data"
+                    required
+                >
+
+
+                <!-- HORÁRIO -->
+
+                <label
+                    for="hora"
+                    class="campo-visivel-label"
+                >
+                    Horário
+                </label>
+
+                <select
+                    class="campos-res"
+                    name="txthora"
+                    id="hora"
+                    required
+                >
+
+                    <option value="">
+                        Selecione o horário
+                    </option>
+
+                    <option value="19:00">
+                        19:00
+                    </option>
+
+                    <option value="20:00">
+                        20:00
+                    </option>
+
+                    <option value="21:00">
+                        21:00
+                    </option>
+
+                </select>
+
+
+                <!-- TELEFONE -->
+
+                <label for="fone" class="sr-only">
+                    Telefone
+                </label>
+
+                <input
+                    class="campos-res"
+                    type="tel"
+                    name="txtfone"
+                    id="fone"
+                    placeholder="Telefone (ex: (47)99999-9999)"
+                    required
+                >
+
+
+                <!-- EMAIL -->
+
+                <label for="email" class="sr-only">
+                    Email
+                </label>
+
+                <input
+                    class="campos-res"
+                    type="email"
+                    name="txtemail"
+                    id="email"
+                    placeholder="Email"
+                    required
+                >
+
+
+                <!-- BOTÃO -->
+
+                <button
+                    class="res"
+                    type="submit"
+                >
+                    Reservar
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- RODAPÉ INFORMAÇÕES -->
+
+    <div
+        style="
+            background-color: #1a1a1a;
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            text-align: center;
+        "
+    >
+
+        <div>
+
+            <h3 style="color: #ffcc00; margin-bottom: 10px;">
+                CONTATO
+            </h3>
+
+            <p>
+                (47) 93425-2506
+            </p>
+
+            <p>
+                Rua Iguaçu, 298 - Santo Antonio
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 style="color: #ffcc00; margin-bottom: 10px;">
+                SERVIÇO
+            </h3>
+
+            <p>
+                JANTAR
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 style="color: #ffcc00; margin-bottom: 10px;">
+                DELIVERY
+            </h3>
+
+            <p>
+                Peça pelo telefone
+            </p>
+
+            <p>
+                (47) 3425-2506
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+        PETISQUEIRA CHICÃO 2026 &copy; TODOS OS DIREITOS RESERVADOS
+    </footer>
+
+
+    <!-- BOOTSTRAP -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous">
+    </script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+        crossorigin="anonymous">
+    </script>
+
+
+    <!-- API -->
+
+    <script src="js/api.js?v=3"></script>
+
+
+    <!-- JAVASCRIPT DA RESERVA -->
+
+    <script>
+
+        async function valida(event) {
+
+            event.preventDefault();
+
+
+            // =========================
+            // VALIDAÇÃO DO NOME
+            // =========================
+
+            let nome = document.frmreserva.txtnome.value.trim();
+
+            let expRegNome =
+                /^[A-Za-zÀ-ÿ]{3,}( [A-Za-zÀ-ÿ]{2,})+$/;
+
+            if (!expRegNome.test(nome)) {
+
+                alert("Digite seu nome e sobrenome.");
+
+                document.frmreserva.txtnome.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // QUANTIDADE DE PESSOAS
+            // =========================
+
+            let numero =
+                document.frmreserva.txtnumber.value;
+
+            if (numero <= 0 || numero == "") {
+
+                alert(
+                    "Informe uma quantidade válida de pessoas."
+                );
+
+                document.frmreserva.txtnumber.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // DATA DA RESERVA
+            // =========================
+
+            let data =
+                document.frmreserva.txtdata.value;
+
+            if (!data) {
+
+                alert(
+                    "Escolha a data em que deseja reservar a mesa."
+                );
+
+                document.frmreserva.txtdata.focus();
+
+                return false;
+
+            }
+
+
+            // Data atual no formato AAAA-MM-DD
+
+            let hojeStr =
+                new Date().toLocaleDateString("sv-SE");
+
+
+            // Não permite data passada
+
+            if (data < hojeStr) {
+
+                alert(
+                    "A data da reserva não pode ser no passado. Escolha hoje ou uma data futura."
+                );
+
+                document.frmreserva.txtdata.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // HORÁRIO
+            // =========================
+
+            let hora =
+                document.frmreserva.txthora.value;
+
+            if (!hora) {
+
+                alert(
+                    "Escolha o horário em que deseja reservar a mesa."
+                );
+
+                document.frmreserva.txthora.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // VERIFICA HORÁRIO DE HOJE
+            // =========================
+
+            if (data === hojeStr) {
+
+                let agoraStr =
+                    new Date().toLocaleTimeString(
+                        "pt-BR",
+                        {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false
+                        }
+                    );
+
+
+                if (hora < agoraStr) {
+
+                    alert(
+                        "Esse horário já passou. Escolha um horário mais adiante para hoje."
+                    );
+
+                    document.frmreserva.txthora.focus();
+
+                    return false;
+
+                }
+
+            }
+
+
+            // Funcionamento: terça a sábado (getDay: 2 a 6)
+            const diaSemana = new Date(data + "T12:00:00").getDay();
+
+            if (diaSemana < 2 || diaSemana > 6) {
+
+                alert("Atendemos de terça a sábado. Escolha outra data.");
+
+                document.frmreserva.txtdata.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // DATA + HORA
+            // =========================
+
+            let dataReserva =
+                `${data} ${hora}:00`;
+
+
+            // =========================
+            // TELEFONE
+            // =========================
+
+            let telefone =
+                document.frmreserva.txtfone.value.trim();
+
+
+            // Aceita:
+            // (47)99999-9999
+            // (47) 99999-9999
+
+            let expRegFone =
+                /^\([1-9]{2}\)\s?[0-9]{4,5}-[0-9]{4}$/;
+
+
+            if (!expRegFone.test(telefone)) {
+
+                alert(
+                    "Preencha o telefone corretamente.\nExemplo: (47)99999-9999"
+                );
+
+                document.frmreserva.txtfone.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // EMAIL
+            // =========================
+
+            let email =
+                document.frmreserva.txtemail.value.trim();
+
+
+            let expRegEmail =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+            if (!expRegEmail.test(email)) {
+
+                alert(
+                    "Preencha o campo Email corretamente."
+                );
+
+                document.frmreserva.txtemail.focus();
+
+                return false;
+
+            }
+
+
+            // =========================
+            // BOTÃO
+            // =========================
+
+            const botao =
+                document.querySelector(".res");
+
+            const textoOriginal =
+                botao.textContent;
+
+
+            botao.disabled = true;
+
+            botao.textContent = "Enviando...";
+
+
+            // =========================
+            // ENVIO PARA API
+            // =========================
+
+            try {
+
+                const resposta = await fetch(
+                    `${API_URL}/reservas/criar.php`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            // Se o cliente estiver logado, envia o token para a
+                            // reserva aparecer em "Minha conta". Sem login, segue normal.
+                            ...(localStorage.getItem("token")
+                                ? { "Authorization": "Bearer " + localStorage.getItem("token") }
+                                : {})
+                        },
+
+                        body: JSON.stringify({
+
+                            nome: nome,
+
+                            telefone: telefone,
+
+                            email: email,
+
+                            quantidade_pessoas:
+                                Number(numero),
+
+                            data_reserva:
+                                dataReserva
+
+                        })
+
+                    }
+                );
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    alert(
+                        dados.erro ||
+                        "Não foi possível registrar a reserva."
+                    );
+
+                    return false;
+
+                }
+
+
+                alert(
+                    dados.mensagem ||
+                    "Reserva realizada com sucesso! Em breve entraremos em contato para confirmar."
+                );
+
+
+                // Limpa o formulário
+
+                document.frmreserva.reset();
+
+
+            } catch (erro) {
+
+                console.error(erro);
+
+                alert(
+                    "Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente."
+                );
+
+
+            } finally {
+
+                botao.disabled = false;
+
+                botao.textContent =
+                    textoOriginal;
+
+            }
+
+
+            return false;
+
+        }
+
+
+        // =========================
+        // DATA MÍNIMA
+        // =========================
+
+        document.getElementById("data").min =
+            new Date().toLocaleDateString("sv-SE");
+
+
+        // =========================
+        // MENU MOBILE
+        // =========================
+
+        const hamburgerBtn =
+            document.getElementById("hamburgerBtn");
+
+        const navList =
+            document.getElementById("navList");
+
+
+        if (hamburgerBtn && navList) {
+
+            hamburgerBtn.addEventListener(
+                "click",
+                () => {
+
+                    const isOpen =
+                        navList.classList.toggle("active");
+
+
+                    hamburgerBtn.classList.toggle(
+                        "active"
+                    );
+
+
+                    hamburgerBtn.setAttribute(
+                        "aria-expanded",
+                        isOpen
+                    );
+
+                }
+            );
+
+
+            navList
+                .querySelectorAll("a")
+                .forEach(link => {
+
+                    link.addEventListener(
+                        "click",
+                        () => {
+
+                            navList.classList.remove(
+                                "active"
+                            );
+
+                            hamburgerBtn.classList.remove(
+                                "active"
+                            );
+
+                            hamburgerBtn.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+                    );
+
+                });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

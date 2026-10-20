@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finalizar Pagamento - Petisqueira Chicão</title>
+
+<!-- Bootstrap 4.6 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet" href="css/estilo.css">
+
+</head>
+
+<body class="body-pag">
+
+<div class="topo-pag">
+
+    <div class="container-pag">
+
+        <div class="topo-conteudo">
+
+            <div class="logo-pag">
+                Petisqueira Chicão
+            </div>
+
+            <div class="icones-topo">
+                <a href="login.html" id="link-conta">
+                    <i class="bi bi-person"></i>
+                </a>
+
+                <a href="loja.html" aria-label="Ver carrinho / loja"><i class="bi bi-bag"></i></a>
+            </div>
+
+        </div>
+
+        <div class="menu text-center mt-3">
+            <a href="index.html">Início</a>
+            <a href="loja.html">Produtos</a>
+            <a href="contato.html">Contato</a>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="checkout-container">
+
+    <h2 class="checkout-titulo">Finalizar Pagamento</h2>
+
+    <!-- Estado: carregando -->
+    <p id="checkout-carregando" class="text-center">Carregando pedido...</p>
+
+    <!-- Estado: erro (pedido não encontrado, etc.) -->
+    <div id="checkout-erro" class="text-center" style="display:none;">
+        <p id="checkout-erro-texto" class="text-danger"></p>
+        <a href="loja.html" class="btn-comprar-pag">Voltar para a loja</a>
+    </div>
+
+    <!-- Estado: formulário de pagamento -->
+    <div id="checkout-conteudo" class="checkout-grid" style="display:none;">
+
+        <div class="checkout-resumo">
+            <h3>Resumo do pedido</h3>
+
+            <div class="checkout-resumo-linha">
+                <span>Produto</span>
+                <span id="resumo-produto">—</span>
+            </div>
+
+            <div class="checkout-resumo-linha">
+                <span>Quantidade</span>
+                <span id="resumo-quantidade">—</span>
+            </div>
+
+            <div class="checkout-resumo-total">
+                <span>Total</span>
+                <span id="resumo-total">—</span>
+            </div>
+
+            <span id="resumo-status" class="checkout-status pendente">Pendente</span>
+        </div>
+
+        <div class="checkout-pagamento">
+            <h3>Forma de pagamento</h3>
+
+            <div class="aviso-simulacao">
+                ⚠️ Pagamento simulado — nenhuma cobrança real será feita. Isso é uma
+                demonstração do fluxo de compra.
+            </div>
+
+            <div class="metodo-pagamento">
+                <button type="button" id="btn-metodo-pix" class="ativo" onclick="selecionarMetodo('pix')">
+                    Pix
+                </button>
+                <button type="button" id="btn-metodo-cartao" onclick="selecionarMetodo('cartao')">
+                    Cartão de Crédito
+                </button>
+            </div>
+
+            <!-- PIX -->
+            <div id="painel-pix">
+                <div class="pix-box">
+                    <i class="bi bi-qr-code" style="font-size: 60px;"></i>
+                    <p class="mt-2 mb-0">Escaneie o QR Code ou copie o código abaixo</p>
+                    <div class="pix-codigo" id="pix-codigo">00020126...simulado...6304ABCD</div>
+                </div>
+            </div>
+
+            <!-- CARTÃO -->
+            <div id="painel-cartao" style="display:none;">
+                <form class="cartao-form" onsubmit="return false;">
+                    <label for="cartao-numero" class="sr-only">Número do cartão</label>
+                    <input type="text" id="cartao-numero" placeholder="Número do cartão" maxlength="19">
+
+                    <label for="cartao-nome" class="sr-only">Nome impresso no cartão</label>
+                    <input type="text" id="cartao-nome" placeholder="Nome impresso no cartão">
+
+                    <div class="linha-dupla">
+                        <div>
+                            <label for="cartao-validade" class="sr-only">Validade</label>
+                            <input type="text" id="cartao-validade" placeholder="MM/AA" maxlength="5">
+                        </div>
+                        <div>
+                            <label for="cartao-cvv" class="sr-only">CVV</label>
+                            <input type="text" id="cartao-cvv" placeholder="CVV" maxlength="4">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <button class="btn-confirmar-pagamento" id="btn-confirmar" onclick="confirmarPagamento()">
+                Confirmar Pagamento
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Estado: pagamento confirmado -->
+    <div id="checkout-confirmado" class="checkout-confirmado" style="display:none;">
+        <div class="icone-sucesso"><i class="bi bi-check-circle-fill"></i></div>
+        <h3>Pagamento confirmado!</h3>
+        <p>Seu pedido #<span id="confirmado-pedido-id"></span> foi pago com sucesso.</p>
+        <p class="text-muted">Você pode acompanhar seus pedidos na <a href="minhaconta.html">sua conta</a>.</p>
+        <a href="loja.html" class="btn-comprar-pag">Voltar para a loja</a>
+    </div>
+
+</div>
+
+<footer>
+    PETISQUEIRA CHICÃO 2026 &copy; TODOS OS DIREITOS RESERVADOS
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js?v=3"></script>
+
+<script>
+
+function formatarPreco(valor) {
+    return Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+}
+
+const params = new URLSearchParams(window.location.search);
+const pedidoId = params.get("pedido_id");
+const codigoAcesso = params.get("codigo") || ""; // código secreto (compra sem login)
+const tokenLogin = localStorage.getItem("token");
+const cabecalhoAuth = tokenLogin ? { "Authorization": "Bearer " + tokenLogin } : {};
+
+let pedidoAtual = null;
+
+function selecionarMetodo(metodo) {
+    document.getElementById("btn-metodo-pix").classList.toggle("ativo", metodo === "pix");
+    document.getElementById("btn-metodo-cartao").classList.toggle("ativo", metodo === "cartao");
+    document.getElementById("painel-pix").style.display = metodo === "pix" ? "block" : "none";
+    document.getElementById("painel-cartao").style.display = metodo === "cartao" ? "block" : "none";
+}
+
+async function carregarPedido() {
+    if (!pedidoId) {
+        mostrarErro("Nenhum pedido informado. Volte para a loja e escolha um produto.");
+        return;
+    }
+
+    try {
+        const resposta = await fetch(
+            `${API_URL}/pedidos/detalhe.php?id=${encodeURIComponent(pedidoId)}&codigo=${encodeURIComponent(codigoAcesso)}`,
+            { headers: cabecalhoAuth }
+        );
+
+        if (!resposta.ok) {
+            const dados = await resposta.json();
+            throw new Error(dados.erro || "Pedido não encontrado.");
+        }
+
+        const pedido = await resposta.json();
+        pedidoAtual = pedido;
+
+        document.getElementById("resumo-produto").textContent = pedido.produto_nome;
+        document.getElementById("resumo-quantidade").textContent = pedido.quantidade;
+        document.getElementById("resumo-total").textContent = `R$ ${formatarPreco(pedido.valor_total)}`;
+
+        const statusEl = document.getElementById("resumo-status");
+        statusEl.textContent = pedido.status === "pago" ? "Pago" : "Pendente";
+        statusEl.className = `checkout-status ${pedido.status === "pago" ? "pago" : "pendente"}`;
+
+        document.getElementById("checkout-carregando").style.display = "none";
+
+        if (pedido.status === "pago") {
+            mostrarConfirmado(pedido.id);
+        } else {
+            document.getElementById("checkout-conteudo").style.display = "flex";
+        }
+    } catch (erro) {
+        console.error(erro);
+        mostrarErro(erro.message || "Não foi possível carregar o pedido. Verifique se o backend está rodando.");
+    }
+}
+
+function mostrarErro(mensagem) {
+    document.getElementById("checkout-carregando").style.display = "none";
+    document.getElementById("checkout-erro-texto").textContent = mensagem;
+    document.getElementById("checkout-erro").style.display = "block";
+}
+
+function mostrarConfirmado(id) {
+    document.getElementById("checkout-conteudo").style.display = "none";
+    document.getElementById("confirmado-pedido-id").textContent = id;
+    document.getElementById("checkout-confirmado").style.display = "block";
+}
+
+async function confirmarPagamento() {
+    const botao = document.getElementById("btn-confirmar");
+    const textoOriginal = botao.textContent;
+    botao.disabled = true;
+    botao.textContent = "Processando...";
+
+    try {
+        const resposta = await fetch(`${API_URL}/pedidos/pagar.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...cabecalhoAuth },
+            body: JSON.stringify({ id: pedidoId, codigo: codigoAcesso })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível confirmar o pagamento.");
+            return;
+        }
+
+        mostrarConfirmado(pedidoId);
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.");
+    } finally {
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+    }
+}
+
+carregarPedido();
+
+</script>
+
+</body>
+</html>
