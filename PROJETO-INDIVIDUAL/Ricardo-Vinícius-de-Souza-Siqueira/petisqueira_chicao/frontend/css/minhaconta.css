@@ -1,0 +1,331 @@
+/* ==========================================================
+   PÁGINA "MINHA CONTA" (minhaconta.html)
+   Arquivo próprio para não depender do estilo.css / cache.
+   Paleta do site: preto, amarelo #f2c200, fundo #f4f4f4.
+   ========================================================== */
+
+.conta-container{
+    max-width: 920px;
+    margin: 40px auto 60px;
+    padding: 0 20px;
+    color: #222;
+}
+
+/* ---------- Cabeçalho (avatar + saudação + sair) ---------- */
+.conta-cabecalho{
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #000;
+    color: #fff;
+    border-radius: 14px;
+    padding: 26px 30px;
+    margin-bottom: 26px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+}
+
+.conta-avatar{
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #f2c200;
+    color: #000;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conta-cabecalho-texto{
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.conta-titulo{
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    text-align: left;
+}
+
+.conta-subtitulo{
+    margin: 4px 0 0;
+    font-size: 15px;
+    color: #cfcfcf;
+    word-break: break-word;
+}
+
+.conta-sair{
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.conta-sair:hover{
+    background: #f2c200;
+    border-color: #f2c200;
+    color: #000;
+}
+
+/* ---------- Cartões ---------- */
+.conta-card{
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 26px 30px;
+    margin-bottom: 26px;
+}
+
+.conta-card-topo{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.conta-card h3{
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.conta-card h3 i{
+    color: #f2c200;
+    font-size: 20px;
+}
+
+/* ---------- Meus dados ---------- */
+.conta-dados{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.conta-dado{
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    min-width: 0;
+}
+
+.conta-dado span{
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.conta-dado strong{
+    display: block;
+    font-size: 16px;
+    color: #1a1a1a;
+    word-break: break-word;
+}
+
+/* ---------- Listas (reservas / pedidos) ---------- */
+.conta-item{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.conta-item:last-child{
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.conta-item-icone{
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #fff8d6;
+    color: #8a6d00;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conta-item-info{
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.conta-item-titulo{
+    font-weight: 600;
+    color: #1a1a1a;
+    word-break: break-word;
+}
+
+.conta-item-sub{
+    font-size: 14px;
+    color: #777;
+    margin-top: 2px;
+}
+
+.conta-item-direita{
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.conta-preco{
+    font-weight: 700;
+    color: #1a1a1a;
+    white-space: nowrap;
+}
+
+/* ---------- Status ---------- */
+.conta-status{
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.conta-status.pendente{ background: #fff3cd; color: #856404; }
+.conta-status.confirmada,
+.conta-status.pago{ background: #d4edda; color: #155724; }
+.conta-status.cancelada,
+.conta-status.cancelado{ background: #f8d7da; color: #721c24; }
+
+/* ---------- Botões e links ---------- */
+.conta-botao{
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.conta-botao:hover{
+    background: #f2c200;
+    color: #000;
+    opacity: 1;
+}
+
+.conta-botao-pequeno{
+    padding: 7px 13px;
+    font-size: 13px;
+}
+
+.conta-link{
+    color: #0587bb;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.conta-link:hover{
+    color: #000;
+    opacity: 1;
+}
+
+/* ---------- Estado vazio ---------- */
+.conta-vazio{
+    text-align: center;
+    padding: 22px 10px 8px;
+    color: #777;
+}
+
+.conta-vazio i{
+    display: block;
+    font-size: 34px;
+    color: #d0d0d0;
+    margin-bottom: 8px;
+}
+
+.conta-vazio p{
+    margin: 0 0 16px;
+    font-size: 15px;
+}
+
+/* ---------- Carregando / erro ---------- */
+.conta-estado{
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 40px 30px;
+    text-align: center;
+    color: #555;
+}
+
+.conta-estado p{
+    margin: 0 0 18px;
+}
+
+.conta-estado p:last-child{
+    margin-bottom: 0;
+}
+
+/* Garante que os blocos escondidos fiquem escondidos mesmo se o
+   Bootstrap (d-none) demorar a carregar */
+.conta-container .d-none{
+    display: none !important;
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px){
+    .conta-container{
+        margin-top: 24px;
+    }
+
+    .conta-cabecalho{
+        flex-wrap: wrap;
+        padding: 22px 20px;
+    }
+
+    .conta-sair{
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+
+    .conta-card{
+        padding: 22px 18px;
+    }
+
+    .conta-dados{
+        grid-template-columns: 1fr;
+    }
+
+    .conta-item{
+        flex-wrap: wrap;
+    }
+
+    .conta-item-direita{
+        flex: 1 1 100%;
+        justify-content: space-between;
+        padding-left: 58px;
+    }
+}
