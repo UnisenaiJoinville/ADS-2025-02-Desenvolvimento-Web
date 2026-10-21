@@ -243,6 +243,8 @@ Mais importante que os comandos é a forma de pensar:
 
 ---
 
-## ➡️ Fim do roteiro
+## ➡️ Próximo passo
 
-Voltar ao índice: **[README das mini-aulas](README.md)**
+O sistema está no ar. Agora vamos melhorá-lo: interface, segurança e desempenho.
+
+**[Aula 60 — Melhorias do sistema: ícones com Lucide e o "olhinho" da senha](60-melhorias-icones-lucide.md)**
