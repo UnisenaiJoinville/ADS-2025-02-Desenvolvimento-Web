@@ -1,6 +1,6 @@
 # Estoque Fácil — Apostila em Mini-Aulas
 
-Bem-vindo! Esta pasta contém o projeto **Estoque Fácil** dividido em **60 mini-aulas**.
+Bem-vindo! Esta pasta contém o projeto **Estoque Fácil** dividido em **70 mini-aulas**.
 
 Cada arquivo é uma etapa curta, com passos numerados, o que você deve ver na tela e o que fazer se der erro.
 
@@ -133,7 +133,26 @@ Bloco novo. Leva o sistema do `localhost` para a **internet**: configura um serv
 | 58 | [Manutenção e novas versões](58-manutencao-atualizacoes.md) | 50 min | Deploy, rollback, saúde do servidor |
 | 59 | [Teste final e exercícios](59-teste-final-hospedagem.md) | 60 min | 30 verificações, checklist e **diagnóstico de 20 problemas** |
 
-**Tempo total estimado:** cerca de 11 h (aulas 00–22) + 7 h (aulas 23–32) + 11 h (aulas 33–45) + 11 h (aulas 46–59).
+### Parte 9 — Melhorias do sistema (aulas 60 a 69)
+
+Bloco novo. Olha para o sistema pronto, encontra o que incomoda e melhora: **ícones**, **axios**, **busca com autocomplete**, **paginação**, **exclusão segura**, **acessibilidade**, **limite de tentativas no login**, **gráfico** e **Tailwind compilado**.
+
+> As aulas 60 a 69 rodam no seu computador. O bloco de hospedagem (46 a 59) é opcional para elas; quem já publicou o sistema encontra, em cada aula, o que muda no servidor.
+
+| # | Aula | Tempo | O que você faz |
+|---|---|---|---|
+| 60 | [Ícones com Lucide e o "olhinho" da senha](60-melhorias-icones-lucide.md) | 45 min | Olho aberto/fechado, Caps Lock e menu com ícones |
+| 61 | [Axios no lugar do fetch](61-axios-no-lugar-do-fetch.md) | 50 min | **Interceptors** e cancelamento de requisição |
+| 62 | [API de busca de produtos](62-api-busca-produtos.md) | 45 min | `GET /api/products/search`, relevância e curingas do `LIKE` |
+| 63 | [Autocomplete de produtos](63-autocomplete-produtos.md) | 60 min | **O `<select>` vira busca:** debounce, teclado e `abort` |
+| 64 | [Paginação e busca ao vivo](64-paginacao-busca-produtos.md) | 60 min | `LIMIT/OFFSET`, `COUNT` e rodapé de paginação |
+| 65 | [Exclusão segura e confirmação](65-exclusao-segura-confirmacao.md) | 60 min | `ON DELETE RESTRICT`, inativar e modal com Promise |
+| 66 | [Carregamento e acessibilidade](66-carregamento-acessibilidade.md) | 55 min | Clique duplo, skeleton, `closest` e rótulos |
+| 67 | [Limite de tentativas no login](67-limite-tentativas-login.md) | 45 min | `express-rate-limit`, `429` e **`trust proxy`** |
+| 68 | [Gráfico no dashboard](68-grafico-dashboard.md) | 55 min | CTE recursiva + `LEFT JOIN` + Chart.js |
+| 69 | [Tailwind compilado e teste final](69-tailwind-producao-teste-final.md) | 60 min | CSS mínimo, build multi-stage, 32 verificações e exercícios |
+
+**Tempo total estimado:** cerca de 11 h (aulas 00–22) + 7 h (aulas 23–32) + 11 h (aulas 33–45) + 11 h (aulas 46–59) + 9 h (aulas 60–69).
 
 ---
 
@@ -159,6 +178,10 @@ Bloco novo. Leva o sistema do `localhost` para a **internet**: configura um serv
 | 16 | 53 a 55 | Docker instalado, domínio apontado, projeto enviado |
 | 17 | 56 a 57 | **Sistema no ar com HTTPS** e backups funcionando |
 | 18 | 58 a 59 | Operação do servidor e teste final |
+| 19 | 60 a 62 | Ícones, axios e a API de busca |
+| 20 | 63 a 64 | **Autocomplete e paginação funcionando** |
+| 21 | 65 a 67 | Exclusão segura, acabamento e login protegido |
+| 22 | 68 a 69 | Gráfico, Tailwind compilado e teste final do bloco |
 
 ---
 
