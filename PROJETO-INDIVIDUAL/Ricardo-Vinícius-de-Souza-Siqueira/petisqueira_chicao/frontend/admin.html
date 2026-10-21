@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Administrativo - Petisqueira Chicão</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.11/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-responsive-dt@2.5.0/css/responsive.dataTables.min.css">
+<link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/admin.css?v=3">
+
+</head>
+<body class="body-pag">
+
+<!-- ===================== AUTENTICAÇÃO DO ADMIN (split-screen) ===================== -->
+<div id="admin-auth-wrap" class="admin-auth-wrap">
+
+    <div class="admin-auth-brand">
+        <div class="admin-auth-brand-inner">
+            <div class="admin-auth-logo"><i class="bi bi-shield-lock-fill"></i> PETISQUEIRA CHICÃO</div>
+            <h1>Painel Administrativo</h1>
+            <p>Acompanhe reservas, gerencie os cartões presente e veja o desempenho da casa em tempo real, tudo em um só lugar.</p>
+            <ul class="admin-auth-features">
+                <li><i class="bi bi-calendar-check"></i> Controle completo de reservas</li>
+                <li><i class="bi bi-gift"></i> Gestão de cartões presente</li>
+                <li><i class="bi bi-graph-up-arrow"></i> Relatórios e indicadores por período</li>
+            </ul>
+        </div>
+        <div class="admin-auth-footer">© Petisqueira Chicão — Acesso restrito a administradores</div>
+    </div>
+
+    <div class="admin-auth-form-side">
+
+        <!-- ===================== TELA DE LOGIN DO ADMIN ===================== -->
+        <div id="tela-login" class="admin-login-box">
+            <div class="admin-auth-badge"><i class="bi bi-lock-fill"></i></div>
+            <h2>Acessar painel</h2>
+            <p class="admin-auth-sub">Entre com sua conta de administrador para continuar.</p>
+
+            <p id="admin-login-erro" style="display:none;">
+                <i class="bi bi-exclamation-circle-fill text-danger"></i>
+                <span id="admin-login-erro-texto"></span>
+            </p>
+
+            <form id="frm-admin-login" onsubmit="fazerLoginAdmin(event)" autocomplete="on">
+                <div class="admin-field">
+                    <label for="admin-email">E-mail</label>
+                    <div class="admin-field-control">
+                        <input type="email" id="admin-email" placeholder="seuemail@petisqueirachicao.com.br" autocomplete="username" required>
+                    </div>
+                </div>
+
+                <div class="admin-field">
+                    <label for="admin-senha">Senha</label>
+                    <div class="admin-field-control">
+                        <input type="password" id="admin-senha" placeholder="Sua senha" autocomplete="current-password" required>
+                        <i class="bi bi-eye admin-toggle-senha" id="icone-toggle-senha" onclick="toggleSenhaAdmin()"></i>
+                    </div>
+                </div>
+
+                <div class="admin-remember-row">
+                    <label><input type="checkbox" id="admin-lembrar"> Lembrar meu e-mail</label>
+                    <a href="#" style="font-size:12.5px;">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" id="btn-admin-entrar" class="admin-btn salvar">
+                    <span class="admin-spinner" id="admin-spinner"></span>
+                    <span id="btn-admin-entrar-texto">Entrar no painel</span>
+                </button>
+            </form>
+
+            <div class="admin-auth-note">
+                <i class="bi bi-info-circle"></i>
+                <span>Por segurança, essa sessão fica ativa só enquanto esta aba estiver aberta. Ao fechar, será preciso entrar novamente.</span>
+            </div>
+        </div>
+
+        <!-- ===================== ACESSO NEGADO (logado, mas não é admin) ===================== -->
+        <div id="tela-acesso-negado" class="admin-login-box" style="display:none;">
+            <div class="admin-auth-negado-icon"><i class="bi bi-shield-x"></i></div>
+            <h2 class="text-center" style="text-align:center;">Acesso restrito</h2>
+            <p class="admin-auth-sub text-center" style="text-align:center;">
+                Você está logado, mas essa conta não tem permissão de administrador.
+            </p>
+            <button class="admin-btn excluir" style="width:100%; padding:11px;" onclick="trocarConta()">
+                <i class="bi bi-box-arrow-right"></i> Sair e entrar com outra conta
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ===================== PAINEL (só aparece depois do login) ===================== -->
+<div id="tela-painel" class="adm-app" style="display:none;">
+
+    <header class="adm-topo">
+        <h1>Painel Administrativo</h1>
+        <button class="adm-sair" onclick="sairAdmin()">Sair</button>
+    </header>
+
+    <div class="adm-corpo">
+        <aside class="adm-menu">
+            <button id="tab-reservas" class="ativo" onclick="mostrarAba('reservas')"><i class="bi bi-calendar-check"></i> Reservas</button>
+            <button id="tab-produtos" onclick="mostrarAba('produtos')"><i class="bi bi-gift"></i> Cartões de Presente</button>
+            <button id="tab-mensagens" onclick="mostrarAba('mensagens')"><i class="bi bi-envelope"></i> Mensagens <span id="badge-mensagens-nao-lidas" class="admin-badge-contador" style="display:none;"></span></button>
+            <button id="tab-relatorios" onclick="mostrarAba('relatorios')"><i class="bi bi-graph-up"></i> Relatórios</button>
+            <div class="adm-ola" id="admin-nome-logado"></div>
+        </aside>
+
+        <main class="adm-conteudo">
+
+    <!-- ========== ABA RESERVAS ========== -->
+    <div id="secao-reservas" class="admin-secao">
+        <div class="adm-kpis">
+            <div class="adm-kpi"><i class="bi bi-calendar-check"></i><div><span>Reservas Totais</span><strong id="kpi-total">—</strong></div></div>
+            <div class="adm-kpi vinho"><i class="bi bi-calendar-event"></i><div><span>Reservas Hoje</span><strong id="kpi-hoje">—</strong></div></div>
+            <div class="adm-kpi"><i class="bi bi-people"></i><div><span>Pessoas Hoje</span><strong id="kpi-pessoas">—</strong></div></div>
+        </div>
+
+        <div class="adm-filtros">
+            <input type="text" id="filtro-res-busca" placeholder="Buscar por nome, telefone ou e-mail..." oninput="filtrarReservas()">
+            <input type="date" id="filtro-res-data" onchange="filtrarReservas()">
+            <select id="filtro-res-status" onchange="filtrarReservas()">
+                <option value="">Status</option><option value="pendente">Pendente</option>
+                <option value="confirmada">Confirmada</option><option value="cancelada">Cancelada</option>
+            </select>
+            <button class="adm-btn-buscar" onclick="limparFiltrosReservas()">Limpar</button>
+        </div>
+
+        <div class="adm-titulo">Reservas</div>
+        <table id="tabela-reservas" class="admin-tabela" style="width:100%">
+            <thead>
+                <tr>
+                    <th data-priority="1">Cliente</th>
+                    <th data-priority="3">Pessoas</th>
+                    <th data-priority="2">Data e horário</th>
+                    <th data-priority="2">Status</th>
+                    <th data-priority="1">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-reservas-body">
+                <tr><td colspan="5" class="text-center">Carregando reservas...</td></tr>
+            </tbody>
+        </table>
+
+        <div class="adm-titulo" style="margin-top:26px;">Controle de Cartões de Presente (mês atual)</div>
+        <div class="adm-cartoes" id="adm-cartoes"><p class="text-muted mb-0">Carregando...</p></div>
+    </div>
+
+    <!-- ========== ABA PRODUTOS ========== -->
+    <div id="secao-produtos" class="admin-secao" style="display:none;">
+
+        <div class="admin-produtos-topo">
+            <h4 class="mb-0">Cartões presente</h4>
+            <button type="button" class="admin-btn novo" data-toggle="modal" data-target="#modal-novo-produto">
+                + Adicionar
+            </button>
+        </div>
+
+        <table id="tabela-produtos" class="admin-tabela" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Imagem</th>
+                    <th>Nome</th>
+                    <th>Valor (R$)</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-produtos-body">
+                <tr><td colspan="5" class="text-center">Carregando produtos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== MODAL: ADICIONAR NOVO CARTÃO PRESENTE ========== -->
+    <div class="modal fade" id="modal-novo-produto" tabindex="-1" role="dialog" aria-labelledby="modal-novo-produto-titulo" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form onsubmit="return criarProduto(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-novo-produto-titulo">Adicionar novo cartão presente</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="produto-nome">Nome</label>
+                            <input type="text" id="produto-nome" name="nome" class="form-control" placeholder="Ex: Cartão Presente" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="produto-valor">Valor (R$)</label>
+                            <input type="number" id="produto-valor" name="valor" class="form-control" placeholder="Ex: 150.00" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="produto-imagem">Caminho da imagem</label>
+                            <input type="text" id="produto-imagem" name="imagem" class="form-control" placeholder="Ex: imgs/cartao-presente-150.png">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="admin-btn salvar" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="admin-btn novo">+ Adicionar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ABA MENSAGENS (formulário Fale Conosco) ========== -->
+    <div id="secao-mensagens" class="admin-secao" style="display:none;">
+        <h4 class="mb-3">Mensagens recebidas pelo formulário de contato</h4>
+
+        <table id="tabela-mensagens" class="admin-tabela" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Recebida em</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Mensagem</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-mensagens-body">
+                <tr><td colspan="6" class="text-center">Carregando mensagens...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== ABA RELATÓRIOS ========== -->
+    <div id="secao-relatorios" class="admin-secao" style="display:none;">
+
+        <div class="admin-subtabs">
+            <button id="subtab-rel-reservas" class="ativo" onclick="mostrarSubAbaRelatorio('reservas')">
+                <i class="bi bi-calendar-check"></i> Reservas
+            </button>
+            <button id="subtab-rel-cartoes" onclick="mostrarSubAbaRelatorio('cartoes')">
+                <i class="bi bi-gift"></i> Cartões Presente
+            </button>
+        </div>
+
+        <!-- ========== SUB-ABA: RELATÓRIO DE RESERVAS ========== -->
+        <div id="subsecao-rel-reservas">
+
+            <div class="relatorio-filtro-datas">
+                <div class="relatorio-periodo" id="filtro-rapido-reservas">
+                    <button data-tipo="hoje" onclick="aplicarPeriodoRapido('reservas','hoje')">Hoje</button>
+                    <button data-tipo="7" onclick="aplicarPeriodoRapido('reservas','7')">7 dias</button>
+                    <button data-tipo="15" onclick="aplicarPeriodoRapido('reservas','15')">15 dias</button>
+                    <button data-tipo="30" class="ativo" onclick="aplicarPeriodoRapido('reservas','30')">30 dias</button>
+                    <button data-tipo="mes" onclick="aplicarPeriodoRapido('reservas','mes')">Este mês</button>
+                </div>
+                <div class="relatorio-filtro-custom">
+                    <label class="relatorio-check-dia-unico">
+                        <input type="checkbox" id="filtro-dia-unico-reservas" onchange="alternarDiaUnico('reservas')">
+                        Dia específico
+                    </label>
+                    <input type="date" id="filtro-reservas-inicio">
+                    <span id="filtro-reservas-ate-label" class="text-muted">até</span>
+                    <input type="date" id="filtro-reservas-fim">
+                    <button class="relatorio-btn-export" onclick="aplicarFiltroCustom('reservas')">
+                        <i class="bi bi-funnel"></i> Aplicar
+                    </button>
+                </div>
+            </div>
+            <p class="relatorio-periodo-label" id="rel-reservas-periodo-label">Período: —</p>
+
+            <div class="relatorio-cards">
+                <div class="relatorio-card">
+                    <div class="relatorio-icone"><i class="bi bi-journal-text"></i></div>
+                    <span class="relatorio-numero" id="rel-total-reservas">—</span>
+                    <span class="relatorio-label">Total de reservas</span>
+                </div>
+                <div class="relatorio-card">
+                    <div class="relatorio-icone"><i class="bi bi-people"></i></div>
+                    <span class="relatorio-numero" id="rel-pessoas-confirmadas">—</span>
+                    <span class="relatorio-label">Pessoas confirmadas</span>
+                </div>
+                <div class="relatorio-card pendente">
+                    <div class="relatorio-icone"><i class="bi bi-hourglass-split"></i></div>
+                    <span class="relatorio-numero" id="rel-reservas-pendentes">—</span>
+                    <span class="relatorio-label">Pendentes</span>
+                </div>
+                <div class="relatorio-card confirmada">
+                    <div class="relatorio-icone"><i class="bi bi-check-circle"></i></div>
+                    <span class="relatorio-numero" id="rel-reservas-confirmadas">—</span>
+                    <span class="relatorio-label">Confirmadas</span>
+                </div>
+                <div class="relatorio-card cancelada">
+                    <div class="relatorio-icone"><i class="bi bi-x-circle"></i></div>
+                    <span class="relatorio-numero" id="rel-reservas-canceladas">—</span>
+                    <span class="relatorio-label">Canceladas</span>
+                </div>
+            </div>
+
+            <div class="relatorio-grafico-box">
+                <h5><i class="bi bi-bar-chart-line"></i> Reservas por dia</h5>
+                <div class="relatorio-grafico-wrap">
+                    <canvas id="grafico-reservas"></canvas>
+                    <div id="grafico-reservas-vazio" class="relatorio-vazio" style="display:none;">
+                        <i class="bi bi-inbox"></i> Sem reservas no período selecionado
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========== SUB-ABA: RELATÓRIO DE CARTÕES PRESENTE ========== -->
+        <div id="subsecao-rel-cartoes" style="display:none;">
+
+            <div class="relatorio-filtro-datas">
+                <div class="relatorio-periodo" id="filtro-rapido-cartoes">
+                    <button data-tipo="hoje" onclick="aplicarPeriodoRapido('cartoes','hoje')">Hoje</button>
+                    <button data-tipo="7" onclick="aplicarPeriodoRapido('cartoes','7')">7 dias</button>
+                    <button data-tipo="15" onclick="aplicarPeriodoRapido('cartoes','15')">15 dias</button>
+                    <button data-tipo="30" class="ativo" onclick="aplicarPeriodoRapido('cartoes','30')">30 dias</button>
+                    <button data-tipo="mes" onclick="aplicarPeriodoRapido('cartoes','mes')">Este mês</button>
+                </div>
+                <div class="relatorio-filtro-custom">
+                    <label class="relatorio-check-dia-unico">
+                        <input type="checkbox" id="filtro-dia-unico-cartoes" onchange="alternarDiaUnico('cartoes')">
+                        Dia específico
+                    </label>
+                    <input type="date" id="filtro-cartoes-inicio">
+                    <span id="filtro-cartoes-ate-label" class="text-muted">até</span>
+                    <input type="date" id="filtro-cartoes-fim">
+                    <button class="relatorio-btn-export" onclick="aplicarFiltroCustom('cartoes')">
+                        <i class="bi bi-funnel"></i> Aplicar
+                    </button>
+                </div>
+            </div>
+            <p class="relatorio-periodo-label" id="rel-cartoes-periodo-label">Período: —</p>
+
+            <div class="relatorio-cards">
+                <div class="relatorio-card">
+                    <div class="relatorio-icone"><i class="bi bi-bag-check"></i></div>
+                    <span class="relatorio-numero" id="rel-total-vendas">—</span>
+                    <span class="relatorio-label">Vendas pagas</span>
+                </div>
+                <div class="relatorio-card destaque">
+                    <div class="relatorio-icone"><i class="bi bi-cash-stack"></i></div>
+                    <span class="relatorio-numero" id="rel-receita-total">—</span>
+                    <span class="relatorio-label">Receita total</span>
+                </div>
+                <div class="relatorio-card">
+                    <div class="relatorio-icone"><i class="bi bi-credit-card"></i></div>
+                    <span class="relatorio-numero" id="rel-unidades-vendidas">—</span>
+                    <span class="relatorio-label">Cartões vendidos</span>
+                </div>
+                <div class="relatorio-card pendente">
+                    <div class="relatorio-icone"><i class="bi bi-hourglass"></i></div>
+                    <span class="relatorio-numero" id="rel-vendas-pendentes">—</span>
+                    <span class="relatorio-label">Pedidos aguardando pagamento</span>
+                </div>
+            </div>
+
+            <div class="relatorio-grafico-box">
+                <h5><i class="bi bi-cash-coin"></i> Receita por dia</h5>
+                <div class="relatorio-grafico-wrap">
+                    <canvas id="grafico-vendas"></canvas>
+                    <div id="grafico-vendas-vazio" class="relatorio-vazio" style="display:none;">
+                        <i class="bi bi-inbox"></i> Sem vendas no período selecionado
+                    </div>
+                </div>
+            </div>
+
+            <div class="relatorio-secao-titulo mt-4 mb-3">
+                <h4 class="mb-0"><i class="bi bi-trophy text-muted"></i> Vendas atribuídas por cartão presente</h4>
+                <button class="relatorio-btn-export" onclick="exportarRelatorioCSV()">
+                    <i class="bi bi-download"></i> Exportar CSV
+                </button>
+            </div>
+
+            <table class="admin-tabela">
+                <thead>
+                    <tr>
+                        <th>Cartão</th>
+                        <th>Valor unitário</th>
+                        <th>Unidades vendidas</th>
+                        <th>Receita gerada</th>
+                        <th>Participação na receita</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-relatorio-produtos-body">
+                    <tr><td colspan="6" class="text-center">Carregando relatório...</td></tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.11/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive@2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="js/api.js?v=3"></script>
+
+<script>
+
+// ==========================================================
+// LOGIN DO ADMIN
+// ==========================================================
+// A sessão do painel fica em sessionStorage (não em localStorage),
+// ou seja, ela vive só enquanto essa aba/navegador estiver aberto.
+// Ao fechar a aba (ou o navegador), o navegador já apaga isso
+// sozinho — na próxima vez que abrir admin.html, o login será
+// pedido de novo. Isso evita que o painel "abra direto", sem
+// pedir senha, num computador que já foi usado antes.
+
+const ADMIN_TOKEN_KEY = "admin_token";
+const ADMIN_USUARIO_KEY = "admin_usuario";
+
+function tokenAdmin() {
+    return sessionStorage.getItem(ADMIN_TOKEN_KEY);
+}
+
+function usuarioSalvo() {
+    try {
+        return JSON.parse(sessionStorage.getItem(ADMIN_USUARIO_KEY) || "null");
+    } catch (erro) {
+        return null;
+    }
+}
+
+function salvarSessaoAdmin(token, usuario) {
+    sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+    sessionStorage.setItem(ADMIN_USUARIO_KEY, JSON.stringify(usuario));
+}
+
+function toggleSenhaAdmin() {
+    const input = document.getElementById("admin-senha");
+    const icone = document.getElementById("icone-toggle-senha");
+    const visivel = input.type === "text";
+    input.type = visivel ? "password" : "text";
+    input.classList.toggle("senha-visivel", !visivel);
+    icone.classList.toggle("bi-eye", visivel);
+    icone.classList.toggle("bi-eye-slash", !visivel);
+}
+
+// "Lembrar meu e-mail" — só guarda o e-mail digitado, nunca a senha.
+(function preencherEmailLembrado() {
+    const emailSalvo = localStorage.getItem("admin_email_lembrado");
+    if (emailSalvo) {
+        document.getElementById("admin-email").value = emailSalvo;
+        document.getElementById("admin-lembrar").checked = true;
+    }
+})();
+
+async function fazerLoginAdmin(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("admin-email").value;
+    const senha = document.getElementById("admin-senha").value;
+    const erroEl = document.getElementById("admin-login-erro");
+    const erroTexto = document.getElementById("admin-login-erro-texto");
+    const botao = document.getElementById("btn-admin-entrar");
+    const botaoTexto = document.getElementById("btn-admin-entrar-texto");
+    const spinner = document.getElementById("admin-spinner");
+
+    erroEl.style.display = "none";
+    botao.disabled = true;
+    spinner.style.display = "inline-block";
+    botaoTexto.textContent = "Verificando...";
+
+    try {
+        const resposta = await fetch(`${API_URL}/auth/login.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, senha })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            erroTexto.textContent = dados.erro || "E-mail ou senha inválidos.";
+            erroEl.style.display = "flex";
+            return;
+        }
+
+        // Salva a sessão do admin apenas para esta aba (sessionStorage) —
+        // some sozinha quando a aba/navegador é fechado.
+        salvarSessaoAdmin(dados.token, dados.usuario);
+
+        if (document.getElementById("admin-lembrar").checked) {
+            localStorage.setItem("admin_email_lembrado", email);
+        } else {
+            localStorage.removeItem("admin_email_lembrado");
+        }
+
+        if (!dados.usuario.is_admin) {
+            mostrarAcessoNegado();
+            return;
+        }
+
+        entrarNoPainel();
+    } catch (erro) {
+        console.error(erro);
+        erroTexto.textContent = "Não foi possível conectar ao servidor. Verifique se o backend está rodando.";
+        erroEl.style.display = "flex";
+    } finally {
+        botao.disabled = false;
+        spinner.style.display = "none";
+        botaoTexto.textContent = "Entrar no painel";
+    }
+}
+
+function sairAdmin() {
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    sessionStorage.removeItem(ADMIN_USUARIO_KEY);
+    esconderTudo();
+    document.getElementById("admin-auth-wrap").style.display = "flex";
+    document.getElementById("tela-login").style.display = "block";
+}
+
+function trocarConta() {
+    sairAdmin();
+}
+
+function esconderTudo() {
+    document.getElementById("admin-auth-wrap").style.display = "none";
+    document.getElementById("tela-login").style.display = "none";
+    document.getElementById("tela-acesso-negado").style.display = "none";
+    document.getElementById("tela-painel").style.display = "none";
+}
+
+function mostrarAcessoNegado() {
+    document.getElementById("admin-auth-wrap").style.display = "flex";
+    document.getElementById("tela-login").style.display = "none";
+    document.getElementById("tela-painel").style.display = "none";
+    document.getElementById("tela-acesso-negado").style.display = "block";
+}
+
+function entrarNoPainel() {
+    const usuario = usuarioSalvo();
+    esconderTudo();
+    document.getElementById("tela-painel").style.display = "block";
+    document.getElementById("admin-nome-logado").textContent = "Olá, " + (usuario ? usuario.nome : "");
+    carregarReservas();
+    carregarProdutos();
+    carregarMensagens();
+    carregarResumoCartoes();
+}
+
+function mostrarAba(aba) {
+    document.getElementById("tab-reservas").classList.toggle("ativo", aba === "reservas");
+    document.getElementById("tab-produtos").classList.toggle("ativo", aba === "produtos");
+    document.getElementById("tab-mensagens").classList.toggle("ativo", aba === "mensagens");
+    document.getElementById("tab-relatorios").classList.toggle("ativo", aba === "relatorios");
+    document.getElementById("secao-reservas").style.display = aba === "reservas" ? "block" : "none";
+    document.getElementById("secao-produtos").style.display = aba === "produtos" ? "block" : "none";
+    document.getElementById("secao-mensagens").style.display = aba === "mensagens" ? "block" : "none";
+    document.getElementById("secao-relatorios").style.display = aba === "relatorios" ? "block" : "none";
+
+    if (aba === "relatorios") {
+        carregarRelatorios();
+    }
+}
+
+// Ao abrir a página: só entra direto se já existir uma sessão de
+// admin válida NESTA aba (sessionStorage). Como o sessionStorage é
+// apagado quando a aba/navegador é fechado, isso garante que fechar
+// a tela sempre derruba a sessão e pede login de novo da próxima vez.
+const usuarioAtual = usuarioSalvo();
+
+if (tokenAdmin() && usuarioAtual && usuarioAtual.is_admin) {
+    entrarNoPainel();
+} else if (tokenAdmin() && usuarioAtual && !usuarioAtual.is_admin) {
+    mostrarAcessoNegado();
+}
+
+// ==========================================================
+// RESERVAS
+// ==========================================================
+
+// Mostra a data/hora que o CLIENTE escolheu ao reservar (campo
+// data_reserva). Reservas antigas, feitas antes desse campo existir,
+// não têm essa informação — mostramos um traço nesse caso.
+function formatarDataReserva(dataReserva) {
+    if (!dataReserva) return '<span class="text-muted">—</span>';
+
+    const data = new Date(dataReserva.replace(" ", "T"));
+    if (isNaN(data.getTime())) return '<span class="text-muted">—</span>';
+
+    // Data e horário ficam em linhas separadas (não "grudados" um no outro).
+    const dataFormatada = data.toLocaleDateString("pt-BR");
+    const horaFormatada = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return `${dataFormatada}<br><span class="text-muted">${horaFormatada}</span>`;
+}
+
+let tabelaReservasDT = null;
+
+function atualizarKpis(reservas) {
+    const hoje = hojeISO();
+    const deHoje = reservas.filter(r => r.status !== "cancelada" && (r.data_reserva || "").slice(0, 10) === hoje);
+    document.getElementById("kpi-total").textContent = reservas.length;
+    document.getElementById("kpi-hoje").textContent = deHoje.length;
+    document.getElementById("kpi-pessoas").textContent = deHoje.reduce((t, r) => t + Number(r.quantidade_pessoas || 0), 0);
+}
+
+// Filtros da barra acima da tabela (busca, data e status) — usam o DataTables.
+$.fn.dataTable.ext.search.push(function (settings, dados, i) {
+    if (settings.nTable.id !== "tabela-reservas") return true;
+    const dia = document.getElementById("filtro-res-data").value;
+    const tr = settings.aoData[i].nTr;
+    return !dia || (tr && tr.dataset.dia === dia);
+});
+
+function filtrarReservas() {
+    if (!tabelaReservasDT) return;
+    const status = document.getElementById("filtro-res-status").value;
+    tabelaReservasDT.search(document.getElementById("filtro-res-busca").value);
+    tabelaReservasDT.column(3).search(status ? "^" + status + "$" : "", true, false);
+    tabelaReservasDT.draw();
+}
+
+function limparFiltrosReservas() {
+    ["filtro-res-busca", "filtro-res-data", "filtro-res-status"].forEach(id => document.getElementById(id).value = "");
+    filtrarReservas();
+}
+
+// Cartões vendidos no mês atual (resumo da tela de Reservas)
+async function carregarResumoCartoes() {
+    const box = document.getElementById("adm-cartoes");
+    const p = calcularPeriodoRapido("mes");
+    try {
+        const resposta = await fetch(`${API_URL}/relatorios/vendas.php?inicio=${p.inicio}&fim=${p.fim}`, {
+            headers: { "Authorization": "Bearer " + tokenAdmin() }
+        });
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.erro);
+        const ativos = dados.por_produto.filter(x => x.ativo)
+            .sort((a, b) => Number(a.valor) - Number(b.valor));
+        box.innerHTML = ativos.length ? ativos.map(x => `
+            <div class="adm-cartao">
+                <div class="adm-cartao-topo">R$ ${formatarPreco(x.valor)}</div>
+                <div class="adm-cartao-linha">Vendidos no mês: <b>${x.unidades_vendidas}</b></div>
+                <div class="adm-cartao-linha">Receita no mês: <b>R$ ${formatarPreco(x.receita)}</b></div>
+            </div>`).join("") : '<p class="text-muted mb-0">Nenhum cartão ativo.</p>';
+    } catch (erro) {
+        box.innerHTML = '<p class="text-danger mb-0">Não foi possível carregar os cartões.</p>';
+    }
+}
+
+// (Re)inicializa o DataTable da aba Reservas. Como o corpo da tabela é
+// recriado via innerHTML a cada carregamento, é preciso destruir a
+// instância anterior antes de montar de novo — assim busca, ordenação
+// e o "responsive" (colunas que viram um "+" no celular) continuam
+// funcionando sem duplicar a tabela.
+function inicializarTabelaReservas() {
+    if ($.fn.DataTable.isDataTable("#tabela-reservas")) {
+        $("#tabela-reservas").DataTable().destroy();
+    }
+    tabelaReservasDT = $("#tabela-reservas").DataTable({
+        responsive: true,
+        dom: "rtip",
+        order: [[2, "desc"]],
+        columnDefs: [{ orderable: false, targets: -1 }],
+        language: {
+            search: "Buscar:",
+            zeroRecords: "Nenhuma reserva encontrada",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ reservas",
+            infoEmpty: "Nenhuma reserva",
+            infoFiltered: "(filtrado de _MAX_ no total)",
+            lengthMenu: "Mostrar _MENU_ reservas",
+            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
+        }
+    });
+}
+
+async function carregarReservas() {
+    const corpo = document.getElementById("tabela-reservas-body");
+    try {
+        const resposta = await fetch(`${API_URL}/reservas/listar.php`, {
+            headers: { "Authorization": "Bearer " + tokenAdmin() }
+        });
+
+        if (resposta.status === 401 || resposta.status === 403) {
+            sairAdmin();
+            return;
+        }
+
+        const reservas = await resposta.json();
+
+        if (!resposta.ok) throw new Error(reservas.erro || "Erro ao buscar reservas.");
+
+        atualizarKpis(reservas);
+
+        if (reservas.length === 0) {
+            corpo.innerHTML = '<tr><td colspan="5" class="text-center">Nenhuma reserva ainda.</td></tr>';
+            inicializarTabelaReservas();
+            return;
+        }
+
+        corpo.innerHTML = reservas.map(r => {
+            const dia = (r.data_reserva || "").slice(0, 10);
+            const ts = r.data_reserva ? new Date(r.data_reserva.replace(" ", "T")).getTime() : 0;
+            return `
+            <tr data-id="${r.id}" data-dia="${dia}">
+                <td>${escaparHtml(r.nome)}<span class="adm-sub">${escaparHtml(r.telefone)} · ${escaparHtml(r.email)}</span></td>
+                <td>${r.quantidade_pessoas}</td>
+                <td data-order="${ts}" title="Criada em ${new Date(r.criado_em).toLocaleString("pt-BR")}">${formatarDataReserva(r.data_reserva)}</td>
+                <td data-search="${r.status}" data-order="${r.status}">
+                    <select class="adm-status ${r.status}" onchange="this.className = 'adm-status ' + this.value; statusReservaMudou(${r.id}, this.value)">
+                        <option value="pendente" ${r.status === "pendente" ? "selected" : ""}>Pendente</option>
+                        <option value="confirmada" ${r.status === "confirmada" ? "selected" : ""}>Confirmada</option>
+                        <option value="cancelada" ${r.status === "cancelada" ? "selected" : ""}>Cancelada</option>
+                    </select>
+                </td>
+                <td>
+                    ${r.status === "confirmada" ? `<button class="admin-btn salvar" onclick="reenviarConfirmacao(${r.id})"><i class="bi bi-envelope"></i> Reenviar</button>` : ""}
+                    <button class="admin-btn excluir" onclick="excluirReserva(${r.id})"><i class="bi bi-trash"></i> Excluir</button>
+                </td>
+            </tr>`;
+        }).join("");
+
+        inicializarTabelaReservas();
+    } catch (erro) {
+        console.error(erro);
+        corpo.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${erro.message}</td></tr>`;
+    }
+}
+
+async function statusReservaMudou(id, novoStatus) {
+    try {
+        const resposta = await fetch(`${API_URL}/reservas/atualizar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id, status: novoStatus })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível atualizar a reserva.");
+            carregarReservas(); // desfaz visualmente, recarregando do servidor
+            return;
+        }
+
+        if (dados.email_confirmacao_enviado === true) {
+            alert("Reserva confirmada! O e-mail de confirmação foi enviado ao cliente.");
+        } else if (dados.email_confirmacao_enviado === false) {
+            alert(dados.aviso || "Reserva confirmada, mas o e-mail não pôde ser enviado.");
+        }
+
+        carregarReservas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+        carregarReservas();
+    }
+}
+
+async function excluirReserva(id) {
+    if (!confirm("Tem certeza que deseja excluir esta reserva? Essa ação não pode ser desfeita.")) return;
+
+    try {
+        const resposta = await fetch(`${API_URL}/reservas/deletar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id })
+        });
+
+        if (resposta.status === 401 || resposta.status === 403) {
+            sairAdmin();
+            return;
+        }
+
+        // Lê a resposta como texto primeiro. Se o back-end travar com
+        // um erro que não vira JSON (ex: erro fatal do PHP), a gente
+        // ainda consegue mostrar algo útil em vez do alerta genérico
+        // de "não foi possível conectar", que é enganoso.
+        const texto = await resposta.text();
+        let dados;
+        try {
+            dados = texto ? JSON.parse(texto) : {};
+        } catch (erroParse) {
+            console.error("Resposta do servidor não é um JSON válido:", texto);
+            alert(
+                "O servidor respondeu de um jeito inesperado (HTTP " + resposta.status + "). " +
+                "Provavelmente há um erro no PHP — veja o console (F12) ou o log de erros do " +
+                "Apache/PHP para o detalhe."
+            );
+            return;
+        }
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível excluir a reserva.");
+            return;
+        }
+
+        carregarReservas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+    }
+}
+
+async function reenviarConfirmacao(id) {
+    try {
+        const resposta = await fetch(`${API_URL}/reservas/reenviar_confirmacao.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível reenviar o e-mail de confirmação.");
+            return;
+        }
+
+        alert(dados.mensagem || "E-mail reenviado com sucesso!");
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+    }
+}
+
+// ==========================================================
+// PRODUTOS (CARTÕES PRESENTE)
+// ==========================================================
+
+function formatarPreco(valor) {
+    return Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+}
+
+let tabelaProdutosDT = null;
+
+// (Re)inicializa o DataTable da aba Produtos, igual já é feito na
+// aba Reservas — precisa destruir a instância anterior antes de
+// montar de novo porque o corpo da tabela é recriado do zero a
+// cada carregamento.
+function inicializarTabelaProdutos() {
+    if ($.fn.DataTable.isDataTable("#tabela-produtos")) {
+        $("#tabela-produtos").DataTable().destroy();
+    }
+    tabelaProdutosDT = $("#tabela-produtos").DataTable({
+        responsive: true,
+        order: [],
+        columnDefs: [
+            { orderable: false, targets: [0, -1] }
+        ],
+        language: {
+            search: "Buscar:",
+            zeroRecords: "Nenhum resultado encontrado",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ cartões",
+            infoEmpty: "Nenhum cartão presente",
+            infoFiltered: "(filtrado de _MAX_ no total)",
+            lengthMenu: "Mostrar _MENU_ cartões",
+            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
+        }
+    });
+}
+
+async function carregarProdutos() {
+    const corpo = document.getElementById("tabela-produtos-body");
+    try {
+        const resposta = await fetch(`${API_URL}/produtos/admin_listar.php`, {
+            headers: { "Authorization": "Bearer " + tokenAdmin() }
+        });
+
+        if (resposta.status === 401 || resposta.status === 403) {
+            sairAdmin();
+            return;
+        }
+
+        const produtos = await resposta.json();
+
+        if (!resposta.ok) throw new Error(produtos.erro || "Erro ao buscar produtos.");
+
+        if (produtos.length === 0) {
+            corpo.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum produto cadastrado.</td></tr>';
+            inicializarTabelaProdutos();
+            return;
+        }
+
+        corpo.innerHTML = produtos.map(p => `
+            <tr data-id="${p.id}">
+                <td><img class="admin-thumb" src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.opacity=0.2"></td>
+                <td>
+                    <input type="text" value="${p.nome}" onchange="produtoCampoMudou(${p.id}, 'nome', this.value)" style="width:140px;">
+                </td>
+                <td>
+                    <input type="number" step="0.01" value="${p.valor}" onchange="produtoCampoMudou(${p.id}, 'valor', this.value)" style="width:90px;">
+                </td>
+                <td>
+                    <span class="admin-badge ${p.ativo ? 'ativo-sim' : 'ativo-nao'}">${p.ativo ? "Ativo" : "Desativado"}</span>
+                </td>
+                <td>
+                    ${p.ativo
+                        ? `<button class="admin-btn excluir" onclick="desativarProduto(${p.id})">Desativar</button>`
+                        : `<button class="admin-btn salvar" onclick="reativarProduto(${p.id})">Reativar</button>`
+                    }
+                </td>
+            </tr>
+        `).join("");
+
+        inicializarTabelaProdutos();
+    } catch (erro) {
+        console.error(erro);
+        corpo.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${erro.message}</td></tr>`;
+    }
+}
+
+async function criarProduto(event) {
+    event.preventDefault();
+    const form = event.target;
+
+    const nome = form.nome.value;
+    const valor = Number(form.valor.value);
+    const imagem = form.imagem.value;
+
+    try {
+        const resposta = await fetch(`${API_URL}/produtos/criar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ nome, valor, imagem })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível criar o produto.");
+            return false;
+        }
+
+        form.reset();
+        $("#modal-novo-produto").modal("hide");
+        carregarProdutos();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+    }
+
+    return false;
+}
+
+async function produtoCampoMudou(id, campo, valor) {
+    try {
+        const resposta = await fetch(`${API_URL}/produtos/atualizar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id, [campo]: valor })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível salvar a alteração.");
+            carregarProdutos();
+        }
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+        carregarProdutos();
+    }
+}
+
+async function desativarProduto(id) {
+    if (!confirm("Desativar este cartão presente? Ele deixa de aparecer na loja (mas o histórico de compras é mantido).")) return;
+    await mudarStatusProduto(id, false);
+}
+
+async function reativarProduto(id) {
+    await mudarStatusProduto(id, true);
+}
+
+async function mudarStatusProduto(id, ativo) {
+    try {
+        const resposta = await fetch(`${API_URL}/produtos/atualizar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id, ativo })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível atualizar o produto.");
+            return;
+        }
+
+        carregarProdutos();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+    }
+}
+
+// ==========================================================
+// MENSAGENS DE CONTATO (formulário "Fale Conosco")
+// ==========================================================
+
+let tabelaMensagensDT = null;
+
+function inicializarTabelaMensagens() {
+    if ($.fn.DataTable.isDataTable("#tabela-mensagens")) {
+        $("#tabela-mensagens").DataTable().destroy();
+    }
+    tabelaMensagensDT = $("#tabela-mensagens").DataTable({
+        responsive: true,
+        order: [[0, "desc"]],
+        columnDefs: [{ orderable: false, targets: -1 }],
+        language: {
+            search: "Buscar:",
+            zeroRecords: "Nenhum resultado encontrado",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ mensagens",
+            infoEmpty: "Nenhuma mensagem",
+            infoFiltered: "(filtrado de _MAX_ no total)",
+            lengthMenu: "Mostrar _MENU_ mensagens",
+            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
+        }
+    });
+}
+
+function escaparHtml(texto) {
+    const div = document.createElement("div");
+    div.textContent = texto ?? "";
+    return div.innerHTML;
+}
+
+async function carregarMensagens() {
+    const corpo = document.getElementById("tabela-mensagens-body");
+    try {
+        const resposta = await fetch(`${API_URL}/contato/listar.php`, {
+            headers: { "Authorization": "Bearer " + tokenAdmin() }
+        });
+
+        if (resposta.status === 401 || resposta.status === 403) {
+            sairAdmin();
+            return;
+        }
+
+        const mensagens = await resposta.json();
+
+        if (!resposta.ok) throw new Error(mensagens.erro || "Erro ao buscar mensagens.");
+
+        const naoLidas = mensagens.filter(m => !m.lida).length;
+        const badge = document.getElementById("badge-mensagens-nao-lidas");
+        if (naoLidas > 0) {
+            badge.textContent = naoLidas;
+            badge.style.display = "inline-block";
+        } else {
+            badge.style.display = "none";
+        }
+
+        if (mensagens.length === 0) {
+            corpo.innerHTML = '<tr><td colspan="6" class="text-center">Nenhuma mensagem recebida ainda.</td></tr>';
+            inicializarTabelaMensagens();
+            return;
+        }
+
+        corpo.innerHTML = mensagens.map(m => `
+            <tr data-id="${m.id}" class="${m.lida ? '' : 'linha-nao-lida'}">
+                <td>${new Date(m.criado_em).toLocaleString("pt-BR")}</td>
+                <td>${escaparHtml(m.nome)}</td>
+                <td><a href="mailto:${escaparHtml(m.email)}">${escaparHtml(m.email)}</a></td>
+                <td style="white-space:normal; max-width:320px;">${escaparHtml(m.mensagem)}</td>
+                <td>
+                    <span class="admin-badge ${m.lida ? 'ativo-sim' : 'pendente'}">${m.lida ? "Lida" : "Não lida"}</span>
+                </td>
+                <td>
+                    ${m.lida
+                        ? `<button class="admin-btn salvar" onclick="marcarMensagem(${m.id}, false)">Marcar não lida</button>`
+                        : `<button class="admin-btn salvar" onclick="marcarMensagem(${m.id}, true)">Marcar lida</button>`
+                    }
+                    <button class="admin-btn excluir" onclick="excluirMensagem(${m.id})">Excluir</button>
+                </td>
+            </tr>
+        `).join("");
+
+        inicializarTabelaMensagens();
+    } catch (erro) {
+        console.error(erro);
+        corpo.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${erro.message}</td></tr>`;
+    }
+}
+
+async function marcarMensagem(id, lida) {
+    try {
+        const resposta = await fetch(`${API_URL}/contato/marcar_lida.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id, lida })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível atualizar a mensagem.");
+            return;
+        }
+
+        carregarMensagens();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+    }
+}
+
+async function excluirMensagem(id) {
+    if (!confirm("Tem certeza que deseja excluir esta mensagem? Essa ação não pode ser desfeita.")) return;
+
+    try {
+        const resposta = await fetch(`${API_URL}/contato/deletar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tokenAdmin()
+            },
+            body: JSON.stringify({ id })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível excluir a mensagem.");
+            return;
+        }
+
+        carregarMensagens();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+    }
+}
+
+// ==========================================================
+// RELATÓRIOS  (reservas e cartões presente, cada um com seu
+// próprio período — dias rápidos, intervalo de datas ou um
+// dia específico)
+// ==========================================================
+
+let ultimoRelatorioReservas = null;
+let ultimoRelatorioVendas = null;
+let graficoReservas = null;
+let graficoVendas = null;
+
+// Período de cada sub-relatório: { inicio: "AAAA-MM-DD", fim: "AAAA-MM-DD" }
+const periodoRelatorio = {
+    reservas: calcularPeriodoRapido("30"),
+    cartoes: calcularPeriodoRapido("30")
+};
+
+function hojeISO() {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // evita virar o dia por fuso
+    return d.toISOString().slice(0, 10);
+}
+
+function calcularPeriodoRapido(tipo) {
+    const fim = new Date();
+    fim.setMinutes(fim.getMinutes() - fim.getTimezoneOffset());
+    const inicio = new Date(fim);
+
+    if (tipo === "hoje") {
+        // inicio = fim = hoje
+    } else if (tipo === "7") {
+        inicio.setDate(inicio.getDate() - 6);
+    } else if (tipo === "15") {
+        inicio.setDate(inicio.getDate() - 14);
+    } else if (tipo === "30") {
+        inicio.setDate(inicio.getDate() - 29);
+    } else if (tipo === "mes") {
+        inicio.setDate(1);
+    }
+
+    return { inicio: inicio.toISOString().slice(0, 10), fim: fim.toISOString().slice(0, 10) };
+}
+
+function formatarPeriodoLabel(inicio, fim) {
+    const fmt = iso => {
+        const [ano, mes, dia] = iso.split("-");
+        return `${dia}/${mes}/${ano}`;
+    };
+    return inicio === fim
+        ? `Período: dia ${fmt(inicio)}`
+        : `Período: ${fmt(inicio)} até ${fmt(fim)}`;
+}
+
+// Sub-abas dentro de "Relatórios": reservas <-> cartões presente
+function mostrarSubAbaRelatorio(sub) {
+    document.getElementById("subtab-rel-reservas").classList.toggle("ativo", sub === "reservas");
+    document.getElementById("subtab-rel-cartoes").classList.toggle("ativo", sub === "cartoes");
+    document.getElementById("subsecao-rel-reservas").style.display = sub === "reservas" ? "block" : "none";
+    document.getElementById("subsecao-rel-cartoes").style.display = sub === "cartoes" ? "block" : "none";
+
+    // O Chart.js precisa que o canvas esteja visível pra calcular o
+    // tamanho certo — então (re)desenha o gráfico ao trocar de sub-aba.
+    if (sub === "reservas" && ultimoRelatorioReservas) desenharGraficoReservas();
+    if (sub === "cartoes" && ultimoRelatorioVendas) desenharGraficoVendas();
+}
+
+// Botões rápidos: Hoje / 7 dias / 15 dias / 30 dias / Este mês
+function aplicarPeriodoRapido(secao, tipo) {
+    periodoRelatorio[secao] = calcularPeriodoRapido(tipo);
+
+    document.querySelectorAll(`#filtro-rapido-${secao} button`).forEach(btn => {
+        btn.classList.toggle("ativo", btn.dataset.tipo === tipo);
+    });
+
+    document.getElementById(`filtro-${secao}-inicio`).value = periodoRelatorio[secao].inicio;
+    document.getElementById(`filtro-${secao}-fim`).value = periodoRelatorio[secao].fim;
+
+    if (document.getElementById(`filtro-dia-unico-${secao}`).checked) {
+        document.getElementById(`filtro-dia-unico-${secao}`).checked = false;
+        alternarDiaUnico(secao);
+    }
+
+    if (secao === "reservas") carregarRelatorioReservas();
+    else carregarRelatorioVendas();
+}
+
+// Checkbox "Dia específico": esconde o campo "até" e passa a usar
+// só uma data (inicio = fim) — é como se selecionasse um único dia.
+function alternarDiaUnico(secao) {
+    const marcado = document.getElementById(`filtro-dia-unico-${secao}`).checked;
+    document.getElementById(`filtro-${secao}-fim`).style.display = marcado ? "none" : "";
+    document.getElementById(`filtro-${secao}-ate-label`).style.display = marcado ? "none" : "";
+}
+
+// Botão "Aplicar" do intervalo de datas customizado (ou dia específico)
+function aplicarFiltroCustom(secao) {
+    const inicioEl = document.getElementById(`filtro-${secao}-inicio`);
+    const fimEl = document.getElementById(`filtro-${secao}-fim`);
+    const diaUnico = document.getElementById(`filtro-dia-unico-${secao}`).checked;
+
+    if (!inicioEl.value) {
+        alert("Escolha pelo menos a data inicial.");
+        return;
+    }
+
+    const inicio = inicioEl.value;
+    const fim = diaUnico ? inicio : (fimEl.value || inicio);
+
+    periodoRelatorio[secao] = { inicio, fim };
+
+    // Nenhum botão rápido corresponde a uma data customizada
+    document.querySelectorAll(`#filtro-rapido-${secao} button`).forEach(btn => btn.classList.remove("ativo"));
+
+    if (secao === "reservas") carregarRelatorioReservas();
+    else carregarRelatorioVendas();
+}
+
+async function carregarRelatorioReservas() {
+    const { inicio, fim } = periodoRelatorio.reservas;
+    try {
+        const resposta = await fetch(`${API_URL}/relatorios/reservas.php?inicio=${inicio}&fim=${fim}`, {
+            headers: { "Authorization": "Bearer " + tokenAdmin() }
+        });
+
+        if (resposta.status === 401) { sairAdmin(); return; }
+
+        const reservas = await resposta.json();
+        if (!resposta.ok) throw new Error(reservas.erro || "Erro ao buscar relatório de reservas.");
+
+        ultimoRelatorioReservas = reservas;
+
+        document.getElementById("rel-reservas-periodo-label").textContent =
+            formatarPeriodoLabel(reservas.periodo.inicio, reservas.periodo.fim);
+
+        document.getElementById("rel-total-reservas").textContent = reservas.total_reservas;
+        document.getElementById("rel-pessoas-confirmadas").textContent = reservas.pessoas_confirmadas;
+        document.getElementById("rel-reservas-pendentes").textContent = reservas.por_status.pendente;
+        document.getElementById("rel-reservas-confirmadas").textContent = reservas.por_status.confirmada;
+        document.getElementById("rel-reservas-canceladas").textContent = reservas.por_status.cancelada;
+
+        desenharGraficoReservas();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar o relatório de reservas: " + erro.message);
+    }
+}
+
+async function carregarRelatorioVendas() {
+    const { inicio, fim } = periodoRelatorio.cartoes;
+    try {
+        const resposta = await fetch(`${API_URL}/relatorios/vendas.php?inicio=${inicio}&fim=${fim}`, {
+            headers: { "Authorization": "Bearer " + tokenAdmin() }
+        });
+
+        if (resposta.status === 401) { sairAdmin(); return; }
+
+        const vendas = await resposta.json();
+        if (!resposta.ok) throw new Error(vendas.erro || "Erro ao buscar relatório de vendas.");
+
+        ultimoRelatorioVendas = vendas;
+
+        document.getElementById("rel-cartoes-periodo-label").textContent =
+            formatarPeriodoLabel(vendas.periodo.inicio, vendas.periodo.fim);
+
+        document.getElementById("rel-total-vendas").textContent = vendas.total_vendas;
+        document.getElementById("rel-receita-total").textContent = "R$ " + formatarPreco(vendas.receita_total);
+        document.getElementById("rel-unidades-vendidas").textContent = vendas.unidades_vendidas;
+        document.getElementById("rel-vendas-pendentes").textContent = vendas.total_pendentes;
+
+        desenharGraficoVendas();
+
+        // --- Vendas por produto (tabela), com barra de participação na receita ---
+        const corpo = document.getElementById("tabela-relatorio-produtos-body");
+
+        if (vendas.por_produto.length === 0) {
+            corpo.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum cartão cadastrado.</td></tr>';
+            return;
+        }
+
+        const maiorReceita = Math.max(...vendas.por_produto.map(p => Number(p.receita)), 0);
+
+        corpo.innerHTML = vendas.por_produto.map(p => {
+            const participacao = vendas.receita_total > 0
+                ? (Number(p.receita) / vendas.receita_total * 100)
+                : 0;
+            const larguraBarra = maiorReceita > 0 ? (Number(p.receita) / maiorReceita * 100) : 0;
+            return `
+            <tr>
+                <td>${p.nome}</td>
+                <td>R$ ${formatarPreco(p.valor)}</td>
+                <td>${p.unidades_vendidas}</td>
+                <td>R$ ${formatarPreco(p.receita)}</td>
+                <td style="min-width:130px;">
+                    ${participacao.toFixed(1)}%
+                    <div class="barra-participacao"><span style="width:${larguraBarra}%;"></span></div>
+                </td>
+                <td><span class="admin-badge ${p.ativo ? 'ativo-sim' : 'ativo-nao'}">${p.ativo ? "Ativo" : "Desativado"}</span></td>
+            </tr>
+        `;
+        }).join("");
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível carregar o relatório de vendas: " + erro.message);
+    }
+}
+
+// Carrega os dois relatórios de uma vez (usado ao abrir a aba "Relatórios")
+function carregarRelatorios() {
+    carregarRelatorioReservas();
+    carregarRelatorioVendas();
+}
+
+// Monta os labels de dia dentro do intervalo [inicio, fim] do próprio
+// relatório, preenchendo com zero os dias sem movimento — assim o
+// gráfico fica contínuo mesmo em períodos maiores.
+function diasDoIntervalo(porDia, inicio, fim, campo) {
+    const mapa = {};
+    (porDia || []).forEach(linha => { mapa[linha.dia] = linha; });
+
+    const labels = [];
+    const valores = [];
+    const cursor = new Date(inicio + "T00:00:00");
+    const dataFim = new Date(fim + "T00:00:00");
+
+    while (cursor <= dataFim) {
+        const chave = cursor.toISOString().slice(0, 10);
+        labels.push(cursor.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }));
+        valores.push(mapa[chave] ? Number(mapa[chave][campo] || 0) : 0);
+        cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return { labels, valores };
+}
+
+function desenharGraficoReservas() {
+    if (typeof Chart === "undefined" || !ultimoRelatorioReservas) return;
+    const canvas = document.getElementById("grafico-reservas");
+    if (!canvas.offsetParent) return; // sub-aba escondida — desenha quando ela abrir
+
+    const { inicio, fim } = ultimoRelatorioReservas.periodo;
+    const dados = diasDoIntervalo(ultimoRelatorioReservas.por_dia, inicio, fim, "quantidade");
+    const temDados = dados.valores.some(v => v > 0);
+    document.getElementById("grafico-reservas-vazio").style.display = temDados ? "none" : "flex";
+
+    if (graficoReservas) graficoReservas.destroy();
+    graficoReservas = graficoDeBarras(canvas, dados, "Reservas", "#9b2d3f", "#5e1623", v => v + (v === 1 ? " reserva" : " reservas"));
+}
+
+function desenharGraficoVendas() {
+    if (typeof Chart === "undefined" || !ultimoRelatorioVendas) return;
+    const canvas = document.getElementById("grafico-vendas");
+    if (!canvas.offsetParent) return; // sub-aba escondida — desenha quando ela abrir
+
+    const { inicio, fim } = ultimoRelatorioVendas.periodo;
+    const dados = diasDoIntervalo(ultimoRelatorioVendas.por_dia, inicio, fim, "receita");
+    const temDados = dados.valores.some(v => v > 0);
+    document.getElementById("grafico-vendas-vazio").style.display = temDados ? "none" : "flex";
+
+    if (graficoVendas) graficoVendas.destroy();
+    graficoVendas = graficoDeBarras(canvas, dados, "Receita (R$)", "#d4b16f", "#a9853f", v => "R$ " + formatarPreco(v));
+}
+
+// Gráfico de barras arredondadas, com degradê vertical (vinho / dourado).
+function graficoDeBarras(canvas, dados, rotulo, corTopo, corBase, formatar) {
+    const degrade = c => {
+        const area = c.chart.chartArea;
+        if (!area) return corTopo;
+        const g = c.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        g.addColorStop(0, corTopo);
+        g.addColorStop(1, corBase);
+        return g;
+    };
+    return new Chart(canvas, {
+        type: "bar",
+        data: { labels: dados.labels, datasets: [{
+            label: rotulo, data: dados.valores, backgroundColor: degrade,
+            borderRadius: 8, borderSkipped: false, maxBarThickness: 30
+        }] },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: "#5e1623", padding: 10, cornerRadius: 8, displayColors: false,
+                           callbacks: { label: c => formatar(c.parsed.y) } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: "#8a6a6f", maxRotation: 0, autoSkip: true } },
+                y: { beginAtZero: true, grid: { color: "#f0e3de", borderDash: [4, 4] },
+                     ticks: { color: "#8a6a6f", precision: 0, callback: v => rotulo.startsWith("Receita") ? "R$ " + v : v } }
+            }
+        }
+    });
+}
+
+// Preenche os campos de data com o período inicial (30 dias) assim que a página carrega
+function inicializarFiltrosRelatorio() {
+    ["reservas", "cartoes"].forEach(secao => {
+        document.getElementById(`filtro-${secao}-inicio`).value = periodoRelatorio[secao].inicio;
+        document.getElementById(`filtro-${secao}-fim`).value = periodoRelatorio[secao].fim;
+        document.getElementById(`filtro-${secao}-inicio`).max = hojeISO();
+        document.getElementById(`filtro-${secao}-fim`).max = hojeISO();
+    });
+}
+inicializarFiltrosRelatorio();
+
+// Exporta a tabela "vendas atribuídas por cartão presente" em CSV,
+// pronto para abrir no Excel/Google Sheets.
+function exportarRelatorioCSV() {
+    if (!ultimoRelatorioVendas) {
+        alert("Aguarde o relatório carregar antes de exportar.");
+        return;
+    }
+
+    const linhas = [["Cartao", "Valor unitario", "Unidades vendidas", "Receita gerada", "Status"]];
+    ultimoRelatorioVendas.por_produto.forEach(p => {
+        linhas.push([
+            p.nome,
+            formatarPreco(p.valor),
+            p.unidades_vendidas,
+            formatarPreco(p.receita),
+            p.ativo ? "Ativo" : "Desativado"
+        ]);
+    });
+
+    const csv = linhas.map(l => l.map(campo => `"${String(campo).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio-cartoes-presente-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+</script>
+
+</body>
+</html>

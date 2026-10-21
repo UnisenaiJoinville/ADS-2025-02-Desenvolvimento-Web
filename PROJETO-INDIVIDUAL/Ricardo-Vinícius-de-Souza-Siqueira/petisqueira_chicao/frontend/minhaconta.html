@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha conta - Petisqueira Chicão</title>
+
+
+
+<!-- Bootstrap 4.6 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/minhaconta.css?v=1">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+
+
+
+</head>
+
+<body class="body-pag">
+
+
+<div class="topo-pag">
+
+    <div class="container-pag">
+
+        <div class="topo-conteudo">
+
+            <div class="logo-pag">
+                Petisqueira Chicão
+            </div>
+
+            <div class="icones-topo">
+                <a href="login.html" id="link-conta">
+                    <i class="bi bi-person"></i>
+                </a>
+
+                <a href="loja.html" aria-label="Ver carrinho / loja"><i class="bi bi-bag"></i></a>
+            </div>
+
+        </div>
+
+        <div class="menu text-center mt-3">
+            <a href="index.html">Início</a>
+            <a href="loja.html">Produtos</a>
+            <a href="contato.html">Contato</a>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="conta-container">
+
+    <p id="conta-carregando" class="conta-estado">Carregando seus dados...</p>
+
+    <div id="conta-erro" class="conta-estado d-none">
+        <p id="conta-erro-texto"></p>
+        <a href="login.html" class="conta-botao">Ir para o login</a>
+    </div>
+
+    <div id="conta-conteudo" class="d-none">
+
+        <div class="conta-cabecalho">
+            <div class="conta-avatar" id="conta-avatar" aria-hidden="true">?</div>
+            <div class="conta-cabecalho-texto">
+                <h2 class="conta-titulo" id="conta-boas-vindas">Minha conta</h2>
+                <p class="conta-subtitulo">Acompanhe seus dados, reservas e pedidos.</p>
+            </div>
+            <button type="button" id="btn-sair" class="conta-sair">
+                <i class="bi bi-box-arrow-right"></i> Sair da conta
+            </button>
+        </div>
+
+        <div class="conta-card">
+            <div class="conta-card-topo">
+                <h3><i class="bi bi-person-circle"></i> Meus dados</h3>
+            </div>
+            <div class="conta-dados">
+                <div class="conta-dado"><span>Nome</span><strong id="dado-nome"></strong></div>
+                <div class="conta-dado"><span>E-mail</span><strong id="dado-email"></strong></div>
+                <div class="conta-dado"><span>Telefone</span><strong id="dado-telefone"></strong></div>
+                <div class="conta-dado"><span>Cliente desde</span><strong id="dado-desde"></strong></div>
+            </div>
+        </div>
+
+        <div class="conta-card">
+            <div class="conta-card-topo">
+                <h3><i class="bi bi-calendar-event"></i> Minhas reservas</h3>
+                <a href="reserva.html" class="conta-link">+ Nova reserva</a>
+            </div>
+            <div id="lista-reservas"></div>
+        </div>
+
+        <div class="conta-card">
+            <div class="conta-card-topo">
+                <h3><i class="bi bi-bag"></i> Meus pedidos</h3>
+                <a href="loja.html" class="conta-link">+ Ver cartões presente</a>
+            </div>
+            <div id="lista-pedidos"></div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer class="footer">
+  <div class="footer-content">
+
+    <div class="social">
+      <a href="#"><i class="bi bi-instagram"></i></a>
+      <a href="#"><i class="bi bi-facebook"></i></a>
+    </div>
+
+    <ul class="footer-menu">
+      <li><a href="index.html">Início</a></li>
+      <li><a href="loja.html">Produtos</a></li>
+      <li><a href="contato.html">Contato</a></li>
+    </ul>
+
+    <div class="payments">
+      <img src="https://img.icons8.com/color/48/visa.png">
+      <img src="https://img.icons8.com/color/48/mastercard.png">
+      <img src="https://img.icons8.com/color/48/amex.png">
+      <img src="https://img.icons8.com/color/48/boleto-bankario.png">
+      <img src="https://img.icons8.com/color/48/pix.png">
+    </div>
+
+    <div class="credits">
+      <p>Copyright Petisqueira Chicão - 2026</p>
+    </div>
+
+  </div>
+</footer>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js?v=3"></script>
+
+<script>
+// ==========================================================
+// PÁGINA "MINHA CONTA"
+// Mostra os dados do usuário logado, as reservas e os pedidos dele.
+// Tudo vem de um único endpoint: /conta/minha_conta.php
+// ==========================================================
+
+const STATUS_RESERVA = {
+    pendente: "Aguardando confirmação",
+    confirmada: "Confirmada",
+    cancelada: "Cancelada"
+};
+
+const STATUS_PEDIDO = {
+    pendente: "Pagamento pendente",
+    pago: "Pago",
+    cancelado: "Cancelado"
+};
+
+// Cria um elemento já com classe e texto. Usar textContent (e não
+// innerHTML) garante que nomes/textos digitados pelo usuário nunca
+// sejam interpretados como HTML.
+function el(tag, classe, texto) {
+    const e = document.createElement(tag);
+    if (classe) e.className = classe;
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+}
+
+// "2026-09-30 19:00:00" -> "30/09/2026"
+function formatarData(valor) {
+    if (!valor) return "—";
+    const [ano, mes, dia] = valor.substring(0, 10).split("-");
+    return `${dia}/${mes}/${ano}`;
+}
+
+// "2026-09-30 19:00:00" -> "30/09/2026 às 19:00"
+function formatarDataHora(valor) {
+    if (!valor) return "Data a combinar";
+    const hora = valor.substring(11, 16);
+    return `${formatarData(valor)}${hora ? " às " + hora : ""}`;
+}
+
+function formatarPreco(valor) {
+    return Number(valor).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function mostrarErro(mensagem) {
+    document.getElementById("conta-carregando").classList.add("d-none");
+    document.getElementById("conta-erro-texto").textContent = mensagem;
+    document.getElementById("conta-erro").classList.remove("d-none");
+}
+
+function sairDaConta() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    window.location.href = "login.html";
+}
+
+// Estado vazio: ícone + frase + botão para começar
+function estadoVazio(icone, texto, textoBotao, href) {
+    const caixa = el("div", "conta-vazio");
+    const i = el("i", `bi ${icone}`);
+    caixa.appendChild(i);
+    caixa.appendChild(el("p", "", texto));
+    const botao = el("a", "conta-botao", textoBotao);
+    botao.href = href;
+    caixa.appendChild(botao);
+    return caixa;
+}
+
+function montarReservas(reservas) {
+    const lista = document.getElementById("lista-reservas");
+
+    if (reservas.length === 0) {
+        lista.appendChild(estadoVazio("bi-calendar-x",
+            "Você ainda não fez nenhuma reserva estando logado.",
+            "Reservar uma mesa", "reserva.html"));
+        return;
+    }
+
+    reservas.forEach((r) => {
+        const item = el("div", "conta-item");
+
+        const icone = el("div", "conta-item-icone");
+        icone.appendChild(el("i", "bi bi-calendar-event"));
+
+        const info = el("div", "conta-item-info");
+        info.appendChild(el("div", "conta-item-titulo", formatarDataHora(r.data_reserva)));
+        info.appendChild(el("div", "conta-item-sub",
+            `${r.quantidade_pessoas} ${Number(r.quantidade_pessoas) === 1 ? "pessoa" : "pessoas"}`));
+
+        const direita = el("div", "conta-item-direita");
+        direita.appendChild(el("span", `conta-status ${r.status}`, STATUS_RESERVA[r.status] || r.status));
+
+        item.appendChild(icone);
+        item.appendChild(info);
+        item.appendChild(direita);
+        lista.appendChild(item);
+    });
+}
+
+function montarPedidos(pedidos) {
+    const lista = document.getElementById("lista-pedidos");
+
+    if (pedidos.length === 0) {
+        lista.appendChild(estadoVazio("bi-bag-x",
+            "Você ainda não fez nenhuma compra.",
+            "Ver cartões presente", "loja.html"));
+        return;
+    }
+
+    pedidos.forEach((p) => {
+        const item = el("div", "conta-item");
+
+        const icone = el("div", "conta-item-icone");
+        icone.appendChild(el("i", "bi bi-gift"));
+
+        const info = el("div", "conta-item-info");
+        info.appendChild(el("div", "conta-item-titulo", `${p.produto_nome} × ${p.quantidade}`));
+        info.appendChild(el("div", "conta-item-sub", `Pedido #${p.id} • ${formatarData(p.criado_em)}`));
+
+        const direita = el("div", "conta-item-direita");
+        direita.appendChild(el("span", "conta-preco", `R$ ${formatarPreco(p.valor_total)}`));
+        direita.appendChild(el("span", `conta-status ${p.status}`, STATUS_PEDIDO[p.status] || p.status));
+
+        // Pedido ainda não pago: leva de volta para finalizar o pagamento
+        if (p.status === "pendente") {
+            const link = el("a", "conta-botao conta-botao-pequeno", "Finalizar pagamento");
+            link.href = `checkout.html?pedido_id=${encodeURIComponent(p.id)}`;
+            direita.appendChild(link);
+        }
+
+        item.appendChild(icone);
+        item.appendChild(info);
+        item.appendChild(direita);
+        lista.appendChild(item);
+    });
+}
+
+async function carregarConta() {
+    const token = localStorage.getItem("token");
+
+    // Sem token = ninguém logado: manda para o login
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`${API_URL}/conta/minha_conta.php`, {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        // Token inválido ou expirado (ex.: fez login em outro aparelho)
+        if (resposta.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("usuario");
+            mostrarErro("Sua sessão expirou. Faça login novamente.");
+            return;
+        }
+
+        // Lê como texto primeiro: se o servidor devolver um erro que não é JSON
+        // (ex.: erro fatal do PHP), mostramos o status em vez de uma mensagem enganosa.
+        const texto = await resposta.text();
+        let dados = null;
+        try { dados = JSON.parse(texto); } catch (e) { /* resposta não é JSON */ }
+
+        if (!resposta.ok || !dados) {
+            console.error("Resposta de minha_conta.php:", resposta.status, texto);
+            mostrarErro(dados && dados.erro
+                ? dados.erro
+                : `O servidor respondeu com erro (HTTP ${resposta.status}). Veja o log de erros do Apache/PHP.`);
+            return;
+        }
+
+        const nome = dados.usuario.nome || "";
+        document.getElementById("dado-nome").textContent = nome;
+        document.getElementById("conta-boas-vindas").textContent = `Olá, ${nome.trim().split(" ")[0] || "cliente"}!`;
+        document.getElementById("conta-avatar").textContent = (nome.trim().charAt(0) || "?").toUpperCase();
+        document.getElementById("dado-email").textContent = dados.usuario.email;
+        document.getElementById("dado-telefone").textContent = dados.usuario.telefone || "Não informado";
+        document.getElementById("dado-desde").textContent = formatarData(dados.usuario.criado_em);
+
+        montarReservas(dados.reservas);
+        montarPedidos(dados.pedidos);
+
+        document.getElementById("conta-carregando").classList.add("d-none");
+        document.getElementById("conta-conteudo").classList.remove("d-none");
+    } catch (erro) {
+        console.error(erro);
+        mostrarErro("Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.");
+    }
+}
+
+document.getElementById("btn-sair").addEventListener("click", () => {
+    if (confirm("Deseja sair da sua conta?")) sairDaConta();
+});
+
+carregarConta();
+</script>
+
+</body>
+</html>
