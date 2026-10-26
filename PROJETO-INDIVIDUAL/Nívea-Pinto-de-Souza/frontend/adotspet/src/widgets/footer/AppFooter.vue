@@ -1,6 +1,6 @@
 <template>
   <footer class="bg-gradient-to-b from-roxo-bg to-roxo pt-12 pb-6 px-6 mt-16">
-    <!-- Logo e slogan -->
+ 
     <div class="text-center mb-6">
       <div class="w-16 h-16 bg-laranja rounded-full inline-flex items-center justify-center text-white text-3xl mb-3">
         <img :src="logo" alt="logo AdotPets" class="w-8 h-8">
@@ -10,8 +10,6 @@
         cada cadastro é uma nova chance<br/>e cada adoção é uma história reescrita.
       </p>
     </div>
-
-    <!-- Redes sociais -->
     <div class="flex justify-center gap-3 mb-8">
       <a v-for="rede in redesSociais" :key="rede.icone"
          :href="rede.url" target="_blank" rel="noopener"
@@ -20,7 +18,6 @@
       </a>
     </div>
 
-    <!-- Links -->
     <div class="flex justify-center gap-16 mb-8">
       <div>
         <h4 class="text-white font-semibold text-sm mb-3">Animais</h4>
