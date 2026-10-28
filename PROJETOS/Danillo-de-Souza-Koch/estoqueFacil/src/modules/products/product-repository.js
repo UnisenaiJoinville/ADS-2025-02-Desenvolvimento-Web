@@ -17,13 +17,18 @@ const SELECT_PRODUCT = `
     LEFT JOIN categories c ON c.id = p.category_id
 `;
 
-export async function findAll({ search = "", categoryId = null, onlyLowStock = false } = {}) {
+function escapeLike(text) {
+  return text.replace(/[\\%_]/g, "\\$&");
+}
+
+function buildListFilters({ search = "", categoryId = null, onlyLowStock = false }) {
   const conditions = [];
   const params = [];
 
   if (search) {
+    const pattern = `%${escapeLike(search)}%`;
     conditions.push("(p.name LIKE ? OR p.sku LIKE ?)");
-    params.push(`%${search}%`, `%${search}%`);
+    params.push(pattern, pattern);
   }
 
   if (categoryId) {
@@ -36,7 +41,38 @@ export async function findAll({ search = "", categoryId = null, onlyLowStock = f
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-  const [rows] = await pool.query(`${SELECT_PRODUCT} ${where} ORDER BY p.name`, params);
+  return { where, params };
+}
+
+export async function findAll(filters = {}) {
+  const { where, params } = buildListFilters(filters);
+  const [rows] = await pool.query(
+    `${SELECT_PRODUCT} ${where} ORDER BY p.name, p.id LIMIT ? OFFSET ?`,
+    [...params, filters.pageSize, filters.offset]
+  );
+
+  return rows.map(toProduct);
+}
+
+export async function countAll(filters = {}) {
+  const { where, params } = buildListFilters(filters);
+  const [rows] = await pool.query(`SELECT COUNT(*) AS total FROM products p ${where}`, params);
+
+  return Number(rows[0].total);
+}
+
+export async function search({ term, limit }) {
+  const escaped = escapeLike(term);
+  const [rows] = await pool.query(
+    `${SELECT_PRODUCT}
+      WHERE p.active = TRUE
+        AND (p.name LIKE ? OR p.sku LIKE ?)
+      ORDER BY (p.sku = ?) DESC,
+               (p.name LIKE ?) DESC,
+               p.name
+      LIMIT ?`,
+    [`%${escaped}%`, `%${escaped}%`, term, `${escaped}%`, limit]
+  );
 
   return rows.map(toProduct);
 }

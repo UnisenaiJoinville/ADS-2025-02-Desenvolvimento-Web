@@ -1,0 +1,53 @@
+CREATE TABLE IF NOT EXISTS categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80) NOT NULL UNIQUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  sku VARCHAR(40) NOT NULL UNIQUE,
+  category_id INT NULL,
+  cost_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  sale_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  quantity INT NOT NULL DEFAULT 0,
+  minimum_stock INT NOT NULL DEFAULT 0,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_products_category
+    FOREIGN KEY (category_id) REFERENCES categories (id)
+    ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  user_id INT NULL,
+  type ENUM('IN', 'OUT') NOT NULL,
+  quantity INT NOT NULL,
+  note VARCHAR(180) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_movements_product
+    FOREIGN KEY (product_id) REFERENCES products (id)
+    ON DELETE RESTRICT,
+  CONSTRAINT fk_movements_user
+    FOREIGN KEY (user_id) REFERENCES users (id)
+    ON DELETE SET NULL
+);
+
+CREATE INDEX idx_products_category ON products (category_id);
+CREATE INDEX idx_movements_product ON stock_movements (product_id);
+CREATE INDEX idx_movements_created_at ON stock_movements (created_at);
+CREATE INDEX idx_movements_user ON stock_movements (user_id);

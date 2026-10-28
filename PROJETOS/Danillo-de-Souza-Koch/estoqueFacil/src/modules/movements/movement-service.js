@@ -15,6 +15,10 @@ export async function createMovement(input, userId = null) {
     throw new NotFoundError("Produto nao encontrado");
   }
 
+  if (result.status === "PRODUCT_INACTIVE") {
+    throw new AppError("Produto inativo nao pode receber movimentacoes. Reative-o antes");
+  }
+
   if (result.status === "INSUFFICIENT_STOCK") {
     throw new AppError(`Estoque insuficiente. Disponivel: ${result.available} unidade(s)`);
   }

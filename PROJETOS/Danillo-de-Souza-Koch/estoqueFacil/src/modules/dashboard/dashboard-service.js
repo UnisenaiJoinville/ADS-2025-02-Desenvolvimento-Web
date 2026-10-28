@@ -33,3 +33,13 @@ export async function getDashboard() {
     recentMovements,
   };
 }
+
+export async function getDailyMovements(days) {
+  const rows = await repository.getDailyMovements(days);
+
+  return rows.map((row) => ({
+    day: row.day,
+    unitsIn: Number(row.unitsIn),
+    unitsOut: Number(row.unitsOut),
+  }));
+}
