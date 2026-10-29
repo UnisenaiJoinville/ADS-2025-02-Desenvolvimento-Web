@@ -44,4 +44,8 @@ export const env = {
     // para nos e para quem tentar quebrar a senha na forca bruta.
     saltRounds: 10,
   },
-};
+  // "true" somente quando ha um proxy (Caddy) na frente da API (Aula 67).
+  // Em desenvolvimento fica desligado: sem proxy, o cabecalho
+  // X-Forwarded-For poderia ser inventado por qualquer um.
+  trustProxy: process.env.TRUST_PROXY === "true",
+};

@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Movimentacoes | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSS gerado pelo Tailwind CLI (Aula 69): npm run css:build -->
+    <link rel="stylesheet" href="/css/app.css" />
+    <!-- Icones (Aula 60). Versao fixa: o site nao muda sozinho amanha. -->
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <div data-nav></div>
@@ -23,20 +26,62 @@
           <h2 class="mb-4 text-lg font-semibold text-slate-900">Registrar movimentacao</h2>
 
           <form data-form class="space-y-4">
-            <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Produto</label>
-              <select
-                name="productId"
-                required
-                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
-              >
-                <option value="">Selecione...</option>
-              </select>
-              <p data-stock-hint class="mt-1 text-xs text-slate-500"></p>
+            <!-- Autocomplete de produto (Aula 63) -->
+            <div data-product-picker class="relative">
+              <label for="product-search" class="mb-1 block text-sm font-medium text-slate-700">
+                Produto
+              </label>
+
+              <div class="relative">
+                <!-- Lupa decorativa dentro do campo -->
+                <i
+                  data-lucide="search"
+                  class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                ></i>
+
+                <input
+                  id="product-search"
+                  data-product-search
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="product-options"
+                  placeholder="Digite o nome ou o SKU..."
+                  class="w-full rounded-xl border border-slate-300 py-2 pl-9 pr-9 text-sm outline-none focus:border-slate-900"
+                />
+
+                <!-- Botao "x": so aparece quando ha algo no campo -->
+                <button
+                  type="button"
+                  data-product-clear
+                  aria-label="Limpar produto"
+                  title="Limpar produto"
+                  class="absolute inset-y-0 right-0 hidden grid w-9 place-items-center rounded-r-xl text-slate-400 hover:text-slate-900"
+                >
+                  <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
+              </div>
+
+              <!-- O que vai para a API: o id do produto escolhido -->
+              <input type="hidden" name="productId" />
+
+              <!-- A lista de sugestoes, flutuando sobre o formulario -->
+              <ul
+                id="product-options"
+                data-product-options
+                role="listbox"
+                aria-label="Produtos encontrados"
+                class="absolute z-20 mt-1 hidden max-h-72 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg"
+              ></ul>
+
+              <p data-stock-hint class="mt-1 text-xs text-slate-500" aria-live="polite"></p>
             </div>
 
-            <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Tipo</label>
+            <fieldset>
+              <legend class="mb-1 block text-sm font-medium text-slate-700">Tipo</legend>
               <div class="grid grid-cols-2 gap-2">
                 <label class="cursor-pointer">
                   <input type="radio" name="type" value="IN" class="peer sr-only" checked />
@@ -55,31 +100,37 @@
                   </span>
                 </label>
               </div>
-            </div>
+            </fieldset>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Quantidade</label>
+              <label for="movement-quantity" class="mb-1 block text-sm font-medium text-slate-700">Quantidade</label>
               <input
+                id="movement-quantity"
                 name="quantity"
                 type="number"
                 min="1"
                 value="1"
                 required
+                inputmode="numeric"
                 class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
               />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Observacao</label>
+              <label for="movement-note" class="mb-1 block text-sm font-medium text-slate-700">Observacao</label>
               <input
+                id="movement-note"
                 name="note"
+                maxlength="180"
                 placeholder="Compra, venda, ajuste..."
                 class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
               />
             </div>
 
             <button
-              class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+              type="submit"
+              data-submit
+              class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               Registrar
             </button>
