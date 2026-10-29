@@ -20,8 +20,6 @@ Aluno: **Thiago Soethe Paschoal**
 | 🖼️ **Apresentação completa** (telas, funcionalidades, arquitetura, segurança e testes) | [github.com/thiagosoethe/FisioLife](https://github.com/thiagosoethe/FisioLife) | Público |
 | 💻 **Código-fonte** | `github.com/thiagosoethe/FisioLife-codigo` | Privado (acesso liberado ao professor) |
 
-> O código-fonte está em um repositório privado para proteger a propriedade intelectual do sistema. O professor tem acesso como colaborador para avaliação.
-
 ---
 
 ## Sobre o projeto
