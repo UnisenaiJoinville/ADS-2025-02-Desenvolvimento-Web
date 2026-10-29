@@ -40,3 +40,5 @@ export async function getDashboard() {
     recentMovements,
   };
 }
+
+export async function getDailyMovements(days) { return repository.getDailyMovements(days); }

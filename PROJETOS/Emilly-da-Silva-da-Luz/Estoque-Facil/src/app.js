@@ -11,6 +11,7 @@ const publicDir = path.resolve(currentDir, "..", "public");
 
 export const app = express();
 
+app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
 app.use(express.json());
 
 app.use((request, response, next) => {

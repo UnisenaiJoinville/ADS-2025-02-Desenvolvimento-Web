@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Produtos | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <div data-nav></div>
@@ -56,6 +57,7 @@
         </form>
       </section>
 
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3 text-sm"><span data-page-info aria-live="polite"></span><div class="flex items-center gap-2">Por página <select data-page-size class="rounded border p-1"><option>10</option><option>20</option><option>50</option></select><button type="button" data-prev class="rounded border px-3 py-1">Anterior</button><span data-page-label></span><button type="button" data-next class="rounded border px-3 py-1">Próxima</button></div></div>
       <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
