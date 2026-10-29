@@ -1,3 +1,4 @@
+import {parsePagination} from "../../shared/http/pagination.js";
 import { parseId } from "../../shared/http/parse-id.js";
 
 import * as service from "./product-service.js";
@@ -9,6 +10,7 @@ export async function index(request, response) {
     search: typeof search === "string" ? search.trim() : "",
     categoryId: categoryId ? parseId(categoryId, "categoryId") : null,
     onlyLowStock: lowStock === "true",
+    ...parsePagination(request.query),
   });
 
   response.json(products);
@@ -41,3 +43,5 @@ export async function destroy(request, response) {
 
   response.status(204).send();
 }
+
+export async function search(request,response) { response.json(await service.searchProducts(request.query.q, request.query.limit ?? 8)); }

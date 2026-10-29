@@ -17,13 +17,13 @@ const SELECT_PRODUCT = `
     LEFT JOIN categories c ON c.id = p.category_id
 `;
 
-export async function findAll({ search = "", categoryId = null, onlyLowStock = false } = {}) {
+export async function findAll({ search = "", categoryId = null, onlyLowStock = false, page = 1, pageSize = 10 } = {}) {
   const conditions = [];
   const params = [];
 
   if (search) {
     conditions.push("(p.name LIKE ? OR p.sku LIKE ?)");
-    params.push(`%${search}%`, `%${search}%`);
+    params.push(`%${escapeLike(search)}%`, `%${escapeLike(search)}%`);
   }
 
   if (categoryId) {
@@ -38,8 +38,8 @@ export async function findAll({ search = "", categoryId = null, onlyLowStock = f
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
   const [rows] = await pool.query(
-    `${SELECT_PRODUCT} ${where} ORDER BY p.name`,
-    params
+    `${SELECT_PRODUCT} ${where} ORDER BY p.name LIMIT ? OFFSET ?`,
+    [...params, pageSize, (page - 1) * pageSize]
   );
 
   return rows.map(toProduct);
@@ -120,4 +120,19 @@ function toProduct(row) {
     active: Boolean(row.active),
     lowStock: row.quantity <= row.minimumStock,
   };
+}
+
+function escapeLike(value) { return value.replace(/[\\%_]/g, "\\$&"); }
+export async function countAll({search = "", categoryId = null, onlyLowStock = false} = {}) {
+ const conditions = [], params = [];
+ if (search) { conditions.push('(p.name LIKE ? OR p.sku LIKE ?)');params.push(...Array(2).fill(`%${escapeLike(search)}%`)); }
+ if (categoryId) {conditions.push('p.category_id = ?');params.push(categoryId);}
+ if (onlyLowStock) conditions.push('p.quantity <= p.minimum_stock');
+ const [rows] = await pool.query(`SELECT COUNT(*) AS total FROM products p ${conditions.length?'WHERE '+conditions.join(' AND '):''}`,params);
+ return Number(rows[0].total);
+}
+export async function search({term,limit}) {
+ const escaped = escapeLike(term);
+ const [rows] = await pool.query(`${SELECT_PRODUCT} WHERE p.active = TRUE AND (p.name LIKE ? OR p.sku LIKE ?) ORDER BY (p.sku = ?) DESC, (p.name LIKE ?) DESC, p.name LIMIT ?`,[`%${escaped}%`,`%${escaped}%`,term,`${escaped}%`,limit]);
+ return rows.map(toProduct);
 }

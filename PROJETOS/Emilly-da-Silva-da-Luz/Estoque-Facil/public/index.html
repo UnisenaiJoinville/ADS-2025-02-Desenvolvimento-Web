@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <div data-nav></div>
@@ -60,10 +61,11 @@
           </table>
         </div>
       </section>
-    </main>
+    <section class="mx-auto max-w-7xl px-6 pb-8"><div class="rounded-2xl bg-white p-6"><div class="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 class="font-semibold">Entradas x saídas por dia</h2><div class="flex gap-2"><button data-days="7" class="rounded border px-3 py-1">7 dias</button><button data-days="30" class="rounded border px-3 py-1">30 dias</button><button data-days="90" class="rounded border px-3 py-1">90 dias</button></div></div><div class="relative h-72"><canvas data-movement-chart aria-label="Gráfico de entradas e saídas" role="img"></canvas></div></div></section></main>
 
     <div data-toast-stack class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script type="module" src="/js/dashboard.js"></script>
   </body>
 </html>
