@@ -1,8 +1,19 @@
+import { AppError } from "../../shared/errors/app-error.js";
+import { parseId } from "../../shared/http/parse-id.js";
+import * as service from "./product-service.js";
 import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
 import * as categoryRepository from "../categories/category-repository.js";
-
 import * as repository from "./product-repository.js";
 import { validateProductInput } from "./product-validator.js";
+import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
+import { buildPagination } from "../../shared/http/pagination.js";
+import * as categoryRepository from "../categories/category-repository.js";
+import * as movementRepository from "../movements/movement-repository.js";
+
+// Limites da busca rapida (Aula 62). Toda listagem precisa de um teto.
+const SEARCH_DEFAULT_LIMIT = 8;
+const SEARCH_MAX_LIMIT = 20;
+const SEARCH_MAX_LENGTH = 60;
 
 async function ensureCategoryExists(categoryId) {
   if (categoryId === null) {
@@ -17,16 +28,20 @@ async function ensureCategoryExists(categoryId) {
 }
 
 export async function listProducts(filters) {
-  const { data, total, page, perPage } = await repository.findAll(filters);
-  const totalPages = Math.ceil(total / perPage) || 1;
+  // As duas consultas sao independentes: rodam ao mesmo tempo.
+  const [rows, total] = await Promise.all([
+    repository.findAll(filters),
+    repository.countAll(filters),
+  ]);
 
   return {
-    data,
-    total,
-    page,
-    perPage,
-    totalPages,
+    pagination: buildPagination(filters, total),
+    rows,
   };
+}
+
+export async function searchProducts(filters) {
+  return repository.search(filters);
 }
 
 export async function getProduct(id) {
@@ -71,6 +86,16 @@ export async function updateProduct(id, input) {
 
 export async function deleteProduct(id) {
   await getProduct(id);
+
+  // O banco ja recusaria (FK RESTRICT, Aula 65), mas com uma mensagem
+  // tecnica. Conferimos antes para explicar o motivo em portugues.
+  const movementCount = await movementRepository.countByProduct(id);
+
+  if (movementCount > 0) {
+    throw new ConflictError(
+      `Este produto tem ${movementCount} movimentacao(oes) no historico e nao pode ser excluido.`
+    );
+  }
 
   await repository.remove(id);
 }

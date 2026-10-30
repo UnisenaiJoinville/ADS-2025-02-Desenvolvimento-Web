@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Produtos | Estoque Facil</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icones (Aula 60). Versao fixa: o site nao muda sozinho amanha. -->
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <div data-nav></div>
@@ -23,29 +25,41 @@
         </button>
       </div>
 
-      <!-- Filtros -->
+      <!-- Filtros: aplicam sozinhos, sem botao "Filtrar" (Aula 64) -->
       <section class="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
         <form data-filters class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <input
-            name="search"
-            type="search"
-            placeholder="Buscar por nome, SKU ou fornecedor"
-            class="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
-          />
-          <select
-            name="categoryId"
-            class="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
-          >
-            <option value="">Todas as categorias</option>
-          </select>
-          <label class="flex items-center gap-2 px-1 text-sm text-slate-600">
-            <input name="lowStock" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
-            Apenas estoque baixo
-          </label>
-          <div class="flex gap-2">
-            <button class="flex-1 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
-              Filtrar
-            </button>
+          <div class="relative lg:col-span-2">
+            <label for="filter-search" class="sr-only">Buscar produto</label>
+            <i
+              data-lucide="search"
+              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            ></i>
+            <input
+              id="filter-search"
+              name="search"
+              type="search"
+              autocomplete="off"
+              placeholder="Buscar por nome ou SKU"
+              class="w-full rounded-xl border border-slate-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-slate-900"
+            />
+          </div>
+
+          <div>
+            <label for="filter-category" class="sr-only">Categoria</label>
+            <select
+              id="filter-category"
+              name="categoryId"
+              class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
+            >
+              <option value="">Todas as categorias</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between gap-2">
+            <label class="flex items-center gap-2 px-1 text-sm text-slate-600">
+              <input name="lowStock" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
+              Apenas estoque baixo
+            </label>
             <button
               type="reset"
               class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
@@ -73,6 +87,45 @@
             <tbody data-rows class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
+
+        <!-- Rodape de paginacao (Aula 64) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 text-sm">
+          <p data-page-info class="text-slate-500" aria-live="polite"></p>
+
+          <div class="flex items-center gap-2">
+            <label for="page-size" class="text-slate-500">Por pagina</label>
+            <select
+              id="page-size"
+              data-page-size
+              class="rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-slate-900"
+            >
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+
+            <button
+              type="button"
+              data-page-prev
+              aria-label="Pagina anterior"
+              title="Pagina anterior"
+              class="grid h-8 w-8 place-items-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <i data-lucide="chevron-left" class="h-4 w-4"></i>
+            </button>
+            <span data-page-label class="min-w-[4rem] text-center font-medium text-slate-700"></span>
+            <button
+              type="button"
+              data-page-next
+              aria-label="Proxima pagina"
+              title="Proxima pagina"
+              class="grid h-8 w-8 place-items-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <i data-lucide="chevron-right" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </div>
+      </section>
       </section>
     </main>
 

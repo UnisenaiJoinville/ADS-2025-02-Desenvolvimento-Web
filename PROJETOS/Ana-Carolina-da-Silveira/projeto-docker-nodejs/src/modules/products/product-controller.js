@@ -1,22 +1,23 @@
+import { AppError } from "../../shared/errors/app-error.js";
+import { parsePagination } from "../../shared/http/pagination.js";
 import { parseId } from "../../shared/http/parse-id.js";
 
-import * as service from "./product-service.js";
-
 export async function index(request, response) {
-  const { search, categoryId, lowStock, includeInactive, page, perPage } = request.query;
+  const { search, categoryId, lowStock } = request.query;
 
-  // Trata e valida parâmetros de paginação
-  const parsedPage = Math.max(1, parseInt(page, 10) || 1);
-  const rawPerPage = parseInt(perPage, 10) || 20;
-  const parsedPerPage = Math.min(100, Math.max(1, rawPerPage)); // Trava perPage até o máximo de 100
+  // Padrao de 10 por pagina; no maximo 100 (toda listagem tem um teto).
+  const { page, pageSize, offset } = parsePagination(request.query, {
+    defaultPageSize: 10,
+    maxPageSize: 100,
+  });
 
   const result = await service.listProducts({
     search: typeof search === "string" ? search.trim() : "",
     categoryId: categoryId ? parseId(categoryId, "categoryId") : null,
     onlyLowStock: lowStock === "true",
-    includeInactive: includeInactive === "true",
-    page: parsedPage,
-    perPage: parsedPerPage,
+    page,
+    pageSize,
+    offset,
   });
 
   response.json(result);
