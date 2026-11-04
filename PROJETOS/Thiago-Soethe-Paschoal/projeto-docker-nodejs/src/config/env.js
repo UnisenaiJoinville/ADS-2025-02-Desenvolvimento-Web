@@ -41,4 +41,7 @@ export const env = {
     jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || "1d",
     saltRounds: 10,
   },
+  // "true" somente quando ha um proxy (Caddy) na frente da API (Aula 67).
+  // Sem proxy, o X-Forwarded-For poderia ser inventado por qualquer um.
+  trustProxy: process.env.TRUST_PROXY === "true",
 };
