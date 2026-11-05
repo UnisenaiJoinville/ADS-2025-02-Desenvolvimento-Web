@@ -6,7 +6,9 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon -L --watch src --signal SIGTERM src/server.js"
+    "dev": "nodemon -L --watch src --signal SIGTERM src/server.js",
+    "css:build": "tailwindcss -i ./styles/app.css -o ./public/css/app.css --minify",
+    "css:watch": "tailwindcss -i ./styles/app.css -o ./public/css/app.css --watch"
   },
   "engines": {
     "node": ">=20.6.0"
@@ -14,10 +16,12 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.7.1",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.11.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "tailwindcss": "^3.4.17"
   }
 }

@@ -40,3 +40,14 @@ export async function getDashboard() {
     recentMovements,
   };
 }
+
+export async function getDailyMovements(days) {
+  const rows = await repository.getDailyMovements(days);
+
+  // SUM devolve DECIMAL, que o mysql2 entrega como texto: "12".
+  return rows.map((row) => ({
+    day: row.day,
+    unitsIn: Number(row.unitsIn),
+    unitsOut: Number(row.unitsOut),
+  }));
+}
