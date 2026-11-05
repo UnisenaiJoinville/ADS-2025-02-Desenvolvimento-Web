@@ -1,6 +1,6 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
+import { currency, escapeHtml, mountLayout, toast, confirmDialog } from "./layout.js";
 
 mountLayout("/produtos.html");
 
@@ -11,6 +11,9 @@ const modalTitle = document.querySelector("[data-modal-title]");
 const form = document.querySelector("[data-form]");
 
 let categories = [];
+let page = 1;
+let pageSize = 10;
+let currentController;
 
 function openModal(product) {
   modalTitle.textContent = product ? "Editar produto" : "Novo produto";
@@ -125,10 +128,15 @@ function currentFilters() {
 
 async function loadProducts() {
   try {
-    const products = await api.listProducts(currentFilters());
-    renderRows(products);
+    currentController?.abort();currentController=new AbortController();
+    const result = await api.listProducts({...currentFilters(),page,pageSize},{signal:currentController.signal});
+    renderRows(result.rows);
+    document.querySelector('[data-page-info]').textContent=`${result.pagination.total} produto(s)`;
+    document.querySelector('[data-page-label]').textContent=`${result.pagination.page} / ${result.pagination.totalPages}`;
+    document.querySelector('[data-prev]').disabled=page<=1;
+    document.querySelector('[data-next]').disabled=page>=result.pagination.totalPages;
   } catch (error) {
-    toast(error.message, "error");
+    if(error.name!=="CanceledError")toast(error.message,"error");
   }
 }
 
@@ -147,16 +155,21 @@ async function loadCategories() {
 
 filtersForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  loadProducts();
+  page=1;loadProducts();
 });
+filtersForm.elements.search.addEventListener("input",()=>{clearTimeout(window.productSearchTimer);window.productSearchTimer=setTimeout(()=>{page=1;loadProducts();},250);});
+filtersForm.elements.categoryId.addEventListener("change",()=>{page=1;loadProducts();});
+document.querySelector("[data-page-size]").addEventListener("change",e=>{pageSize=Number(e.target.value);page=1;loadProducts();});
+document.querySelector("[data-prev]").addEventListener("click",()=>{page=Math.max(1,page-1);loadProducts();});
+document.querySelector("[data-next]").addEventListener("click",()=>{page++;loadProducts();});
 
 filtersForm.addEventListener("reset", () => {
   setTimeout(loadProducts, 0);
 });
 
 rowsContainer.addEventListener("click", async (event) => {
-  const editId = event.target.dataset.edit;
-  const deleteId = event.target.dataset.delete;
+  const editId = event.target.closest("[data-edit]")?.dataset.edit;
+  const deleteId = event.target.closest("[data-delete]")?.dataset.delete;
 
   if (editId) {
     try {
@@ -168,14 +181,14 @@ rowsContainer.addEventListener("click", async (event) => {
   }
 
   if (deleteId) {
-    if (!window.confirm("Deseja realmente excluir este produto?")) return;
+    if (!await confirmDialog("Deseja realmente excluir este produto?")) return;
 
     try {
       await api.deleteProduct(deleteId);
       toast("Produto excluido");
       loadProducts();
     } catch (error) {
-      toast(error.message, "error");
+      if(error.status===409)toast("Produto possui historico. Edite e desmarque Ativo para inativar.","error");else toast(error.message,"error");
     }
   }
 });

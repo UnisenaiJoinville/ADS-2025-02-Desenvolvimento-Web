@@ -1,6 +1,8 @@
 import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
 import * as categoryRepository from "../categories/category-repository.js";
 
+import {buildPagination} from "../../shared/http/pagination.js";
+import * as movementRepository from "../movements/movement-repository.js";
 import * as repository from "./product-repository.js";
 import { validateProductInput } from "./product-validator.js";
 
@@ -17,9 +19,17 @@ async function ensureCategoryExists(categoryId) {
 }
 
 export async function listProducts(filters) {
-  return repository.findAll(filters);
+  const [rows,total] = await Promise.all([repository.findAll(filters),repository.countAll(filters)]);
+  return {rows,pagination:buildPagination(filters,total)};
 }
 
+export async function searchProducts(q, limit = 8) {
+ const term = typeof q === 'string' ? q.trim() : '';
+ if (!term) return [];
+ const size = Number(limit);
+ if (!Number.isInteger(size) || size < 1 || size > 20) throw new AppError('Limite invalido');
+ return repository.search({term,limit:size});
+}
 export async function getProduct(id) {
   const product = await repository.findById(id);
 
@@ -63,5 +73,6 @@ export async function updateProduct(id, input) {
 export async function deleteProduct(id) {
   await getProduct(id);
 
+  if (await movementRepository.countByProduct(id)) throw new ConflictError("Produto possui movimentacoes. Inative-o para preservar o historico");
   await repository.remove(id);
 }
