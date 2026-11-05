@@ -1,10 +1,23 @@
+import { clearSession, getToken, LOGIN_PAGE } from "./auth.js";
+
 const BASE_URL = "/api";
 
 async function request(path, options = {}) {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+  const token = getToken();
+  const headers = { "Content-Type": "application/json", ...options.headers };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+
+  if (response.status === 401 && token) {
+    clearSession();
+    window.location.replace(LOGIN_PAGE);
+
+    throw new Error("Sessao expirada. Faca login novamente");
+  }
 
   if (response.status === 204) {
     return null;
@@ -20,6 +33,12 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  register: (payload) =>
+    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+  login: (payload) =>
+    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
+  me: () => request("/auth/me"),
+
   getDashboard: () => request("/dashboard"),
 
   listCategories: () => request("/categories"),

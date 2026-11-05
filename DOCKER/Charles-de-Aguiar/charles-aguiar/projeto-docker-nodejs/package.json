@@ -12,7 +12,10 @@
     "node": ">=20.6.0"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.5"
   }
 }

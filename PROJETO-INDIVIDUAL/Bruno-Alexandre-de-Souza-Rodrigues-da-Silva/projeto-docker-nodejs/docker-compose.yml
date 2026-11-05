@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: estoque-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_HOST_PORT:-3308}:3306"
+    volumes:
+      - estoque-db-data:/var/lib/mysql
+      # Todo arquivo .sql aqui roda na PRIMEIRA criacao do banco
+      - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  api:
+    build: .
+    container_name: estoque-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  estoque-db-data:

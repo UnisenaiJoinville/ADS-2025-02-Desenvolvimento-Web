@@ -18,6 +18,12 @@ function requirePort(key, fallback) {
   return port;
 }
 
+const jwtSecret = requireEnv("JWT_SECRET");
+
+if (jwtSecret.length < 32) {
+  throw new Error("JWT_SECRET deve ter pelo menos 32 caracteres");
+}
+
 export const env = {
   port: requirePort("PORT", 3000),
   database: {
@@ -27,4 +33,10 @@ export const env = {
     password: requireEnv("DB_PASSWORD"),
     name: requireEnv("DB_NAME"),
   },
+  auth: {
+    jwtSecret,
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || "1d",
+    saltRounds: 10,
+  },
+  trustProxy: process.env.TRUST_PROXY === "true",
 };

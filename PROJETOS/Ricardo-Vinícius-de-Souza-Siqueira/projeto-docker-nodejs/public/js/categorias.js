@@ -1,3 +1,4 @@
+import { requireAuth } from "./auth.js";
 import { api } from "./api.js";
 import { escapeHtml, mountLayout, toast } from "./layout.js";
 
@@ -104,4 +105,6 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-loadCategories();
+if (requireAuth()) {
+  loadCategories(); 
+}

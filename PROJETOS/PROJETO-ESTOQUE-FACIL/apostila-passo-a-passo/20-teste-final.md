@@ -1,6 +1,6 @@
-# Etapa 20 — Teste final 🏁
+# Etapa 20 — Teste final
 
-📋 **Tipo:** roteiro de verificação ponta a ponta
+**Tipo:** roteiro de verificação ponta a ponta
 
 ---
 
@@ -26,18 +26,18 @@ Este roteiro serve como **verificação final**: se todos os itens passarem, o p
 | # | Ação | Resultado esperado |
 |---|---|---|
 | 1 | Cadastre a categoria `Hortifruti` | Aparece na tabela com `0` produtos |
-| 2 | Tente cadastrar `hortifruti` de novo | 🔴 *"Ja existe uma categoria com esse nome"* |
+| 2 | Tente cadastrar `hortifruti` de novo | *"Ja existe uma categoria com esse nome"* |
 
 **Tela:** http://localhost:3000/produtos.html
 
 | # | Ação | Resultado esperado |
 |---|---|---|
-| 3 | **+ Novo produto**: nome `Banana prata`, SKU `hor-001`, categoria `Hortifruti`, custo `4`, venda `7,50`, qtd `30`, mínimo `10` | 🟢 Produto cadastrado |
+| 3 | **+ Novo produto**: nome `Banana prata`, SKU `hor-001`, categoria `Hortifruti`, custo `4`, venda `7,50`, qtd `30`, mínimo `10` | Produto cadastrado |
 | 4 | Olhe o SKU na tabela | Aparece **`HOR-001`** (maiúsculas) |
-| 5 | **Editar** a banana, mude a quantidade para `5` | Status vira 🔴 **"Estoque baixo"** |
+| 5 | **Editar** a banana, mude a quantidade para `5` | Status vira **"Estoque baixo"** |
 | 6 | Marque **"Apenas estoque baixo"** e filtre | A banana aparece na lista |
 
-> 🎓 **O que isso comprova:** validação, normalização de dados, campo calculado `lowStock` e filtros dinâmicos.
+> **O que isso comprova:** validação, normalização de dados, campo calculado `lowStock` e filtros dinâmicos.
 
 ---
 
@@ -48,17 +48,17 @@ Este roteiro serve como **verificação final**: se todos os itens passarem, o p
 | # | Ação | Resultado esperado |
 |---|---|---|
 | 1 | Selecione `Banana prata` | Dica: *"Estoque atual: 5 unidade(s)"* |
-| 2 | **Entrada** de `50` | 🟢 Entrada registrada |
+| 2 | **Entrada** de `50` | Entrada registrada |
 | 3 | Selecione o produto de novo | Dica mostra **55** |
 | 4 | **Saída** de `20` | Histórico mostra `-20` em vermelho |
 | 5 | Selecione o produto | Dica mostra **35** |
-| 6 | **Saída** de `9999` | 🔴 *"Estoque insuficiente. Disponivel: 35 unidade(s)"* |
+| 6 | **Saída** de `9999` | *"Estoque insuficiente. Disponivel: 35 unidade(s)"* |
 | 7 | Olhe o histórico | **Nenhuma** linha nova foi criada |
 | 8 | Selecione o produto | Continua **35** |
 
-> 🎓 **O que isso comprova:** transação, `ROLLBACK`, `FOR UPDATE` e a regra de estoque negativo.
+> **O que isso comprova:** transação, `ROLLBACK`, `FOR UPDATE` e a regra de estoque negativo.
 
-### ⭐ O momento-chave
+### O momento-chave
 
 Pare no passo 7 e repare:
 
@@ -96,7 +96,7 @@ docker compose exec db mysql -u estoque -pestoque123 estoque_db \
 | 7 | **Últimas movimentações** | Mostra as do Teste 2 no topo |
 | 8 | Clique em **Atualizar** | Toast azul e dados recarregados |
 
-> 🎓 **O que isso comprova:** agregações SQL (`SUM`, `GROUP BY`, `CASE WHEN`) e `Promise.all`.
+> **O que isso comprova:** agregações SQL (`SUM`, `GROUP BY`, `CASE WHEN`) e `Promise.all`.
 
 ---
 
@@ -136,7 +136,7 @@ curl http://localhost:3000/api/naoexiste
 
 Todas devem devolver **JSON** com uma mensagem clara em português.
 
-> 💭 **Para pensar:** *"Se a validação já existe no formulário HTML (`required`, `min`, `type=number`), por que precisamos dela no backend também?"*
+> **Para pensar:** *"Se a validação já existe no formulário HTML (`required`, `min`, `type=number`), por que precisamos dela no backend também?"*
 >
 > **Resposta:** porque qualquer pessoa pode chamar a API direto, sem passar pelo formulário — como acabamos de fazer com o `curl`. Validação no front é **conveniência**; no backend é **segurança**.
 
@@ -172,7 +172,7 @@ Aguarde uns 20 segundos e abra o dashboard:
 http://localhost:3000
 ```
 
-> 🎉 **Todos os dados continuam lá!** Inclusive a Banana prata e as movimentações do Teste 2.
+> **Todos os dados continuam lá!** Inclusive a Banana prata e as movimentações do Teste 2.
 
 **Por quê?** Porque o volume `estoque-db-data` sobreviveu. Os containers foram recriados, mas os dados estavam guardados fora deles.
 
@@ -187,11 +187,11 @@ docker compose up -d
 
 Aguarde o banco subir (uns 30 segundos) e recarregue o dashboard.
 
-> 💀 **Os dados voltaram aos 7 produtos originais.** A Banana prata, a categoria Hortifruti e todas as movimentações que você registrou **sumiram**.
+> **Os dados voltaram aos 7 produtos originais.** A Banana prata, a categoria Hortifruti e todas as movimentações que você registrou **sumiram**.
 
 **Por quê?** O `-v` apagou o volume. Sem volume, o MySQL recriou o banco do zero e rodou o `init.sql` de novo.
 
-### 📌 A conclusão sobre Docker
+### A conclusão sobre Docker
 
 Escreva isto no quadro:
 
@@ -199,9 +199,9 @@ Escreva isto no quadro:
 
 | Comando | Containers | Volume (dados) |
 |---|---|---|
-| `docker compose restart` | Reiniciados | ✅ Preservado |
-| `docker compose down` | Destruídos | ✅ Preservado |
-| `docker compose down -v` | Destruídos | ❌ **Apagado** |
+| `docker compose restart` | Reiniciados | Preservado |
+| `docker compose down` | Destruídos | Preservado |
+| `docker compose down -v` | Destruídos | **Apagado** |
 
 ---
 
@@ -241,7 +241,7 @@ E percorra mentalmente (ou no quadro) o caminho:
 15. produtos.js       toast("Produto cadastrado") + recarrega a lista
 ```
 
-> 🎓 **Se você consegue explicar esses 15 passos, você entendeu o projeto.**
+> **Se você consegue explicar esses 15 passos, você entendeu o projeto.**
 
 E se der erro, o caminho é o mesmo, desviando no passo 8 ou 9:
 
@@ -260,7 +260,7 @@ E se der erro, o caminho é o mesmo, desviando no passo 8 ou 9:
 
 ---
 
-## ✅ Checklist final do projeto
+## Checklist final do projeto
 
 ### Infraestrutura
 
@@ -296,7 +296,7 @@ E se der erro, o caminho é o mesmo, desviando no passo 8 ou 9:
 
 ---
 
-## 🎓 Para fechar
+## Para fechar
 
 Responda a estas perguntas:
 
@@ -310,14 +310,14 @@ Responda a estas perguntas:
 
 ---
 
-## ➡️ Próximos passos
+## Próximos passos
 
 - **[Etapa 21 — Solução de problemas](21-solucao-de-problemas.md)** — guarde para consulta
 - **[Etapa 22 — Exercícios e checklist](22-exercicios-e-checklist.md)** — para fixar
 
 ---
 
-## 🏆 Parabéns!
+## Parabéns!
 
 Se você chegou até aqui com todos os itens marcados, você construiu — do zero — uma aplicação web completa, com:
 

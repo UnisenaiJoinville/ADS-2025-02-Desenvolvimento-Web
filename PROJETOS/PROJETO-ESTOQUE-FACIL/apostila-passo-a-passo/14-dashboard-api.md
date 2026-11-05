@@ -1,6 +1,6 @@
 # Etapa 14 — Dashboard (API)
 
-📋 **Tipo:** prática (SQL de agregação)
+**Tipo:** prática (SQL de agregação)
 
 ---
 
@@ -22,7 +22,7 @@ Ao final, a API estará **completa**.
 
 Queremos mostrar "valor total em estoque". Há dois caminhos:
 
-### ❌ Caminho 1 — Trazer tudo e somar no JavaScript
+### Caminho 1 — Trazer tudo e somar no JavaScript
 
 ```javascript
 const products = await repository.findAll();          // traz 10.000 produtos
@@ -37,7 +37,7 @@ const total = products.reduce(
 - Ocupa memória do servidor com dados que serão descartados
 - O JavaScript soma um por um
 
-### ✅ Caminho 2 — Pedir a conta pronta ao banco
+### Caminho 2 — Pedir a conta pronta ao banco
 
 ```sql
 SELECT SUM(quantity * cost_price) FROM products;
@@ -49,7 +49,7 @@ SELECT SUM(quantity * cost_price) FROM products;
 - O banco é otimizado para isso há 30 anos
 - Usa os índices que criamos
 
-> 📌 **Regra:** se você só precisa do resultado da conta, faça a conta no banco.
+> **Regra:** se você só precisa do resultado da conta, faça a conta no banco.
 
 ---
 
@@ -164,7 +164,7 @@ O banco faz, linha por linha, e soma tudo:
 
 Tudo isso em **uma passada** pela tabela.
 
-### 🛡️ `COALESCE` — a proteção contra `NULL`
+### `COALESCE` — a proteção contra `NULL`
 
 ```sql
 COALESCE(SUM(quantity), 0)
@@ -180,12 +180,12 @@ SELECT SUM(quantity) FROM products WHERE active = TRUE;
 -- Resultado: NULL
 
 SELECT COALESCE(SUM(quantity), 0) FROM products WHERE active = TRUE;
--- Resultado: 0  ✅
+-- Resultado: 0 
 ```
 
 Sem o `COALESCE`, o dashboard mostraria "R$ null" no primeiro dia de uso do sistema.
 
-> 📌 **Lembra do `NaN` em uma média sem itens?**
+> **Lembra do `NaN` em uma média sem itens?**
 >
 > ```javascript
 > return soma / quantidade;   // 0 / 0 = NaN
@@ -193,7 +193,7 @@ Sem o `COALESCE`, o dashboard mostraria "R$ null" no primeiro dia de uso do sist
 >
 > É **exatamente** o mesmo tipo de problema: sempre pense no caso do **conjunto vazio**.
 
-### 🎯 `SUM(CASE WHEN ...)` — contagem condicional
+### `SUM(CASE WHEN ...)` — contagem condicional
 
 ```sql
 SUM(CASE WHEN quantity <= minimum_stock THEN 1 ELSE 0 END) AS lowStockCount
@@ -255,7 +255,7 @@ Ordena pela **gravidade** do problema, não pela quantidade:
 | Água | 8 | 20 | **-12** | 2º |
 | Teclado | 3 | 4 | **-1** | 3º |
 
-> 💡 Repare: o teclado tem *menos* unidades (3), mas está *menos* crítico, porque o mínimo dele é baixo. A diferença é a medida certa.
+> Repare: o teclado tem *menos* unidades (3), mas está *menos* crítico, porque o mínimo dele é baixo. A diferença é a medida certa.
 
 ### `LIMIT ?` também é parâmetro
 
@@ -320,7 +320,7 @@ Salve.
 
 ---
 
-## ⚡ `Promise.all` — o ganho de desempenho da etapa
+## `Promise.all` — o ganho de desempenho da etapa
 
 Este é o conceito principal do service.
 
@@ -334,7 +334,7 @@ const [summary, month, byCategory, lowStock, recentMovements] = await Promise.al
 
 As cinco consultas **não dependem umas das outras**. Compare:
 
-### ❌ Sequencial
+### Sequencial
 
 ```javascript
 const summary = await repository.getSummary();        // espera 20ms
@@ -350,7 +350,7 @@ const recent = await repository.getRecentMovements();     // espera 20ms
    0                                          100ms
 ```
 
-### ✅ Paralelo
+### Paralelo
 
 ```javascript
 const [...] = await Promise.all([...]);
@@ -368,15 +368,15 @@ const [...] = await Promise.all([...]);
 
 **Cinco vezes mais rápido**, só reorganizando o código.
 
-> 📌 **Regra prática:** se uma operação `await` **não usa** o resultado da anterior, ela deveria estar em um `Promise.all`.
+> **Regra prática:** se uma operação `await` **não usa** o resultado da anterior, ela deveria estar em um `Promise.all`.
 
-### ⚠️ O cuidado com `Promise.all`
+### O cuidado com `Promise.all`
 
 Se **uma** das promises falhar, o `Promise.all` inteiro rejeita.
 
 Aqui isso é o comportamento **correto**: um dashboard com um card faltando seria pior que uma mensagem de erro honesta.
 
-> 💡 Se você quisesse "o que der certo, mostre", existe o `Promise.allSettled`. Mas não é o caso aqui.
+> Se você quisesse "o que der certo, mostre", existe o `Promise.allSettled`. Mas não é o caso aqui.
 
 ### Por que tantos `Number(...)`?
 
@@ -390,7 +390,7 @@ Se não convertêssemos:
 
 ```javascript
 "213" - "67"    // 146   (o "-" converte sozinho, por sorte)
-"213" + "67"    // "21367"  😱 concatenou!
+"213" + "67"    // "21367"  <- concatenou!
 ```
 
 Convertendo no service, garantimos que o front-end **sempre** recebe número e que `unitsIn - unitsOut` faz subtração de verdade.
@@ -439,7 +439,7 @@ dashboardRoutes.get("/", asyncHandler(controller.index));
 
 Salve os dois.
 
-> 👀 Repare que o dashboard **não tem validator** — ele só lê dados, não recebe nada do usuário. Cada módulo tem o que precisa, nem mais nem menos.
+> Repare que o dashboard **não tem validator** — ele só lê dados, não recebe nada do usuário. Cada módulo tem o que precisa, nem mais nem menos.
 
 ---
 
@@ -469,7 +469,7 @@ routes.use("/dashboard", dashboardRoutes);
 
 Salve.
 
-> 📌 Repare como este arquivo virou um **índice** legível: em 5 linhas você entende tudo que a API oferece.
+> Repare como este arquivo virou um **índice** legível: em 5 linhas você entende tudo que a API oferece.
 
 ---
 
@@ -521,7 +521,7 @@ Você deve ver algo assim:
 }
 ```
 
-### 🧪 Teste que o dashboard reage
+### Teste que o dashboard reage
 
 Registre uma entrada e veja os números mudarem:
 
@@ -538,11 +538,11 @@ curl -X POST http://localhost:3000/api/movements \
 curl -s http://localhost:3000/api/dashboard | grep -o '"unitsIn":[0-9]*'
 ```
 
-> ✅ O dashboard não guarda nada: ele **calcula na hora**, a cada requisição. Por isso sempre reflete a realidade.
+> O dashboard não guarda nada: ele **calcula na hora**, a cada requisição. Por isso sempre reflete a realidade.
 
 ---
 
-## 🎉 A API está completa!
+## A API está completa!
 
 Faça a conta do que você construiu:
 
@@ -567,7 +567,7 @@ curl -s http://localhost:3000/api/dashboard   | head -c 60; echo
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] Os 4 arquivos existem em `src/modules/dashboard`
 - [ ] `src/routes/index.js` registra os **4** módulos
@@ -579,7 +579,7 @@ curl -s http://localhost:3000/api/dashboard   | head -c 60; echo
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -591,7 +591,7 @@ curl -s http://localhost:3000/api/dashboard   | head -c 60; echo
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Backend 100% pronto. Agora vamos construir a interface que consome tudo isso.
 

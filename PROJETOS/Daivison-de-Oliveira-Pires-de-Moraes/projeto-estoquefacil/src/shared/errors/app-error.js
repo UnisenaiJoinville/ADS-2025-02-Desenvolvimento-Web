@@ -21,3 +21,19 @@ export class ConflictError extends AppError {
     this.name = "ConflictError";
   }
 }
+
+// 401: falta token, token invalido ou senha errada.
+export class UnauthorizedError extends AppError {
+  constructor(message = "Nao autenticado") {
+    super(message, 401);
+    this.name = "UnauthorizedError";
+  }
+}
+
+// 403: usuario autenticado, mas sem permissao.
+export class ForbiddenError extends AppError {
+  constructor(message = "Acesso negado") {
+    super(message, 403);
+    this.name = "ForbiddenError";
+  }
+}

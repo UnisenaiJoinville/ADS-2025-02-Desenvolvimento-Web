@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criar conta | Estoque Facil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <!-- Sem data-nav: quem ainda nao tem conta nao ve o menu do sistema -->
+    <main id="app" v-cloak class="grid min-h-screen place-items-center px-6 py-10">
+      <div class="w-full max-w-md">
+        <div class="mb-8 flex flex-col items-center gap-3">
+          <div class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-xl font-bold text-white">
+            EF
+          </div>
+          <div class="text-center">
+            <h1 class="text-2xl font-bold text-slate-900">Criar conta</h1>
+            <p class="text-sm text-slate-500">Leva menos de um minuto</p>
+          </div>
+        </div>
+
+        <form
+          class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+          @submit.prevent="handleSubmit"
+        >
+          <p
+            v-if="errorMessage"
+            class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+          >
+            {{ errorMessage }}
+          </p>
+
+          <!-- NOME -->
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Nome completo</span>
+            <input
+              v-model.trim="form.name"
+              type="text"
+              autocomplete="name"
+              placeholder="Ana Paula Souza"
+              class="mt-1 w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:border-slate-900"
+              :class="visibleErrors.name ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
+              @blur="touched.name = true"
+            />
+            <span v-if="visibleErrors.name" class="mt-1 block text-xs text-rose-600">
+              {{ visibleErrors.name }}
+            </span>
+          </label>
+
+          <!-- E-MAIL -->
+          <label class="mt-4 block">
+            <span class="text-sm font-medium text-slate-700">E-mail</span>
+            <input
+              v-model.trim="form.email"
+              type="email"
+              autocomplete="email"
+              placeholder="voce@empresa.com"
+              class="mt-1 w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:border-slate-900"
+              :class="visibleErrors.email ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
+              @blur="touched.email = true"
+            />
+            <span v-if="visibleErrors.email" class="mt-1 block text-xs text-rose-600">
+              {{ visibleErrors.email }}
+            </span>
+          </label>
+
+          <!-- SENHA (sem .trim: espaco na senha pode ser proposital) -->
+          <label class="mt-4 block">
+            <span class="text-sm font-medium text-slate-700">Senha</span>
+            <div class="relative mt-1">
+              <input
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+                placeholder="Minimo de 6 caracteres"
+                class="w-full rounded-xl border px-4 py-2.5 pr-20 text-sm outline-none transition focus:border-slate-900"
+                :class="visibleErrors.password ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
+                @blur="touched.password = true"
+              />
+              <button
+                type="button"
+                class="absolute inset-y-0 right-0 px-4 text-xs font-semibold text-slate-500 transition hover:text-slate-900"
+                @click="showPassword = !showPassword"
+              >
+                {{ showPassword ? "Ocultar" : "Mostrar" }}
+              </button>
+            </div>
+
+            <!-- Medidor de forca: puro estado derivado -->
+            <div v-if="form.password" class="mt-2">
+              <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                <div
+                  class="h-full rounded-full transition-all duration-300"
+                  :class="strength.color"
+                  :style="{ width: strength.width }"
+                ></div>
+              </div>
+              <span class="mt-1 block text-xs text-slate-500">
+                Forca da senha: {{ strength.label }}
+              </span>
+            </div>
+
+            <span v-if="visibleErrors.password" class="mt-1 block text-xs text-rose-600">
+              {{ visibleErrors.password }}
+            </span>
+          </label>
+
+          <!-- CONFIRMACAO -->
+          <label class="mt-4 block">
+            <span class="text-sm font-medium text-slate-700">Confirme a senha</span>
+            <input
+              v-model="form.passwordConfirmation"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              placeholder="Repita a senha"
+              class="mt-1 w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:border-slate-900"
+              :class="visibleErrors.passwordConfirmation ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
+              @blur="touched.passwordConfirmation = true"
+            />
+            <span
+              v-if="visibleErrors.passwordConfirmation"
+              class="mt-1 block text-xs text-rose-600"
+            >
+              {{ visibleErrors.passwordConfirmation }}
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            :disabled="!canSubmit"
+            class="mt-6 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            {{ loading ? "Criando conta..." : "Criar conta" }}
+          </button>
+
+          <p class="mt-6 text-center text-sm text-slate-500">
+            Ja tem conta?
+            <a href="/login.html" class="font-semibold text-slate-900 hover:underline">
+              Entrar
+            </a>
+          </p>
+        </form>
+      </div>
+    </main>
+
+    <script type="module" src="/js/cadastro.js"></script>
+  </body>
+</html>

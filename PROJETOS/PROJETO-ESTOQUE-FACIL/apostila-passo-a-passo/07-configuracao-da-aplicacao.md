@@ -1,6 +1,6 @@
 # Etapa 07 — Configuração da aplicação
 
-📋 **Tipo:** prática (código JavaScript)
+**Tipo:** prática (código JavaScript)
 
 ---
 
@@ -126,7 +126,7 @@ process.env[key] ?? fallback
 
 Devolve o valor da esquerda **a menos que** ele seja `null` ou `undefined`.
 
-> ⚠️ **Diferença importante para o `||`:**
+> **Diferença importante para o `||`:**
 >
 > ```javascript
 > 0 || 3000    // 3000  (o zero foi considerado "falso")
@@ -153,7 +153,7 @@ env.port              // 3000 (número!)
 env.database.host     // "db"
 ```
 
-> 📌 **Vantagem:** o `process.env` aparece **em um único arquivo** do projeto inteiro. Se um dia mudarmos a forma de configurar, mexemos só aqui.
+> **Vantagem:** o `process.env` aparece **em um único arquivo** do projeto inteiro. Se um dia mudarmos a forma de configurar, mexemos só aqui.
 
 ---
 
@@ -236,7 +236,7 @@ pool.query("SELECT * FROM products", (error, rows) => {
 });
 ```
 
-> ⚠️ **Esquecer o `/promise` é um erro comum.** O sintoma é que `await pool.query(...)` devolve algo estranho em vez dos dados.
+> **Esquecer o `/promise` é um erro comum.** O sintoma é que `await pool.query(...)` devolve algo estranho em vez dos dados.
 
 ### O que é um pool de conexões?
 
@@ -272,7 +272,7 @@ Abrir uma conexão com banco é **caro**: leva tempo, gasta memória dos dois la
 | `dateStrings` | `true` | Datas vêm como texto (`"2026-09-09 00:03:42"`) em vez de objeto `Date` |
 | `decimalNumbers` | `true` | `DECIMAL` vem como número em vez de string |
 
-### 💡 Por que `decimalNumbers: true`?
+### Por que `decimalNumbers: true`?
 
 Por padrão, o driver devolve `DECIMAL` como **string**, para não perder precisão em valores gigantes:
 
@@ -283,12 +283,12 @@ Por padrão, o driver devolve `DECIMAL` como **string**, para não perder precis
 
 // Com a opção:
 { costPrice: 28 }         // número
-28 + 10                   // 38  ✅
+28 + 10                   // 38  (correto)
 ```
 
 Como nossos valores são pequenos (preços de loja), a conversão é segura e evita bugs de soma.
 
-> 📌 Em um sistema bancário, com valores enormes, você manteria como string e usaria uma biblioteca de precisão decimal.
+> Em um sistema bancário, com valores enormes, você manteria como string e usaria uma biblioteca de precisão decimal.
 
 ### A função `connectWithRetry`
 
@@ -336,13 +336,13 @@ connection.release();
 
 Pegamos uma conexão só para testar e **devolvemos imediatamente**.
 
-> ⚠️ **Regra de ouro do pool:** toda conexão pega com `getConnection()` **precisa** ser devolvida com `release()`. Se você esquecer, ela fica presa para sempre. Depois de 10 esquecimentos, a aplicação trava por completo.
+> **Regra de ouro do pool:** toda conexão pega com `getConnection()` **precisa** ser devolvida com `release()`. Se você esquecer, ela fica presa para sempre. Depois de 10 esquecimentos, a aplicação trava por completo.
 >
 > Vamos ver esse cuidado de novo, com o `finally`, na Etapa 13.
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 ls src/config
@@ -362,11 +362,11 @@ Marque:
 - [ ] Todos os imports terminam com `.js` (ex.: `"./env.js"`)
 - [ ] O VS Code não mostra erros vermelhos
 
-> ⚠️ **Ainda não dá para testar.** Estes arquivos não fazem nada sozinhos — são bibliotecas. Vamos usá-los na Etapa 09.
+> **Ainda não dá para testar.** Estes arquivos não fazem nada sozinhos — são bibliotecas. Vamos usá-los na Etapa 09.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -375,11 +375,11 @@ Marque:
 | VS Code sublinha `mysql2` | A dependência não está instalada localmente | **É normal!** Ela será instalada dentro do container |
 | `env is not defined` | Erro de digitação no import | Use `import { env } from "./env.js";` com chaves |
 
-> 💡 **Sobre o sublinhado do `mysql2`:** como não rodamos `npm install` na sua máquina, o VS Code não encontra a biblioteca e reclama. Isso **não** é um erro do seu código — dentro do container ela existe.
+> **Sobre o sublinhado do `mysql2`:** como não rodamos `npm install` na sua máquina, o VS Code não encontra a biblioteca e reclama. Isso **não** é um erro do seu código — dentro do container ela existe.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Configuração pronta. Vamos criar a base de tratamento de erros.
 

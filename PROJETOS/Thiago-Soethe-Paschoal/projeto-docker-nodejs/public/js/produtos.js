@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/produtos.html");
@@ -286,4 +287,6 @@ async function init() {
   }
 }
 
-init();
+if (requireAuth()) {
+  init();
+}

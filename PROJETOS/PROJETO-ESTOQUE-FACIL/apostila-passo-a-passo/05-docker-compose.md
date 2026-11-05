@@ -1,6 +1,6 @@
 # Etapa 05 — Docker Compose
 
-📋 **Tipo:** prática (VS Code)
+**Tipo:** prática (VS Code)
 
 ---
 
@@ -42,7 +42,7 @@ docker compose up
 
 Crie na raiz do projeto o arquivo `docker-compose.yml`.
 
-> ⚠️ **YAML é sensível a indentação!** Ele usa **espaços** para marcar hierarquia — nunca Tab. Copie com atenção. Se o VS Code reclamar, quase sempre é espaço a mais ou a menos.
+> **YAML é sensível a indentação!** Ele usa **espaços** para marcar hierarquia — nunca Tab. Copie com atenção. Se o VS Code reclamar, quase sempre é espaço a mais ou a menos.
 
 ```yaml
 services:
@@ -108,7 +108,7 @@ volumes:         # os espaços de disco permanentes
   estoque-db-data:
 ```
 
-> 📌 O nome de cada serviço (`db`, `api`) vira o **nome de host** dele dentro da rede do Docker. Lembra do `DB_HOST=db` da Etapa 03? É por causa desta linha.
+> O nome de cada serviço (`db`, `api`) vira o **nome de host** dele dentro da rede do Docker. Lembra do `DB_HOST=db` da Etapa 03? É por causa desta linha.
 
 ---
 
@@ -157,7 +157,7 @@ Estas quatro variáveis são **especiais**: a imagem oficial do MySQL as lê na 
 | `MYSQL_USER` | **Cria** o usuário `estoque` |
 | `MYSQL_PASSWORD` | Define a senha desse usuário |
 
-> 💡 Perceba o ganho: sem Docker, você faria isso manualmente com comandos `CREATE DATABASE`, `CREATE USER`, `GRANT`... Aqui, quatro linhas resolvem.
+> Perceba o ganho: sem Docker, você faria isso manualmente com comandos `CREATE DATABASE`, `CREATE USER`, `GRANT`... Aqui, quatro linhas resolvem.
 
 **E o `${DB_ROOT_PASSWORD}`?** Essa sintaxe lê o valor do arquivo `.env`. Assim, a senha continua fora do arquivo que vai para o Git.
 
@@ -179,7 +179,7 @@ Você acessa pela **esquerda**; o programa escuta na **direita**.
 
 **E o `:-3308`?** É um valor padrão: "use `DB_HOST_PORT` do `.env`; se não existir, use 3308".
 
-> ⚠️ Se a porta 3308 estiver ocupada na sua máquina, o Docker vai recusar com `Ports are not available`. A correção é trocar `DB_HOST_PORT` no `.env` para 3309 e subir de novo.
+> **Atenção:** Se a porta 3308 estiver ocupada na sua máquina, o Docker vai recusar com `Ports are not available`. A correção é trocar `DB_HOST_PORT` no `.env` para 3309 e subir de novo.
 
 ### `volumes` — os dois tipos
 
@@ -211,9 +211,9 @@ São **dois tipos diferentes** de volume:
 
 Liga a pasta `database` do seu projeto a uma pasta **especial** da imagem do MySQL.
 
-> 🪄 **A mágica:** todo arquivo `.sql` colocado em `/docker-entrypoint-initdb.d` é executado **automaticamente** na primeira criação do banco. É assim que nossas tabelas vão nascer prontas na Etapa 06.
+> **A mágica:** todo arquivo `.sql` colocado em `/docker-entrypoint-initdb.d` é executado **automaticamente** na primeira criação do banco. É assim que nossas tabelas vão nascer prontas na Etapa 06.
 
-⚠️ **Repare no "primeira":** se o volume já existir com dados, o script **não** roda de novo. Isso explica um erro clássico que veremos na Etapa 10.
+**Repare no "primeira":** se o volume já existir com dados, o script **não** roda de novo. Isso explica um erro clássico que veremos na Etapa 10.
 
 ### `healthcheck`
 
@@ -292,9 +292,9 @@ Com o bind mount, os arquivos são **compartilhados**:
    Em 1 segundo sua mudança está no ar
 ```
 
-> 📌 É a combinação `bind mount` + `node --watch` que dá o "salvou, atualizou". Uma peça sem a outra não funciona.
+> É a combinação `bind mount` + `node --watch` que dá o "salvou, atualizou". Uma peça sem a outra não funciona.
 
-⚠️ **Cuidado:** isso vale só para `src` e `public`. Se você instalar uma **dependência nova** no `package.json`, aí sim precisa reconstruir: `docker compose up -d --build`.
+**Cuidado:** isso vale só para `src` e `public`. Se você instalar uma **dependência nova** no `package.json`, aí sim precisa reconstruir: `docker compose up -d --build`.
 
 ### `depends_on` com `condition`
 
@@ -360,7 +360,7 @@ docker volume ls
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 ```bash
 docker compose config
@@ -378,11 +378,11 @@ Marque:
 - [ ] `docker compose config` não mostrou erro
 - [ ] As variáveis apareceram substituídas pelos valores reais
 
-> ⚠️ **Ainda não rode `docker compose up`!** Falta criar o `init.sql` (Etapa 06) e o código da aplicação (Etapas 07-09). Subir agora daria erro.
+> **Ainda não rode `docker compose up`!** Falta criar o `init.sql` (Etapa 06) e o código da aplicação (Etapas 07-09). Subir agora daria erro.
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -392,11 +392,11 @@ Marque:
 | `services must be a mapping` | Estrutura quebrada | Compare a indentação com o modelo desta etapa |
 | `no configuration file provided` | Nome errado do arquivo | Deve ser `docker-compose.yml`, na raiz |
 
-> 💡 **Dica para YAML:** instale a extensão **YAML** (da Red Hat) no VS Code. Ela sublinha erros de indentação enquanto você digita.
+> **Dica para YAML:** instale a extensão **YAML** (da Red Hat) no VS Code. Ela sublinha erros de indentação enquanto você digita.
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Containers orquestrados. Vamos modelar as tabelas do banco.
 

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartão Presente</title>
+
+<!-- Bootstrap 4.6 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet" href="css/estilo.css">
+
+</head>
+
+<body class="body-pag">
+
+
+<div class="topo-pag">
+
+    <div class="container-pag">
+
+        <div class="topo-conteudo">
+
+            <div class="logo-pag">
+                Petisqueira Chicão
+            </div>
+
+            <div class="icones-topo">
+                <a href="login.html" id="link-conta">
+                    <i class="bi bi-person"></i>
+                </a>
+
+                <a href="loja.html" aria-label="Ver carrinho / loja"><i class="bi bi-bag"></i></a>
+            </div>
+
+        </div>
+
+        <div class="menu text-center mt-3">
+            <a href="index.html">Início</a>
+            <a href="loja.html">Produtos</a>
+            <a href="contato.html">Contato</a>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="container produto-box">
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <img id="produto-img" src="imgs/cartao-presente-100.png" class="produto-img" alt="Cartão Presente">
+        </div>
+
+        
+        <div class="col-md-6">
+
+            <p class="text-muted" id="produto-breadcrumb">
+                Início • Cartão Presente • Cartão Presente R$100,00
+            </p>
+
+            <h3 id="produto-titulo">Cartão Presente R$100,00</h3>
+
+            <div class="preco-pag" id="produto-preco">R$100,00</div>
+
+            <div class="parcelamento" id="produto-parcelamento">
+                2x de R$58,33
+            </div>
+
+            <p class="descricao-pag-curta">
+                Válido para consumo presencial na Petisqueira Chicão, sem data de expiração.
+            </p>
+
+            <div class="d-flex align-items-center mt-3">
+
+                <div class="qtd-box mr-3">
+                    <button onclick="diminuir()">-</button>
+
+                    <label for="qtd" class="sr-only">Quantidade</label>
+                    <input type="number" id="qtd" value="1" min="1" inputmode="numeric">
+
+                    <button onclick="aumentar()">+</button>
+                </div>
+
+                <button onclick="comprar()" class="btn-comprar-pag" id="btn-comprar">
+                    Comprar
+                </button>
+
+            </div>
+
+            <div class="descricao-pag" id="produto-descricao">
+                Presenteie com uma experiência gastronômica com o cartão presente
+                de R$100,00 para consumo presencial na Petisqueira Chicão.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div style="background-color: #1a1a1a; color: white; padding: 30px 20px; display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;">
+
+    <div>
+        <h3 style="color: #ffcc00; margin-bottom: 10px;">CONTATO</h3>
+        <p>(47) 93425-2506</p>
+        <p>Rua Iguaçu, 298 - Santo Antonio</p>
+    </div>
+
+    <div>
+        <h3 style="color: #ffcc00; margin-bottom: 10px;">SERVIÇO</h3>
+        <p>JANTAR</p>
+    </div>
+
+    <div>
+        <h3 style="color: #ffcc00; margin-bottom: 10px;">DELIVERY</h3>
+        <p>Peça pelo telefone</p>
+        <p>(47) 3425-2506</p>
+    </div>
+
+</div>
+
+<footer>
+    PETISQUEIRA CHICÃO 2026 &copy; TODOS OS DIREITOS RESERVADOS
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js?v=3"></script>
+
+<script>
+
+function aumentar() {
+    let qtd = document.getElementById('qtd');
+    qtd.value = parseInt(qtd.value) + 1;
+}
+
+function diminuir() {
+    let qtd = document.getElementById('qtd');
+
+    if (qtd.value > 1) {
+        qtd.value = parseInt(qtd.value) - 1;
+    }
+}
+
+function formatarPreco(valor) {
+    return Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+}
+
+// Pega o id do produto da URL, ex: pagamento.html?id=2
+const params = new URLSearchParams(window.location.search);
+const produtoId = params.get("id") || "1"; // se não vier id na URL, usa o produto 1 como padrão
+
+let produtoAtual = null;
+
+async function carregarProduto() {
+    try {
+        const resposta = await fetch(`${API_URL}/produtos/detalhe.php?id=${produtoId}`);
+
+        if (!resposta.ok) {
+            throw new Error("Produto não encontrado");
+        }
+
+        const produto = await resposta.json();
+        produtoAtual = produto;
+
+        const precoFormatado = formatarPreco(produto.valor);
+        const parcela = formatarPreco(produto.valor / 2);
+
+        document.getElementById("produto-img").src = produto.imagem;
+        document.getElementById("produto-img").alt = produto.nome;
+        document.getElementById("produto-breadcrumb").textContent =
+            `Início • ${produto.nome} • ${produto.nome} R$${precoFormatado}`;
+        document.getElementById("produto-titulo").textContent = `${produto.nome} R$${precoFormatado}`;
+        document.getElementById("produto-preco").textContent = `R$${precoFormatado}`;
+        document.getElementById("produto-parcelamento").textContent = `2x de R$${parcela}`;
+        document.getElementById("produto-descricao").textContent =
+            `Presenteie com uma experiência gastronômica com o cartão presente ` +
+            `de R$${precoFormatado} para consumo presencial na Petisqueira Chicão.`;
+        document.title = `${produto.nome} - Petisqueira Chicão`;
+    } catch (erro) {
+        console.error(erro);
+        // Mantém os dados padrão (cartão de R$100) já escritos no HTML,
+        // já que não foi possível carregar do backend.
+    }
+}
+
+async function comprar() {
+    const quantidade = Number(document.getElementById("qtd").value);
+    const token = localStorage.getItem("token"); // se o usuário estiver logado
+    const botao = document.getElementById("btn-comprar");
+
+    const textoOriginal = botao.textContent;
+    botao.disabled = true;
+    botao.textContent = "Processando...";
+
+    try {
+        const resposta = await fetch(`${API_URL}/pedidos/criar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { "Authorization": "Bearer " + token } : {})
+            },
+            body: JSON.stringify({ produto_id: Number(produtoId), quantidade })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível registrar o pedido.");
+            return;
+        }
+
+        // Pedido criado (status "pendente") — agora manda o cliente
+        // pra tela de checkout, pra finalizar o pagamento.
+        window.location.href = `checkout.html?pedido_id=${dados.pedido.id}&codigo=${dados.pedido.codigo_acesso}`;
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.");
+    } finally {
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+    }
+}
+
+carregarProduto();
+
+</script>
+
+</body>
+</html>

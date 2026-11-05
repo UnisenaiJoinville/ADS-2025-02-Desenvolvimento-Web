@@ -1,6 +1,6 @@
-# Etapa 13 — Movimentações e Transações ⭐
+# Etapa 13 — Movimentações e Transações
 
-📋 **Tipo:** prática + conceito fundamental
+**Tipo:** prática + conceito fundamental
 
 ---
 
@@ -8,7 +8,7 @@
 
 Fazer o estoque **somar** nas entradas e **subtrair** nas saídas, garantindo que o sistema **nunca** fique inconsistente.
 
-> ⭐ **Esta é a etapa mais importante do projeto do ponto de vista de backend.** O conceito de transação aparece em qualquer sistema sério: banco, e-commerce, folha de pagamento.
+> **Esta é a etapa mais importante do projeto do ponto de vista de backend.** O conceito de transação aparece em qualquer sistema sério: banco, e-commerce, folha de pagamento.
 
 ---
 
@@ -30,13 +30,13 @@ Quando registramos uma saída de 5 unidades, precisamos fazer **duas** gravaçõ
 ### E se algo falhar no meio?
 
 ```text
-   1. INSERT em stock_movements   ✅ gravou
+   1. INSERT em stock_movements   [OK] gravou
                                        |
-                              💥 queda de energia
-                              💥 conexão caiu
-                              💥 erro no código
+                              FALHA: queda de energia
+                              FALHA: conexão caiu
+                              FALHA: erro no código
                                        |
-   2. UPDATE em products          ❌ não gravou
+   2. UPDATE em products          [X] não gravou
 ```
 
 **Resultado:** o histórico diz que saíram 5 unidades, mas o estoque continua cheio. O sistema passou a **mentir**.
@@ -66,7 +66,7 @@ Uma **transação** agrupa várias operações em um bloco "tudo ou nada".
 | `COMMIT` | "Deu tudo certo, pode gravar de verdade" |
 | `ROLLBACK` | "Deu errado, esqueça tudo o que eu fiz" |
 
-> 💡 **Analogia:** é como o carrinho de compras. Você coloca vários itens, mas só na finalização a compra vale. Se desistir, nada foi comprado — nem os primeiros itens.
+> **Analogia:** é como o carrinho de compras. Você coloca vários itens, mas só na finalização a compra vale. Se desistir, nada foi comprado — nem os primeiros itens.
 
 ---
 
@@ -115,7 +115,7 @@ export function validateMovementInput(input) {
 
 Salve.
 
-### 🔍 Detalhe importante: `quantity <= 0`
+### Detalhe importante: `quantity <= 0`
 
 ```javascript
 if (!Number.isInteger(quantity) || quantity <= 0) {
@@ -125,10 +125,10 @@ Compare com o produto, onde aceitávamos `quantity >= 0`:
 
 | Onde | Zero é válido? | Por quê |
 |---|---|---|
-| Produto | ✅ Sim | Produto esgotado tem 0 unidades |
-| Movimentação | ❌ Não | Movimentar 0 unidades não significa nada |
+| Produto | Sim | Produto esgotado tem 0 unidades |
+| Movimentação | Não | Movimentar 0 unidades não significa nada |
 
-> 📌 A mesma palavra (`quantity`) tem regras diferentes em contextos diferentes. Validação depende do **significado**, não do nome do campo.
+> A mesma palavra (`quantity`) tem regras diferentes em contextos diferentes. Validação depende do **significado**, não do nome do campo.
 
 ### `note: note || null`
 
@@ -258,11 +258,11 @@ Salve.
 
 ---
 
-## 🔬 Dissecando a transação
+## Dissecando a transação
 
 Vamos por partes. Esta função tem 5 conceitos importantes.
 
-### 1️⃣ Conexão dedicada (não `pool.query`)
+### 1. Conexão dedicada (não `pool.query`)
 
 ```javascript
 const connection = await pool.getConnection();
@@ -273,19 +273,19 @@ Repare que **não** usamos `pool.query()` aqui, e sim `connection.query()`.
 **Por quê?** Uma transação precisa acontecer **toda na mesma conexão**.
 
 ```text
-   ❌ Com pool.query() — cada comando pode sair por uma conexão diferente
+   ERRADO: com pool.query() — cada comando pode sair por uma conexão diferente
 
    BEGIN     -> conexão 3
-   INSERT    -> conexão 7   😱 não sabe do BEGIN!
-   COMMIT    -> conexão 2   😱 não tem nada para confirmar!
+   INSERT    -> conexão 7   <- não sabe do BEGIN!
+   COMMIT    -> conexão 2   <- não tem nada para confirmar!
 
 
-   ✅ Com getConnection() — tudo na mesma linha
+   CERTO: com getConnection() — tudo na mesma linha
 
    BEGIN, INSERT, UPDATE, COMMIT  -> conexão 3
 ```
 
-### 2️⃣ `FOR UPDATE` — a trava que evita vender o que não existe
+### 2. `FOR UPDATE` — a trava que evita vender o que não existe
 
 ```sql
 SELECT id, name, quantity FROM products WHERE id = ? FOR UPDATE
@@ -295,7 +295,7 @@ Este é o conceito mais sofisticado da etapa. Vamos com um exemplo concreto.
 
 **Cenário:** o produto tem **10 unidades**. Dois vendedores clicam "vender 8" ao mesmo tempo.
 
-#### ❌ Sem `FOR UPDATE`
+#### Sem `FOR UPDATE`
 
 ```text
    Vendedor A                    Vendedor B
@@ -307,30 +307,30 @@ Este é o conceito mais sofisticado da etapa. Vamos com um exemplo concreto.
    grava 2
                                  grava 2
 
-   RESULTADO: vendeu 16 unidades tendo apenas 10 😱
+   RESULTADO: vendeu 16 unidades tendo apenas 10 (!)
               e o estoque diz que sobrou 2
 ```
 
-#### ✅ Com `FOR UPDATE`
+#### Com `FOR UPDATE`
 
 ```text
    Vendedor A                    Vendedor B
    ----------                    ----------
-   lê 10 e TRAVA a linha 🔒
-                                 tenta ler... ESPERA ⏳
+   lê 10 e TRAVA a linha
+                                 tenta ler... ESPERA
    10 - 8 = 2, grava
-   COMMIT (destrava) 🔓
+   COMMIT (destrava)
                                  agora lê: quantidade = 2
-                                 2 - 8 = -6 → REJEITA ✅
+                                 2 - 8 = -6 → REJEITA
 
    RESULTADO: uma venda aprovada, uma recusada. Correto!
 ```
 
 Esse problema se chama **race condition** (condição de corrida): duas operações "correndo" pelo mesmo recurso.
 
-> 📌 `FOR UPDATE` diz ao banco: *"vou alterar esta linha; segure qualquer outro que tentar mexer nela até eu terminar"*.
+> `FOR UPDATE` diz ao banco: *"vou alterar esta linha; segure qualquer outro que tentar mexer nela até eu terminar"*.
 
-### 3️⃣ O `delta` — somar ou subtrair em uma linha
+### 3. O `delta` — somar ou subtrair em uma linha
 
 ```javascript
 const delta = type === "IN" ? quantity : -quantity;
@@ -347,7 +347,7 @@ O operador ternário decide o sinal:
 Depois, uma única linha faz a conta. Sem `if/else` duplicado:
 
 ```javascript
-// ❌ Jeito repetitivo
+// Jeito repetitivo
 if (type === "IN") {
   newQuantity = product.quantity + quantity;
 } else {
@@ -355,7 +355,7 @@ if (type === "IN") {
 }
 ```
 
-### 4️⃣ Os dois `rollback` preventivos
+### 4. Os dois `rollback` preventivos
 
 ```javascript
 if (!product) {
@@ -371,9 +371,9 @@ if (newQuantity < 0) {
 
 Mesmo sem ter gravado nada ainda, precisamos do `rollback` para **encerrar a transação** e liberar a trava do `FOR UPDATE`.
 
-> ⚠️ Sem esses rollbacks, a linha ficaria travada até a conexão morrer — e outras requisições ficariam esperando para sempre.
+> **Atenção:** Sem esses rollbacks, a linha ficaria travada até a conexão morrer — e outras requisições ficariam esperando para sempre.
 
-### 5️⃣ O `finally` com `release()`
+### 5. O `finally` com `release()`
 
 ```javascript
 } catch (error) {
@@ -394,14 +394,14 @@ O `finally` executa **sempre**: em caso de sucesso, de erro ou de `return` antec
    erro 2  -> conexão perdida  (restam 8)
    ...
    erro 10 -> conexão perdida  (restam 0)
-             💀 aplicação totalmente travada
+             aplicação totalmente travada
 ```
 
 O pool tem 10 conexões. Cada uma não devolvida é perdida para sempre. Depois de 10 erros, nenhuma requisição funciona — e o servidor não dá nem mensagem de erro clara, só fica parado.
 
-> 📌 **Regra:** `getConnection()` sem `release()` no `finally` é bug garantido.
+> **Regra:** `getConnection()` sem `release()` no `finally` é bug garantido.
 
-### 💭 Por que o repository devolve `status` em vez de lançar erro?
+### Por que o repository devolve `status` em vez de lançar erro?
 
 ```javascript
 return { status: "INSUFFICIENT_STOCK", available: product.quantity };
@@ -456,7 +456,7 @@ Aqui o `status` técnico vira **mensagem para o usuário**:
 | `INSUFFICIENT_STOCK` | `AppError` com o saldo | 400 |
 | `CREATED` | (nenhum) | 201 |
 
-> 💡 Repare que a mensagem inclui o saldo disponível: *"Estoque insuficiente. Disponivel: 35 unidade(s)"*. Erro bom não diz só "deu errado" — diz o que fazer a respeito.
+> Repare que a mensagem inclui o saldo disponível: *"Estoque insuficiente. Disponivel: 35 unidade(s)"*. Erro bom não diz só "deu errado" — diz o que fazer a respeito.
 
 ---
 
@@ -497,7 +497,7 @@ export async function store(request, response) {
 
 Salve.
 
-### 🛡️ Por que limitar o `limit` a 500?
+### Por que limitar o `limit` a 500?
 
 ```javascript
 if (!Number.isInteger(parsedLimit) || parsedLimit <= 0 || parsedLimit > 500) {
@@ -511,7 +511,7 @@ GET /api/movements?limit=99999999
 
 E o servidor tentaria carregar milhões de linhas na memória — derrubando a aplicação para **todos** os usuários.
 
-> 📌 Isso se chama proteger os **limites** da API. Toda listagem pública precisa de um teto.
+> Isso se chama proteger os **limites** da API. Toda listagem pública precisa de um teto.
 
 ---
 
@@ -534,7 +534,7 @@ movementRoutes.post("/", asyncHandler(controller.store));
 
 Salve.
 
-### 👀 Repare no que NÃO existe aqui
+### Repare no que NÃO existe aqui
 
 Não há `PUT` nem `DELETE`. E isso é **de propósito**.
 
@@ -542,7 +542,7 @@ Não há `PUT` nem `DELETE`. E isso é **de propósito**.
 
 Se alguém registrou uma saída errada, a correção é registrar uma **entrada compensatória** — deixando as duas visíveis no histórico.
 
-> 📌 É assim que a contabilidade funciona há séculos: erro não se apaga, se estorna. Isso mantém a **trilha de auditoria**.
+> É assim que a contabilidade funciona há séculos: erro não se apaga, se estorna. Isso mantém a **trilha de auditoria**.
 
 ---
 
@@ -562,7 +562,7 @@ routes.use("/movements", movementRoutes);
 
 ---
 
-## Passo 7 — 🧪 O experimento da etapa
+## Passo 7 — O experimento da etapa
 
 Agora vem a parte divertida. **Faça este roteiro passo a passo** e observe cada resultado.
 
@@ -588,7 +588,7 @@ curl -X POST http://localhost:3000/api/movements \
 curl http://localhost:3000/api/products/1
 ```
 
-Agora deve estar em **55**. ✅ `40 + 15 = 55`
+Agora deve estar em **55**. `40 + 15 = 55`
 
 ### 4. Registre uma SAÍDA de 5
 
@@ -604,9 +604,9 @@ curl -X POST http://localhost:3000/api/movements \
 curl http://localhost:3000/api/products/1
 ```
 
-Agora **50**. ✅ `55 - 5 = 50`
+Agora **50**. `55 - 5 = 50`
 
-### 6. 🎯 Tente uma saída impossível
+### 6. Tente uma saída impossível
 
 ```bash
 curl -X POST http://localhost:3000/api/movements \
@@ -618,7 +618,7 @@ curl -X POST http://localhost:3000/api/movements \
 {"error":"Estoque insuficiente. Disponivel: 50 unidade(s)"}
 ```
 
-### 7. ⭐ Confira que NADA mudou
+### 7. Confira que NADA mudou
 
 ```bash
 curl http://localhost:3000/api/products/1
@@ -634,7 +634,7 @@ curl "http://localhost:3000/api/movements?productId=1"
 
 Conte as movimentações: você deve ver apenas as **legítimas**. A tentativa recusada **não deixou rastro** na tabela.
 
-> 🎉 **É isto que uma transação garante:** ou as duas gravações acontecem, ou nenhuma acontece. Nunca meio caminho.
+> **É isto que uma transação garante:** ou as duas gravações acontecem, ou nenhuma acontece. Nunca meio caminho.
 
 ### 9. Teste as validações
 
@@ -669,7 +669,7 @@ Compare com a `quantity` do produto. Os números batem — e vão continuar bate
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] Os 5 arquivos existem em `src/modules/movements`
 - [ ] `src/routes/index.js` registra `/movements`
@@ -683,7 +683,7 @@ Compare com a `quantity` do produto. Os números batem — e vão continuar bate
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -695,7 +695,7 @@ Compare com a `quantity` do produto. Os números batem — e vão continuar bate
 
 ---
 
-## 🎓 O que você aprendeu aqui
+## O que você aprendeu aqui
 
 Este é o conteúdo que separa um CRUD de brinquedo de um sistema real:
 
@@ -709,7 +709,7 @@ Este é o conteúdo que separa um CRUD de brinquedo de um sistema real:
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Estoque garantido. Agora vamos fazer o banco calcular os totais do dashboard.
 
