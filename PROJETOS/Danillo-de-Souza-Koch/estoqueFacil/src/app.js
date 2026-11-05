@@ -23,6 +23,7 @@ app.use((request, response, next) => {
   next();
 });
 
+// Serve the frontend files from the public directory.
 app.use(express.static(publicDir));
 app.use("/api", routes);
 
