@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/estilo.css">
+
+    
+    <title>Petisqueira Chicão</title>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a class="logo" href="index.html">Petisqueira Chicão</a>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="navList">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-list" id="navList">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="jantar.html">Jantar</a></li>
+                <li><a href="loja.html">Loja</a></li>
+                <li><a href="contato.html">Contato</a></li>
+                <li><a href="login.html" id="link-conta" data-texto-logado="Minha conta">Entrar</a></li>
+            </ul>
+            <a class="reserva" href="reserva.html">Reservar Mesa</a>
+        </nav>
+    </header>
+    
+    <div class="jan-img">
+            <img src="imgs/jantar.png" alt="Mesa posta para o jantar na Petisqueira Chicão">
+        </div>
+
+    <section class="preparacao">
+        <h2 class="titulos-jantar">À LA CARTE</h2>
+        <p texto-cost>Contamos com menu à la carte, com diversas
+           opções de frutos do mar, porções, carnes, e lanches.
+        </p>
+
+        <div class="galeria">
+        <img src="imgs/prato-mesa-1.jpeg" alt="Petisco à la carte servido na Petisqueira Chicão">
+        <img src="imgs/prato-file-grelhado.jpeg" alt="Prato à la carte com frutos do mar">
+        <img src="imgs/prato-mesa-3.jpeg" alt="Porção de petiscos da casa">
+        <img src="imgs/prato-mesa-4.jpeg" alt="Prato à la carte especial do cardápio">
+        <img src="imgs/prato-camarao.jpeg" alt="Camarões servidos com molho especial">
+        <img src="imgs/prato-mesa-6.webp" alt="Prato à la carte finalizado para servir">
+    </div>
+
+    </section>
+
+    <section class="preparacao">
+        <div class="container-costela">
+            <h2 class="titulos-jantar">COSTELA</h2>
+            <h3>Preparação</h3>
+            <p class="texto-cost">A nossa costela é preparada há mais de 15 anos, sempre seguindo o mesmo processo. 
+                Todas as sextas-feiras, saímos para comprar produtos frescos e a costela. 
+                Às 12h40, iniciamos a preparação: primeiro colocamos as ripas no latão. 
+                Em seguida, pegamos as verduras frescas, cortamos e batemos no liquidificador com água, formando uma espécie de molho.
+
+                Depois, fazemos vários pequenos furos na carne com uma faca,
+                despejamos esse líquido por cima das ripas e acrescentamos o sal grosso. 
+                Por fim, ligamos o latão a gás e deixamos assar por aproximadamente 6 horas e 30 minutos. 
+                Assim, a costela fica pronta para começar a ser servida aos clientes.
+            </p>
+
+            <img src="imgs/costela-assada.jpg" alt="Costela sendo preparada lentamente no latão a gás" class="img-costela">
+
+        </div>
+
+    </section>
+
+    <section class="mais-vendidos py-5">
+
+    <div class="container">
+
+        <h2 class="text-center titulo-pratos">
+            Pratos Mais Vendidos
+        </h2>
+
+        <p class="text-center subtitulo-pratos">
+            Conheça os pratos favoritos dos nossos clientes
+        </p>
+
+        <div class="row">
+
+            <!-- CARD 1 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="prato-card">
+
+                    <span class="badge-prato">
+                        Mais Pedido
+                    </span>
+
+                    <img src="imgs/costela-assada.jpg" alt="Costela Especial">
+
+                    <div class="conteudo-prato">
+
+                        <h3>Costela Especial</h3>
+
+                        <p>
+                            Costela preparada lentamente por mais de 6 horas,
+                            acompanhada de mandioca e molho especial da casa.
+                        </p>
+
+                        <div class="rodape-prato">
+
+                            <span class="preco">
+                                R$ 115,00
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- CARD 2 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="prato-card">
+
+                    <img src="imgs/prato-camarao.jpeg" alt="Porção de Camarão">
+
+                    <div class="conteudo-prato">
+
+                        <h3>Porção de Camarão</h3>
+
+                        <p>
+                            Camarões crocantes servidos com molho especial
+                            e limão fresco.
+                        </p>
+
+                        <div class="rodape-prato">
+
+                            <span class="preco">
+                                R$ 60,00
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- CARD 3 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="prato-card">
+
+                    <span class="badge-prato destaque">
+                        Favorito
+                    </span>
+
+                    <img src="imgs/prato-file-grelhado.jpeg" alt="Filé Grelhado">
+
+                    <div class="conteudo-prato">
+
+                        <h3>Filé Grelhado</h3>
+
+                        <p>
+                            Filé grelhado acompanhado de fritas crocantes
+                            e salada especial da casa.
+                        </p>
+
+                        <div class="rodape-prato">
+
+                            <span class="preco">
+                                R$ 58,90
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+    <div
+        style="background-color: #1a1a1a; color: white; padding: 30px 20px; display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;">
+
+        <div>
+            <h3 style="color: #ffcc00; margin-bottom: 10px;">CONTATO</h3>
+            <p> (47) 93425-2506</p>
+            <p> Rua Iguaçu, 298 - Santo Antonio</p>
+        </div>
+
+        <div>
+            <h3 style="color: #ffcc00; margin-bottom: 10px;">SERVIÇO</h3>
+            <p> JANTAR</p>
+        </div>
+
+        <div>
+            <h3 style="color: #ffcc00; margin-bottom: 10px;">DELIVERY</h3>
+            <p> Peça pelo telefone</p>
+            <p> (47) 3425-2506</p>
+        </div>
+
+    </div>
+
+    <footer>PETISQUEIRA CHICÃO 2026 &copy; TODOS OS DIREITOS RESERVADOS</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <script>
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navList = document.getElementById('navList');
+    if (hamburgerBtn && navList) {
+        hamburgerBtn.addEventListener('click', () => {
+            const isOpen = navList.classList.toggle('active');
+            hamburgerBtn.classList.toggle('active');
+            hamburgerBtn.setAttribute('aria-expanded', isOpen);
+        });
+        navList.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navList.classList.remove('active');
+                hamburgerBtn.classList.remove('active');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
+    </script>
+    <script src="js/api.js?v=3"></script>
+    <script src="js/lightbox.js"></script>
+</body>
+
+</html>

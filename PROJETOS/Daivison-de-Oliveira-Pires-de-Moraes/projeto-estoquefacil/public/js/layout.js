@@ -35,6 +35,7 @@ const NAV_ITEMS = [
   { href: "/produtos.html", label: "Produtos", icon: "box" },
   { href: "/movimentacoes.html", label: "Movimentacoes", icon: "swap" },
   { href: "/categorias.html", label: "Categorias", icon: "tag" },
+  { href: "/relatorios.html", label: "Relatorios", icon: "chart" },
 ];
 
 export function renderNav(active) {

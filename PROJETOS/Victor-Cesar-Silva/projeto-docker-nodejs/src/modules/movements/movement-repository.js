@@ -8,9 +8,12 @@ const SELECT_MOVEMENT = `
          m.type,
          m.quantity,
          m.note,
-         m.created_at AS createdAt
+         m.created_at AS createdAt,
+         m.user_id    AS userId,
+         COALESCE(u.name, 'Nao informado') AS userName
     FROM stock_movements m
     INNER JOIN products p ON p.id = m.product_id
+    LEFT  JOIN users    u ON u.id = m.user_id
 `;
 
 export async function findAll({ productId = null, type = null, limit = 100 } = {}) {
@@ -49,7 +52,7 @@ export async function findById(id) {
  * As duas operacoes precisam acontecer JUNTAS: ou as duas dao certo,
  * ou nenhuma acontece. Isso e uma TRANSACAO.
  */
-export async function createWithStockUpdate({ productId, type, quantity, note }) {
+export async function createWithStockUpdate({ productId, userId, type, quantity, note }) {
   // Conexao dedicada: a transacao inteira roda na MESMA conexao
   const connection = await pool.getConnection();
 
@@ -84,8 +87,8 @@ export async function createWithStockUpdate({ productId, type, quantity, note })
     }
 
     const [result] = await connection.query(
-      "INSERT INTO stock_movements (product_id, type, quantity, note) VALUES (?, ?, ?, ?)",
-      [productId, type, quantity, note]
+      "INSERT INTO stock_movements (product_id, user_id, type, quantity, note) VALUES (?, ?, ?, ?, ?)",
+      [productId, userId, type, quantity, note]
     );
 
     await connection.query(
