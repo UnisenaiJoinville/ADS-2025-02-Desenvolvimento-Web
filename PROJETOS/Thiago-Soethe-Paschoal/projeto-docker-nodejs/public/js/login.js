@@ -1,15 +1,21 @@
 import { api } from "./api.js";
 import { HOME_PAGE, redirectIfAuthenticated, saveSession } from "./auth.js";
+import { renderIcons } from "./icons.js";
 
 const { createApp } = Vue;
 
 redirectIfAuthenticated();
+
+// Os icones viram <svg> ANTES de o Vue ler o HTML, assim os dois
+// nunca brigam pelo mesmo elemento.
+renderIcons();
 
 createApp({
   data() {
     return {
       form: { email: "", password: "" },
       showPassword: false,
+      capsLockOn: false,
       loading: false,
       errorMessage: "",
       successMessage: "",
@@ -28,6 +34,9 @@ createApp({
     }
   },
   methods: {
+    checkCapsLock(event) {
+      this.capsLockOn = event.getModifierState?.("CapsLock") ?? false;
+    },
     fillDemo() {
       this.form.email = "professor@estoquefacil.com";
       this.form.password = "123456";
