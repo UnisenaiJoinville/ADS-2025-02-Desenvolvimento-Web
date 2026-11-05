@@ -69,3 +69,25 @@ export async function getRecentMovements(limit = 8) {
 
   return rows;
 }
+
+export async function getDailyMovements(days) {
+  const [rows] = await pool.query(
+    `WITH RECURSIVE calendar AS (
+       SELECT CURDATE() - INTERVAL ? DAY AS day
+       UNION ALL
+       SELECT day + INTERVAL 1 DAY FROM calendar WHERE day < CURDATE()
+     )
+     SELECT DATE_FORMAT(c.day, '%Y-%m-%d') AS day,
+            COALESCE(SUM(CASE WHEN m.type = 'IN' THEN m.quantity END), 0) AS unitsIn,
+            COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity END), 0) AS unitsOut
+       FROM calendar c
+       LEFT JOIN stock_movements m
+         ON m.created_at >= c.day
+        AND m.created_at < c.day + INTERVAL 1 DAY
+      GROUP BY c.day
+      ORDER BY c.day`,
+    [days - 1]
+  );
+
+  return rows;
+}

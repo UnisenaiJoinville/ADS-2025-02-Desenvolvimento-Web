@@ -1,5 +1,7 @@
 import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
+import { buildPagination } from "../../shared/http/pagination.js";
 import * as categoryRepository from "../categories/category-repository.js";
+import * as movementRepository from "../movements/movement-repository.js";
 
 import * as repository from "./product-repository.js";
 import { validateProductInput } from "./product-validator.js";
@@ -17,7 +19,19 @@ async function ensureCategoryExists(categoryId) {
 }
 
 export async function listProducts(filters) {
-  return repository.findAll(filters);
+  const [rows, total] = await Promise.all([
+    repository.findAll(filters),
+    repository.countAll(filters),
+  ]);
+
+  return {
+    pagination: buildPagination(filters, total),
+    rows,
+  };
+}
+
+export async function searchProducts(filters) {
+  return repository.search(filters);
 }
 
 export async function getProduct(id) {
@@ -58,5 +72,23 @@ export async function updateProduct(id, input) {
 
 export async function deleteProduct(id) {
   await getProduct(id);
-  await repository.remove(id);
+  const movementCount = await movementRepository.countByProduct(id);
+
+  if (movementCount > 0) {
+    throw new ConflictError(
+      `Este produto tem ${movementCount} movimentacao(oes) no historico. Inative-o para preservar os registros`
+    );
+  }
+
+  try {
+    await repository.remove(id);
+  } catch (error) {
+    if (error.code === "ER_ROW_IS_REFERENCED_2") {
+      throw new ConflictError(
+        "Este produto recebeu uma movimentacao durante a exclusao. Inative-o para preservar os registros"
+      );
+    }
+
+    throw error;
+  }
 }
