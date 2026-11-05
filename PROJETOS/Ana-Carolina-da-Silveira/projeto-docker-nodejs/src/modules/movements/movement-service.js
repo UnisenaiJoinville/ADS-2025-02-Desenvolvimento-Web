@@ -46,3 +46,11 @@ export async function findAll({ productId = null, type = null, limit = 100, from
 
   return rows;
 }
+
+if (result.status === "PRODUCT_NOT_FOUND") {
+  throw new NotFoundError("Produto nao encontrado");
+}
+
+if (result.status === "PRODUCT_INACTIVE") {
+  throw new AppError("Produto inativo nao pode receber movimentacoes. Reative-o antes");
+}

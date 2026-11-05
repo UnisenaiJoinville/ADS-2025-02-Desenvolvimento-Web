@@ -1,6 +1,7 @@
-import { api } from "./api.js";
+import { api, isCanceled } from "./api.js";
 import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
+import { confirmDialog, currency, escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/produtos.html");
 
@@ -10,15 +11,20 @@ const modal = document.querySelector("[data-modal]");
 const modalTitle = document.querySelector("[data-modal-title]");
 const form = document.querySelector("[data-form]");
 
-// Elementos do Modal de Confirmação
-const confirmModal = document.querySelector("[data-confirm-modal]");
-const confirmTitle = document.querySelector("[data-confirm-title]");
-const confirmMessage = document.querySelector("[data-confirm-message]");
-const confirmBtnOk = document.querySelector("[data-confirm-ok]");
-const confirmBtnCancel = document.querySelector("[data-confirm-cancel]");
+// Rodape de paginacao (Aula 64)
+const pageInfo = document.querySelector("[data-page-info]");
+const pageLabel = document.querySelector("[data-page-label]");
+const prevButton = document.querySelector("[data-page-prev]");
+const nextButton = document.querySelector("[data-page-next]");
+const pageSizeSelect = document.querySelector("[data-page-size]");
+
+// Uma tabela inteira pesa mais que um autocomplete: espera um pouco mais.
+const SEARCH_DELAY = 400;
 
 let categories = [];
 let currentPage = 1;
+let searchTimer = null;      // relogio do debounce da busca
+let listController = null;   // permite cancelar a listagem em andamento
 
 // ------------------------------------------------------------
 // Modal de Confirmação Reutilizável
@@ -145,8 +151,9 @@ function renderRows(products) {
               data-edit="${product.id}"
               class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
             >Editar</button>
-            <button
+                        <button
               data-delete="${product.id}"
+              data-name="${escapeHtml(product.name)}"
               class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
             >Excluir</button>
           </td>
@@ -168,56 +175,135 @@ function statusBadge(product) {
   return '<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Ok</span>';
 }
 
+// ------------------------------------------------------------
+// Filtros e paginacao
+// ------------------------------------------------------------
+
 function currentFilters() {
   const data = new FormData(filtersForm);
 
   return {
-    search: data.get("search") ?? "",
+    search: (data.get("search") ?? "").trim(),
     categoryId: data.get("categoryId") ?? "",
     lowStock: data.get("lowStock") === "on",
-    includeInactive: data.get("includeInactive") === "on",
     page: currentPage,
-    perPage: 20,
+    pageSize: Number(pageSizeSelect.value),
   };
 }
 
+function renderPagination({ page, pageSize, total, totalPages }) {
+  if (total === 0) {
+    pageInfo.textContent = "Nenhum produto";
+  } else {
+    const first = (page - 1) * pageSize + 1;
+    // Na ultima pagina, page * pageSize passa do total.
+    const last = Math.min(page * pageSize, total);
+
+    pageInfo.textContent = `Mostrando ${first}-${last} de ${total} produto(s)`;
+  }
+
+  pageLabel.textContent = `${page} / ${totalPages}`;
+  prevButton.disabled = page <= 1;
+  nextButton.disabled = page >= totalPages;
+}
+
 async function loadProducts() {
+  // Filtro novo antes de a resposta anterior chegar? Cancela a anterior.
+  listController?.abort();
+  listController = new AbortController();
+
   try {
-    const result = await api.listProducts(currentFilters());
-    // Garante renderização utilizando a lista 'data' retornada do backend
-    renderRows(result.data);
+    const { pagination, rows } = await api.listProducts(currentFilters(), {
+      signal: listController.signal,
+    });
+
+    // Excluiu o ultimo produto da ultima pagina: ela deixou de existir.
+    // Volta para a ultima pagina que existe e carrega de novo.
+    if (rows.length === 0 && currentPage > pagination.totalPages) {
+      currentPage = pagination.totalPages;
+      return loadProducts();
+    }
+
+    renderRows(rows);
+    renderPagination(pagination);
   } catch (error) {
+    if (isCanceled(error)) return;
+
     toast(error.message, "error");
   }
 }
 
-async function loadCategories() {
-  categories = await api.listCategories();
-
-  const options = categories
-    .map((category) => `<option value="${category.id}">${escapeHtml(category.name)}</option>`)
-    .join("");
-
-  filtersForm.elements.categoryId.innerHTML =
-    `<option value="">Todas as categorias</option>${options}`;
-
-  form.elements.categoryId.innerHTML = `<option value="">Sem categoria</option>${options}`;
+// Qualquer filtro mudou: o resultado e outro, entao volta a pagina 1.
+function applyFilters() {
+  clearTimeout(searchTimer);
+  currentPage = 1;
+  loadProducts();
 }
 
 // ------------------------------------------------------------
 // Ações
 // ------------------------------------------------------------
 
+// ------------------------------------------------------------
+// Acoes
+// ------------------------------------------------------------
+
+// Enter no campo de busca: filtra na hora, sem esperar o debounce.
 filtersForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  currentPage = 1;
+  applyFilters();
+});
+
+// Busca ao vivo: cada tecla reinicia o relogio; filtra na pausa.
+filtersForm.elements.search.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilters, SEARCH_DELAY);
+});
+
+// Select e checkbox: a mudanca e um evento so, filtra na hora.
+filtersForm.elements.categoryId.addEventListener("change", applyFilters);
+filtersForm.elements.lowStock.addEventListener("change", applyFilters);
+
+// O reset dispara ANTES de os campos serem limpos (Aula 17).
+filtersForm.addEventListener("reset", () => {
+  setTimeout(applyFilters, 0);
+});
+
+pageSizeSelect.addEventListener("change", applyFilters);
+
+prevButton.addEventListener("click", () => {
+  currentPage -= 1;
   loadProducts();
 });
 
-filtersForm.addEventListener("reset", () => {
-  currentPage = 1;
-  setTimeout(loadProducts, 0);
+nextButton.addEventListener("click", () => {
+  currentPage += 1;
+  loadProducts();
 });
+
+// Produto com historico nao se exclui: se inativa (Aula 65).
+async function offerDeactivation(id, reason) {
+  const confirmed = await confirmDialog({
+    title: "Nao e possivel excluir",
+    message: `${reason} Voce pode inativa-lo: ele sai da busca de movimentacoes, mas o historico e preservado.`,
+    confirmLabel: "Inativar produto",
+    variant: "warning",
+  });
+
+  if (!confirmed) return;
+
+  try {
+    // O PUT exige o produto inteiro: buscamos e mudamos so o "active".
+    const product = await api.getProduct(id);
+
+    await api.updateProduct(id, { ...product, active: false });
+
+    toast("Produto inativado");
+    loadProducts();
+  } catch (error) {
+    toast(error.message, "error");
+  }
+}
 
 rowsContainer.addEventListener("click", async (event) => {
   const editId = event.target.dataset.edit;
@@ -233,18 +319,28 @@ rowsContainer.addEventListener("click", async (event) => {
   }
 
   if (deleteId) {
+    const name = event.target.dataset.name;
+
     const confirmed = await confirmDialog({
-      title: "Desativar produto",
-      message: "Deseja realmente desativar este produto?",
+      title: "Excluir produto?",
+      message: `"${name}" sera excluido definitivamente. Esta acao nao pode ser desfeita.`,
+      confirmLabel: "Excluir",
     });
 
     if (!confirmed) return;
 
     try {
       await api.deleteProduct(deleteId);
-      toast("Produto desativado");
+      toast("Produto excluido");
       loadProducts();
     } catch (error) {
+      // 409 = o produto tem historico. Em vez de so mostrar o erro,
+      // oferecemos a alternativa certa (Aula 65).
+      if (error.status === 409) {
+        await offerDeactivation(deleteId, error.message);
+        return;
+      }
+
       toast(error.message, "error");
     }
   }
