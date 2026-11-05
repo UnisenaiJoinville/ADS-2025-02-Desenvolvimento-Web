@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS stock_movements (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_movements_product
     FOREIGN KEY (product_id) REFERENCES products (id)
-    ON DELETE CASCADE
+    -- RESTRICT: produto com historico nao pode ser apagado (Aula 65)
+    ON DELETE RESTRICT
 );
 
 CREATE INDEX idx_products_category ON products (category_id);
@@ -221,8 +222,8 @@ ALTER TABLE stock_movements
 -- CONTINUA existindo - ela e um fato do estoque. Perde-se apenas
 -- o responsavel.
 --
--- Compare com a FK de product_id, que usa ON DELETE CASCADE:
--- movimentacao de um produto que nao existe mais nao faz sentido.
+-- Compare com a FK de product_id, que usa ON DELETE RESTRICT (Aula 65):
+-- produto com historico nao pode ser apagado; o certo e inativa-lo.
 ALTER TABLE stock_movements
   ADD CONSTRAINT fk_movements_user
   FOREIGN KEY (user_id) REFERENCES users (id)
