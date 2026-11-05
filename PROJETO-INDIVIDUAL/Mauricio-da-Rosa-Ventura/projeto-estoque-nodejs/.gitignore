@@ -1,2 +1,5 @@
 node_modules
 .env
+
+# CSS gerado pelo Tailwind (Aula 69): recrie com "npm run css:build"
+public/css/app.css
