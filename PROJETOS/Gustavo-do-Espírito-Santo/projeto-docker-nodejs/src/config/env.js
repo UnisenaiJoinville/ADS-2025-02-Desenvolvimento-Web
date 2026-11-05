@@ -38,4 +38,5 @@ export const env = {
     jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || "1d",
     saltRounds: 10,
   },
+  trustProxy: process.env.TRUST_PROXY === "true",
 };

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_movements_product
     FOREIGN KEY (product_id) REFERENCES products (id)
-    ON DELETE CASCADE
+    ON DELETE RESTRICT
 );
 
 CREATE INDEX idx_products_category ON products (category_id);
