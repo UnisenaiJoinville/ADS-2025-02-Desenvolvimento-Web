@@ -1,7 +1,5 @@
 import { pool } from "../../config/database.js";
 
-// Quem faz as contas e o banco: trafega um numero em vez de milhares de linhas.
-// COALESCE protege o caso do conjunto vazio (SUM de tabela vazia e NULL).
 export async function getSummary() {
   const [rows] = await pool.query(
     `SELECT COUNT(*)                                   AS totalProducts,
@@ -18,7 +16,6 @@ export async function getSummary() {
 }
 
 export async function getMonthTotals() {
-  // SUM(CASE WHEN ...) separa entradas e saidas em uma unica varredura
   const [rows] = await pool.query(
     `SELECT COALESCE(SUM(CASE WHEN type = 'IN'  THEN quantity ELSE 0 END), 0) AS unitsIn,
             COALESCE(SUM(CASE WHEN type = 'OUT' THEN quantity ELSE 0 END), 0) AS unitsOut
@@ -47,7 +44,6 @@ export async function getStockByCategory() {
 }
 
 export async function getLowStockProducts(limit = 5) {
-  // Ordena pela GRAVIDADE (quantity - minimum_stock), nao pela quantidade
   const [rows] = await pool.query(
     `SELECT id,
             name,
@@ -78,6 +74,32 @@ export async function getRecentMovements(limit = 8) {
       ORDER BY m.created_at DESC, m.id DESC
       LIMIT ?`,
     [limit]
+  );
+
+  return rows;
+}
+
+// Entradas e saidas de cada dia dos ultimos N dias, SEM buracos (Aula 68).
+// O calendario e gerado por uma CTE recursiva; o LEFT JOIN garante que
+// os dias sem movimentacao aparecam com zero.
+export async function getDailyMovements(days) {
+  const [rows] = await pool.query(
+    `WITH RECURSIVE calendar AS (
+       SELECT CURDATE() - INTERVAL ? DAY AS day
+       UNION ALL
+       SELECT day + INTERVAL 1 DAY FROM calendar WHERE day < CURDATE()
+     )
+     SELECT DATE_FORMAT(c.day, '%Y-%m-%d') AS day,
+            COALESCE(SUM(CASE WHEN m.type = 'IN'  THEN m.quantity END), 0) AS unitsIn,
+            COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity END), 0) AS unitsOut
+       FROM calendar c
+       LEFT JOIN stock_movements m
+         ON m.created_at >= c.day
+        AND m.created_at <  c.day + INTERVAL 1 DAY
+      GROUP BY c.day
+      ORDER BY c.day`,
+    // "ultimos 7 dias" = hoje e os 6 anteriores
+    [days - 1]
   );
 
   return rows;

@@ -1,11 +1,16 @@
 import { api } from "./api.js";
 import { HOME_PAGE, redirectIfAuthenticated, saveSession } from "./auth.js";
+import { renderIcons } from "./icons.js";
 
 // O CDN do Vue publica tudo dentro da variavel global "Vue".
 const { createApp } = Vue;
 
 // Quem ja tem sessao nao precisa ver esta tela.
 redirectIfAuthenticated();
+
+// Os icones viram <svg> ANTES de o Vue ler o HTML. Assim o Vue
+// enxerga o desenho pronto e nunca briga com o Lucide pelo DOM.
+renderIcons();
 
 createApp({
   // data() devolve o ESTADO da tela. Tudo que esta aqui e reativo:
@@ -17,6 +22,7 @@ createApp({
         password: "",
       },
       showPassword: false,
+      capsLockOn: false,
       loading: false,
       errorMessage: "",
       successMessage: "",
@@ -26,7 +32,6 @@ createApp({
   // computed: valores DERIVADOS do estado. O Vue recalcula
   // automaticamente quando alguma peca usada aqui muda.
   computed: {
-    // No login nao validamos formato nem tamanho: quem decide e o servidor.
     canSubmit() {
       return (
         this.form.email.trim() !== "" &&
@@ -48,6 +53,12 @@ createApp({
   },
 
   methods: {
+    // getModifierState pergunta ao navegador como estao as teclas
+    // especiais NO MOMENTO deste evento de teclado.
+    checkCapsLock(event) {
+      this.capsLockOn = event.getModifierState?.("CapsLock") ?? false;
+    },
+
     fillDemo() {
       this.form.email = "professor@estoquefacil.com";
       this.form.password = "123456";
@@ -72,7 +83,6 @@ createApp({
         window.location.replace(HOME_PAGE);
       } catch (error) {
         this.errorMessage = error.message;
-        // Limpa a senha, mas mantem o e-mail preenchido.
         this.form.password = "";
       } finally {
         // finally roda deu certo ou deu errado - o botao sempre destrava.
