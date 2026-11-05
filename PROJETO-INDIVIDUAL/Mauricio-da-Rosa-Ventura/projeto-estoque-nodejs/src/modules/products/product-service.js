@@ -1,5 +1,7 @@
 import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
+import { buildPagination } from "../../shared/http/pagination.js";
 import * as categoryRepository from "../categories/category-repository.js";
+import * as movementRepository from "../movements/movement-repository.js";
 
 import * as repository from "./product-repository.js";
 import { validateProductInput } from "./product-validator.js";
@@ -17,7 +19,20 @@ async function ensureCategoryExists(categoryId) {
 }
 
 export async function listProducts(filters) {
-  return repository.findAll(filters);
+  // As duas consultas sao independentes: rodam ao mesmo tempo.
+  const [rows, total] = await Promise.all([
+    repository.findAll(filters),
+    repository.countAll(filters),
+  ]);
+
+  return {
+    pagination: buildPagination(filters, total),
+    rows,
+  };
+}
+
+export async function searchProducts(filters) {
+  return repository.search(filters);
 }
 
 export async function getProduct(id) {
@@ -62,6 +77,16 @@ export async function updateProduct(id, input) {
 
 export async function deleteProduct(id) {
   await getProduct(id);
+
+  // O banco ja recusaria (FK RESTRICT, Aula 65), mas com uma mensagem
+  // tecnica. Conferimos antes para explicar o motivo em portugues.
+  const movementCount = await movementRepository.countByProduct(id);
+
+  if (movementCount > 0) {
+    throw new ConflictError(
+      `Este produto tem ${movementCount} movimentacao(oes) no historico e nao pode ser excluido.`
+    );
+  }
 
   await repository.remove(id);
 }
