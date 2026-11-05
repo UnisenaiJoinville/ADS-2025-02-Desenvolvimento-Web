@@ -1,0 +1,3 @@
+# Scripts e configs que rodam no Linux do servidor precisam de LF (Aula 55)
+*.sh text eol=lf
+deploy/caddy/Caddyfile text eol=lf
