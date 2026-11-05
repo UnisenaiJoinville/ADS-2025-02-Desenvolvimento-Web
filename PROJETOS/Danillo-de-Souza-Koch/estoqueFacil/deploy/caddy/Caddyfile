@@ -1,0 +1,18 @@
+{$SITE_ADDRESS} {
+	encode gzip zstd
+
+	header {
+		Strict-Transport-Security "max-age=2592000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+		-X-Powered-By
+	}
+
+	# Depois de criar a conta administrativa, habilite o bloqueio do cadastro:
+	# @cadastro path /api/auth/register /cadastro.html
+	# respond @cadastro "Cadastro desativado" 403
+
+	reverse_proxy api:3000
+}

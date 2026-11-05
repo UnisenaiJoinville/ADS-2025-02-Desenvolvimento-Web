@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import express from "express";
 
+import { env } from "./config/env.js";
 import { routes } from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./shared/http/error-handler.js";
 
@@ -11,6 +12,10 @@ const publicDir = path.resolve(currentDir, "..", "public");
 
 export const app = express();
 
+if (env.trustProxy) {
+  app.set("trust proxy", 1);
+}
+
 app.use(express.json());
 
 app.use((request, response, next) => {
@@ -18,6 +23,7 @@ app.use((request, response, next) => {
   next();
 });
 
+// Serve the frontend files from the public directory.
 app.use(express.static(publicDir));
 app.use("/api", routes);
 

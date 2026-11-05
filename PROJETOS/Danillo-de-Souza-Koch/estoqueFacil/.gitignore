@@ -1,2 +1,5 @@
 node_modules
 .env
+.env.production
+*.tar.gz
+public/css/app.css

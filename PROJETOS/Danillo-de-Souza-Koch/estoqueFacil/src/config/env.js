@@ -44,4 +44,5 @@ export const env = {
     // para nos e para quem tentar quebrar a senha na forca bruta.
     saltRounds: 10,
   },
+  trustProxy: process.env.TRUST_PROXY === "true",
 };
