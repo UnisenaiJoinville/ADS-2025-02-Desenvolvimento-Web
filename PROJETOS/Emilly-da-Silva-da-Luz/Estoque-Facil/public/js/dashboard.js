@@ -183,3 +183,13 @@ document.querySelector("[data-reload]").addEventListener("click", () => {
 if (requireAuth()) {
   loadDashboard();
 }
+
+let movementChart;
+async function loadMovementChart(days=7){
+ try{const rows=await api.getDailyMovements(days);const canvas=document.querySelector('[data-movement-chart]');if(!canvas||!window.Chart)return;
+ const data={labels:rows.map(r=>r.day.slice(5).split('-').reverse().join('/')),datasets:[{label:'Entradas',data:rows.map(r=>Number(r.unitsIn)),backgroundColor:'#10b981'},{label:'Saídas',data:rows.map(r=>Number(r.unitsOut)),backgroundColor:'#f43f5e'}]};
+ if(movementChart){movementChart.data=data;movementChart.update();}else movementChart=new Chart(canvas,{type:'bar',data,options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+ }catch(error){toast(error.message,'error');}
+}
+document.querySelectorAll('[data-days]').forEach(b=>b.addEventListener('click',()=>loadMovementChart(Number(b.dataset.days))));
+if(requireAuth())loadMovementChart();

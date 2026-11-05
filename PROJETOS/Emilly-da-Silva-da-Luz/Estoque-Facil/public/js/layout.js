@@ -1,3 +1,4 @@
+import {renderIcons} from "./icons.js";
 import { getUser, logout } from "./auth.js";
 
 export const currency = new Intl.NumberFormat("pt-BR", {
@@ -42,7 +43,7 @@ export function renderNav(active) {
       ? "bg-slate-900 text-white"
       : "text-slate-600 hover:bg-slate-200 hover:text-slate-900";
 
-    return `<a href="${item.href}" class="rounded-lg px-4 py-2 text-sm font-medium transition ${classes}">${item.label}</a>`;
+    return `<a href="${item.href}" class="rounded-lg px-4 py-2 text-sm font-medium transition ${classes}"><i data-lucide="${item.icon}" class="mr-1 inline-block h-4 w-4"></i>${item.label}</a>`;
   }).join("");
 
   return `
@@ -88,7 +89,7 @@ function renderUserBadge() {
         data-logout
         class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
       >
-        Sair
+        <i data-lucide="log-out" class="mr-1 inline-block h-4 w-4"></i>Sair
       </button>
     </div>
   `;
@@ -99,6 +100,7 @@ export function mountLayout(activeHref) {
 
   if (container) {
     container.innerHTML = renderNav(activeHref);
+    renderIcons();
     container.querySelector("[data-logout]")?.addEventListener("click", logout);
   }
 }
@@ -126,3 +128,17 @@ export function toast(message, variant = "success") {
     setTimeout(() => element.remove(), 250);
   }, 3000);
 }
+
+export function confirmDialog(message) {
+ return new Promise(resolve=>{
+  const overlay=document.createElement('div');overlay.className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4';
+  overlay.innerHTML=`<div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><h2 id="confirm-title" class="text-lg font-semibold">Confirmar ação</h2><p class="my-4 text-sm"></p><div class="flex justify-end gap-2"><button data-no class="rounded border px-4 py-2">Cancelar</button><button data-yes class="rounded bg-rose-600 px-4 py-2 text-white">Confirmar</button></div></div>`;
+  overlay.querySelector('p').textContent=message;
+  const finish=value=>{document.removeEventListener('keydown',onKey);overlay.remove();resolve(value);};
+  const onKey=e=>{if(e.key==='Escape')finish(false);};document.addEventListener('keydown',onKey);
+  overlay.querySelector('[data-no]').onclick=()=>finish(false);overlay.querySelector('[data-yes]').onclick=()=>finish(true);
+  document.body.append(overlay);overlay.querySelector('[data-no]').focus();
+ });
+}
+export function setButtonLoading(button,loading,label='Salvando...') {if(!button)return;if(loading){button.dataset.originalHtml=button.innerHTML;button.disabled=true;button.setAttribute('aria-busy','true');button.textContent=label;}else{button.disabled=false;button.removeAttribute('aria-busy');if(button.dataset.originalHtml!==undefined){button.innerHTML=button.dataset.originalHtml;delete button.dataset.originalHtml;}}}
+export function skeletonRows(columns,rows=5){return Array.from({length:rows},()=>'<tr>'+Array.from({length:columns},()=>'<td class="px-4 py-3"><div class="h-4 animate-pulse rounded bg-slate-200"></div></td>').join('')+'</tr>').join('');}
