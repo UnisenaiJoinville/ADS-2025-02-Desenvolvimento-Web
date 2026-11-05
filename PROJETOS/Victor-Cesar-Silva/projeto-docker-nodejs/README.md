@@ -10,6 +10,8 @@ Com o Docker Desktop aberto:
 
 ```bash
 cp .env.example .env
+npm install
+npm run css:build
 docker compose up -d --build
 ```
 
@@ -45,10 +47,12 @@ docker compose exec -T db mysql -uestoque -pestoque123 estoque_db < database/mig
 | GET | `/api/auth/me` | Dados de quem esta logado |
 | GET/POST | `/api/categories` | Lista e cria categorias |
 | GET/PUT/DELETE | `/api/categories/:id` | Busca, atualiza e exclui |
-| GET/POST | `/api/products` | Lista (filtros `search`, `categoryId`, `lowStock`) e cria |
-| GET/PUT/DELETE | `/api/products/:id` | Busca, atualiza e exclui |
+| GET/POST | `/api/products` | Lista paginada (`search`, `categoryId`, `lowStock`, `page`, `pageSize`) e cria |
+| GET | `/api/products/search` | Busca rapida de produtos ativos para autocomplete (`q`, `limit`) |
+| GET/PUT/DELETE | `/api/products/:id` | Busca, atualiza e exclui (bloqueia com `409` se houver historico) |
 | GET/POST | `/api/movements` | Lista o historico e registra entrada/saida |
 | GET | `/api/dashboard` | Totais, saldo do mes, estoque baixo e recentes |
+| GET | `/api/dashboard/movements-by-day` | Serie diaria de entradas e saidas para o grafico (`days`: 7, 30 ou 90) |
 | GET | `/api/reports/products` | Produtos com filtros, ordenacao, paginacao e totais (`?format=csv` exporta) |
 | GET | `/api/reports/movements` | Movimentacoes com filtros e periodo (`?format=csv` exporta) |
 | GET | `/api/reports/stock-summary`, `stock-by-category`, `products-without-movement`, `abc-curve` | Resumos e analises do estoque |

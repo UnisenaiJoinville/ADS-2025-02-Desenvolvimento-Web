@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Categorias | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSS gerado pelo Tailwind CLI (Aula 69): npm run css:build -->
+    <link rel="stylesheet" href="/css/app.css" />
+    <!-- Icones (Aula 60). Versao fixa: o site nao muda sozinho amanha. -->
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <div data-nav></div>
@@ -15,25 +18,29 @@
         <p class="text-sm text-slate-500">Organize os produtos por grupo</p>
       </div>
 
-      <!-- Um campo so: formulario direto na pagina, sem modal -->
       <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
         <form data-form class="flex flex-wrap items-end gap-3">
           <input type="hidden" name="id" />
 
           <div class="min-w-[220px] flex-1">
-            <label class="mb-1 block text-sm font-medium text-slate-700">Nome da categoria</label>
+            <label for="category-name" class="mb-1 block text-sm font-medium text-slate-700">Nome da categoria</label>
             <input
+              id="category-name"
               name="name"
               required
+              maxlength="80"
               placeholder="Ex.: Bebidas"
               class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
             />
           </div>
 
-          <button class="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-700">
+          <button
+            type="submit"
+            data-save
+            class="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
             Salvar
           </button>
-          <!-- type="button": sem ele, o Cancelar enviaria o formulario -->
           <button
             type="button"
             data-cancel
