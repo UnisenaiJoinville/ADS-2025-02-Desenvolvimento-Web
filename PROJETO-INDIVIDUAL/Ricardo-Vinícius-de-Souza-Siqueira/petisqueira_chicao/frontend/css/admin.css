@@ -1,0 +1,91 @@
+/* PAINEL ADMIN — layout do Figma (vinho + dourado). Carregado depois do estilo.css */
+:root{ --r-bloco:12px; --r-pill:999px; --vinho:#7b1f2e; --vinho-esc:#5e1623; --ouro:#a9853f; --ouro-cl:#c9a96a; --fundo:#f6ebe7; --rosa:#c0566a; }
+body.body-pag{ background:var(--fundo); }
+.adm-app{ min-height:100vh; border-top:14px solid var(--vinho); background:var(--fundo); }
+.adm-topo{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 28px; }
+.adm-topo h1{ margin:0; font-size:26px; font-weight:700; color:var(--vinho-esc); }
+.adm-topo .adm-sair, .adm-btn-buscar{ background:var(--vinho); color:#fff; border:0; border-radius:20px; padding:8px 26px; font-weight:600; cursor:pointer; transition:.3s; }
+.adm-topo .adm-sair:hover, .adm-btn-buscar:hover{ background:var(--vinho-esc); }
+.adm-corpo{ display:grid; grid-template-columns:220px minmax(0,1fr); gap:20px; padding:0 28px 32px; align-items:start; }
+.adm-menu{ background:rgba(255,255,255,.6); border-radius:12px; padding:14px 10px; }
+.adm-menu button{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:0; background:transparent; color:#4a2a30; padding:12px 14px; border-radius:8px; font-weight:600; cursor:pointer; }
+.adm-menu button i{ color:var(--vinho); font-size:18px; }
+.adm-menu button.ativo{ background:#efdcd6; color:var(--vinho-esc); }
+.adm-menu .admin-badge-contador{ margin-left:auto; background:var(--vinho); color:#fff; }
+.adm-ola{ font-size:13px; color:#8a6a6f; padding:14px 14px 0; }
+.adm-conteudo .admin-secao{ background:transparent; padding:0; box-shadow:none; }
+.adm-kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px; }
+.adm-kpi{ display:flex; align-items:center; gap:14px; color:#fff; border-radius:10px; padding:16px 20px; background:var(--ouro); }
+.adm-kpi.vinho{ background:var(--vinho); }
+.adm-kpi i{ font-size:34px; opacity:.9; }
+.adm-kpi span{ display:block; font-size:14px; }
+.adm-kpi strong{ font-size:30px; line-height:1.1; }
+.adm-filtros{ display:flex; flex-wrap:wrap; gap:10px; background:rgba(255,255,255,.6); border-radius:10px; padding:10px; margin-bottom:18px; }
+.adm-filtros input, .adm-filtros select{ border:1px solid #e6d2cb; background:#fff; border-radius:20px; padding:7px 14px; min-width:150px; }
+.adm-filtros input[type=text]{ flex:1 1 200px; }
+.adm-titulo{ font-size:17px; font-weight:700; color:var(--vinho-esc); margin:6px 0 10px; }
+.admin-tabela{ background:#fff; border-radius:10px; overflow:hidden; }
+.admin-tabela thead th{ background:var(--vinho) !important; color:#fff !important; border:0 !important; }
+.admin-tabela tbody tr:nth-child(even){ background:#fbf3f0; }
+.adm-sub{ display:block; font-size:12px; color:#8a6a6f; }
+.adm-status{ border:0; border-radius:14px; padding:4px 12px; font-size:13px; font-weight:600; color:#fff; background:var(--ouro); }
+.adm-status.pendente{ background:var(--ouro); } .adm-status.confirmada{ background:#2e8b47; } .adm-status.cancelada{ background:#d32f2f; }
+.adm-status option{ background:#fff; color:#222; }
+.admin-btn.salvar{ background:var(--ouro); color:#fff; border-radius:16px; }
+.admin-btn.excluir, .admin-btn.novo{ background:var(--vinho); color:#fff; border-radius:16px; }
+.adm-cartoes{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; background:rgba(255,255,255,.6); border-radius:10px; padding:14px; }
+.adm-cartao{ background:#fff; border-radius:8px; overflow:hidden; font-size:14px; }
+.adm-cartao-topo{ background:var(--vinho); color:#fff; text-align:center; font-size:22px; font-weight:700; padding:8px; }
+.adm-cartao-linha{ padding:8px 12px; border-top:1px solid #f0e3de; }
+.relatorio-card{ background:#fff; } .relatorio-card .relatorio-icone{ background:#f3e3de !important; color:var(--vinho) !important; }
+.relatorio-periodo button.ativo, .admin-subtabs button.ativo{ background:var(--vinho) !important; color:#fff !important; border-color:var(--vinho) !important; }
+.relatorio-grafico-box{ background:#fff; border-radius:12px; } .relatorio-grafico-box h5 i{ color:var(--ouro) !important; }
+.barra-participacao span{ background:var(--vinho) !important; }
+.linha-nao-lida td:first-child{ box-shadow:inset 4px 0 0 var(--vinho); }
+@media (max-width:820px){
+  .adm-corpo{ grid-template-columns:1fr; padding:0 14px 24px; } .adm-topo{ padding:16px 14px; }
+  .adm-menu{ display:flex; overflow-x:auto; gap:4px; padding:8px; } .adm-menu button{ width:auto; white-space:nowrap; } .adm-ola{ display:none; }
+  .adm-kpis{ grid-template-columns:1fr; }
+}
+
+/* PADRÃO DE BORDAS: blocos/cartões/tabela = 12px; botões, campos, selects e paginação = pílula */
+.adm-menu, .adm-kpi, .adm-filtros, .admin-tabela, .adm-cartoes, .adm-cartao, .relatorio-grafico-box{ border-radius:var(--r-bloco); }
+.adm-menu button{ border-radius:var(--r-pill); }
+.adm-topo .adm-sair, .adm-btn-buscar, .admin-btn, .admin-btn.salvar, .admin-btn.excluir, .admin-btn.novo,
+.adm-status, .adm-filtros input, .adm-filtros select{ border-radius:var(--r-pill); }
+.admin-btn{ padding:6px 14px; font-weight:600; }
+.adm-status{ padding:5px 12px; }
+.adm-filtros input[type=date]{ flex:1 1 100%; }
+.adm-filtros input[type=text]{ flex:1 1 100%; }
+.admin-tabela thead th:first-child{ border-top-left-radius:var(--r-bloco); }
+.admin-tabela thead th:last-child{ border-top-right-radius:var(--r-bloco); }
+#tabela-reservas_wrapper .dataTables_paginate .paginate_button{ border-radius:var(--r-pill); }
+#tabela-reservas_wrapper .dataTables_paginate .paginate_button.current{ background:var(--vinho) !important; }
+#tabela-reservas_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current){ background:#efdcd6 !important; color:var(--vinho-esc) !important; border:0 !important; }
+.adm-cartao-topo{ background:var(--vinho); }
+.adm-cartoes{ grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+
+/* ===== RESPONSIVO ADMIN (corrige estouro lateral no celular) ===== */
+.adm-app, .adm-corpo, .adm-conteudo, .adm-conteudo .admin-secao{ min-width:0; max-width:100%; }
+.adm-conteudo{ overflow-x:hidden; }
+.adm-conteudo .admin-secao{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.adm-conteudo table{ max-width:100%; }
+.adm-filtros{ box-sizing:border-box; max-width:100%; }
+.adm-filtros input, .adm-filtros select{ box-sizing:border-box; min-width:0; max-width:100%; }
+.relatorio-periodo, .admin-subtabs{ flex-wrap:wrap; }
+@media (max-width:820px){
+  .adm-corpo{ grid-template-columns:minmax(0,1fr); }
+  .adm-topo h1{ font-size:22px; }
+  .adm-menu{ max-width:100%; box-sizing:border-box; }
+  .adm-kpis{ grid-template-columns:minmax(0,1fr); }
+  .adm-filtros select{ flex:1 1 120px; }
+  .adm-cartoes{ grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
+  .admin-tabela{ display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  #tabela-reservas_wrapper, #tabela-produtos_wrapper, #tabela-mensagens_wrapper{ max-width:100%; overflow-x:auto; }
+  .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate{ text-align:left; float:none; }
+}
+@media (max-width:480px){
+  .adm-topo .adm-sair{ padding:8px 18px; }
+  .adm-kpi{ padding:14px 16px; }
+}

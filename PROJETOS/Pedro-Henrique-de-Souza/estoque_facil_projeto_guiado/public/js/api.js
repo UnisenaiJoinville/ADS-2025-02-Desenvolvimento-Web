@@ -40,6 +40,54 @@ async function request(path, options = {}) {
   return data;
 }
 
+// Monta a query string a partir de um objeto, ignorando o que esta
+// vazio. Sem isso, "?search=&categoryId=" chegaria ao servidor cheio
+// de filtros em branco.
+function buildQuery(filters = {}) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === undefined || value === null || value === "" || value === false) {
+      continue;
+    }
+
+    params.set(key, String(value));
+  }
+
+  const query = params.toString();
+
+  return query ? `?${query}` : "";
+}
+
+// Baixar um arquivo e diferente de buscar JSON: a resposta nao e
+// convertida, vira um Blob e o navegador salva em disco.
+// Mesmo assim o token precisa ir junto - por isso isto mora aqui.
+export async function downloadReport(path, filters, fileName) {
+  const token = getToken();
+
+  const response = await fetch(`${BASE_URL}${path}${buildQuery({ ...filters, format: "csv" })}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  if (!response.ok) {
+    throw new Error("Nao foi possivel gerar o arquivo");
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  // Truque padrao: cria um link invisivel, clica nele e descarta.
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  // Libera a memoria que o Blob ocupava.
+  URL.revokeObjectURL(url);
+}
+
 export const api = {
   register: (payload) =>
     request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
@@ -86,4 +134,15 @@ export const api = {
   },
   createMovement: (payload) =>
     request("/movements", { method: "POST", body: JSON.stringify(payload) }),
+
+  // --- Relatorios ---
+  reportProducts: (filters) => request(`/reports/products${buildQuery(filters)}`),
+  reportStockSummary: () => request("/reports/stock-summary"),
+  reportStockByCategory: () => request("/reports/stock-by-category"),
+  reportProductsWithoutMovement: () => request("/reports/products-without-movement"),
+  reportAbcCurve: () => request("/reports/abc-curve"),
+  reportMovements: (filters) => request(`/reports/movements${buildQuery(filters)}`),
+  reportMovementsByUser: (filters) => request(`/reports/movements-by-user${buildQuery(filters)}`),
+  reportMovementsByMonth: (filters) => request(`/reports/movements-by-month${buildQuery(filters)}`),
+  reportTopProducts: (filters) => request(`/reports/top-products${buildQuery(filters)}`),
 };

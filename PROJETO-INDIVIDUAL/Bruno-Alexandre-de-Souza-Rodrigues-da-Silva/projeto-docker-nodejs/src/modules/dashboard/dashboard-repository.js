@@ -78,3 +78,29 @@ export async function getRecentMovements(limit = 8) {
 
   return rows;
 }
+
+// Entradas e saidas de cada dia dos ultimos N dias, SEM buracos (Aula 68).
+// O calendario e gerado por uma CTE recursiva; o LEFT JOIN garante que
+// os dias sem movimentacao aparecam com zero.
+export async function getDailyMovements(days) {
+  const [rows] = await pool.query(
+    `WITH RECURSIVE calendar AS (
+       SELECT CURDATE() - INTERVAL ? DAY AS day
+       UNION ALL
+       SELECT day + INTERVAL 1 DAY FROM calendar WHERE day < CURDATE()
+     )
+     SELECT DATE_FORMAT(c.day, '%Y-%m-%d') AS day,
+            COALESCE(SUM(CASE WHEN m.type = 'IN'  THEN m.quantity END), 0) AS unitsIn,
+            COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity END), 0) AS unitsOut
+       FROM calendar c
+       LEFT JOIN stock_movements m
+         ON m.created_at >= c.day
+        AND m.created_at <  c.day + INTERVAL 1 DAY
+      GROUP BY c.day
+      ORDER BY c.day`,
+    // "ultimos 7 dias" = hoje e os 6 anteriores
+    [days - 1]
+  );
+
+  return rows;
+}

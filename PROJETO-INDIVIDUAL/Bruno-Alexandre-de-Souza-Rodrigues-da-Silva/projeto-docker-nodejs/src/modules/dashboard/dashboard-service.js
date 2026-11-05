@@ -1,7 +1,7 @@
 import * as repository from "./dashboard-repository.js";
 
 export async function getDashboard() {
-  // As consultas sao independentes: executamos em paralelo.
+  // As consultas sao independentes: podemos executar em paralelo.
   const [summary, month, byCategory, lowStock, recentMovements] = await Promise.all([
     repository.getSummary(),
     repository.getMonthTotals(),
@@ -19,6 +19,7 @@ export async function getDashboard() {
       totalUnits: Number(summary.totalUnits),
       stockCostValue: Number(summary.stockCostValue),
       stockSaleValue: Number(summary.stockSaleValue),
+      // Lucro potencial se todo o estoque for vendido
       potentialProfit:
         Number(summary.stockSaleValue) - Number(summary.stockCostValue),
       lowStockCount: Number(summary.lowStockCount ?? 0),
@@ -38,4 +39,15 @@ export async function getDashboard() {
     lowStock,
     recentMovements,
   };
+}
+
+export async function getDailyMovements(days) {
+  const rows = await repository.getDailyMovements(days);
+
+  // SUM devolve DECIMAL, que o mysql2 entrega como texto: "12".
+  return rows.map((row) => ({
+    day: row.day,
+    unitsIn: Number(row.unitsIn),
+    unitsOut: Number(row.unitsOut),
+  }));
 }

@@ -35,6 +35,7 @@ const NAV_ITEMS = [
   { href: "/produtos.html", label: "Produtos", icon: "box" },
   { href: "/movimentacoes.html", label: "Movimentacoes", icon: "swap" },
   { href: "/categorias.html", label: "Categorias", icon: "tag" },
+  { href: "/relatorios.html", label: "Relatorios", icon: "chart" },
 ];
 
 export function renderNav(active) {
@@ -133,4 +134,4 @@ export function toast(message, variant = "success") {
     element.classList.add("translate-y-2", "opacity-0");
     setTimeout(() => element.remove(), 250);
   }, 3000);
-}
+}

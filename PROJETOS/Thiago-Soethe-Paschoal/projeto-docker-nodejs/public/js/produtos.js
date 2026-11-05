@@ -1,6 +1,15 @@
-import { api } from "./api.js";
+import { api, isCanceled } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
+import { renderIcons } from "./icons.js";
+import {
+  confirmDialog,
+  currency,
+  escapeHtml,
+  mountLayout,
+  setButtonLoading,
+  skeletonRows,
+  toast,
+} from "./layout.js";
 
 mountLayout("/produtos.html");
 
@@ -9,19 +18,31 @@ const filtersForm = document.querySelector("[data-filters]");
 const modal = document.querySelector("[data-modal]");
 const modalTitle = document.querySelector("[data-modal-title]");
 const form = document.querySelector("[data-form]");
-const deleteModal = document.querySelector("[data-delete-modal]");
-const deleteMessage = document.querySelector("[data-delete-message]");
-const deleteCancelButton = document.querySelector("[data-delete-cancel]");
-const deleteConfirmButton = document.querySelector("[data-delete-confirm]");
+const saveButton = form.querySelector("[data-save]");
+
+// Rodape de paginacao (Aula 64)
+const pageInfo = document.querySelector("[data-page-info]");
+const pageLabel = document.querySelector("[data-page-label]");
+const prevButton = document.querySelector("[data-page-prev]");
+const nextButton = document.querySelector("[data-page-next]");
+const pageSizeSelect = document.querySelector("[data-page-size]");
+
+// Uma tabela inteira pesa mais que um autocomplete: espera um pouco mais.
+const SEARCH_DELAY = 400;
 
 let categories = [];
-let pendingDeleteId = null;
+let currentPage = 1;
+let searchTimer = null;
+let listController = null;
+let isFirstLoad = true;      // na primeira carga, skeleton; nas outras, so esmaece
+let lastFocused = null;      // quem abriu o modal (para devolver o foco)
 
 // ------------------------------------------------------------
 // Modal
 // ------------------------------------------------------------
 
 function openModal(product) {
+  lastFocused = document.activeElement;
   modalTitle.textContent = product ? "Editar produto" : "Novo produto";
 
   form.reset();
@@ -30,7 +51,7 @@ function openModal(product) {
   if (product) {
     form.elements.name.value = product.name;
     form.elements.sku.value = product.sku;
-    form.elements.supplier.value = product.supplier ?? "";  
+    form.elements.supplier.value = product.supplier ?? "";
     form.elements.categoryId.value = product.categoryId ?? "";
     form.elements.costPrice.value = product.costPrice;
     form.elements.salePrice.value = product.salePrice;
@@ -49,23 +70,13 @@ function openModal(product) {
 function closeModal() {
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+  // Devolve o foco para quem abriu: quem usa teclado nao se perde.
+  lastFocused?.focus?.();
+  lastFocused = null;
 }
 
-function openDeleteModal(productId, productName = "") {
-  pendingDeleteId = productId;
-  deleteMessage.textContent = productName
-    ? `Deseja realmente excluir o produto "${productName}"? Esta acao nao pode ser desfeita.`
-    : "Deseja realmente excluir este produto? Esta acao nao pode ser desfeita.";
-
-  deleteModal.classList.remove("hidden");
-  deleteModal.classList.add("flex");
-  deleteCancelButton.focus();
-}
-
-function closeDeleteModal() {
-  pendingDeleteId = null;
-  deleteModal.classList.add("hidden");
-  deleteModal.classList.remove("flex");
+function isModalOpen() {
+  return !modal.classList.contains("hidden");
 }
 
 document.querySelectorAll("[data-close]").forEach((button) => {
@@ -76,17 +87,9 @@ modal.addEventListener("click", (event) => {
   if (event.target === modal) closeModal();
 });
 
-deleteCancelButton.addEventListener("click", closeDeleteModal);
-
-deleteModal.addEventListener("click", (event) => {
-  if (event.target === deleteModal) closeDeleteModal();
-});
-
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    closeModal();
-    closeDeleteModal();
-  }
+  // So fecha o modal de produto se ELE estiver aberto (o confirmDialog tem o proprio Esc).
+  if (event.key === "Escape" && isModalOpen()) closeModal();
 });
 
 document.querySelector("[data-new]").addEventListener("click", () => openModal(null));
@@ -129,17 +132,29 @@ function renderRows(products) {
           <td class="px-4 py-3 text-right whitespace-nowrap">
             <button
               data-edit="${product.id}"
-              class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
-            >Editar</button>
+              aria-label="Editar ${escapeHtml(product.name)}"
+              title="Editar"
+              class="inline-grid h-8 w-8 place-items-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100"
+            >
+              <i data-lucide="pencil" class="h-4 w-4"></i>
+            </button>
             <button
               data-delete="${product.id}"
-              class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
-            >Excluir</button>
+              data-name="${escapeHtml(product.name)}"
+              aria-label="Excluir ${escapeHtml(product.name)}"
+              title="Excluir"
+              class="inline-grid h-8 w-8 place-items-center rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50"
+            >
+              <i data-lucide="trash-2" class="h-4 w-4"></i>
+            </button>
           </td>
         </tr>
       `
     )
     .join("");
+
+  // Os <i> dos botoes acabaram de nascer (regra da Aula 60).
+  renderIcons();
 }
 
 function statusBadge(product) {
@@ -154,24 +169,84 @@ function statusBadge(product) {
   return '<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Ok</span>';
 }
 
+// ------------------------------------------------------------
+// Filtros e paginacao
+// ------------------------------------------------------------
+
 function currentFilters() {
   const data = new FormData(filtersForm);
 
   return {
-    search: data.get("search") ?? "",
+    search: (data.get("search") ?? "").trim(),
     categoryId: data.get("categoryId") ?? "",
     lowStock: data.get("lowStock") === "on",
     orderBy: data.get("orderBy") ?? "name",
+    page: currentPage,
+    pageSize: Number(pageSizeSelect.value),
   };
 }
 
-async function loadProducts() {
-  try {
-    const products = await api.listProducts(currentFilters());
-    renderRows(products);
-  } catch (error) {
-    toast(error.message, "error");
+function renderPagination({ page, pageSize, total, totalPages }) {
+  if (total === 0) {
+    pageInfo.textContent = "Nenhum produto";
+  } else {
+    const first = (page - 1) * pageSize + 1;
+    const last = Math.min(page * pageSize, total);
+
+    pageInfo.textContent = `Mostrando ${first}-${last} de ${total} produto(s)`;
   }
+
+  pageLabel.textContent = `${page} / ${totalPages}`;
+  prevButton.disabled = page <= 1;
+  nextButton.disabled = page >= totalPages;
+}
+
+async function loadProducts() {
+  // Filtro novo antes de a resposta anterior chegar? Cancela a anterior.
+  listController?.abort();
+  const controller = new AbortController();
+  listController = controller;
+
+  // Primeira carga: skeleton. Depois: esmaece, para nao "piscar" a cada letra.
+  if (isFirstLoad) {
+    rowsContainer.innerHTML = skeletonRows(7);
+  } else {
+    rowsContainer.classList.add("opacity-50");
+  }
+  rowsContainer.setAttribute("aria-busy", "true");
+
+  try {
+    const { pagination, rows } = await api.listProducts(currentFilters(), {
+      signal: controller.signal,
+    });
+
+    // A pagina atual deixou de existir (ex.: excluiu o ultimo item dela).
+    if (rows.length === 0 && currentPage > pagination.totalPages) {
+      currentPage = pagination.totalPages;
+      return loadProducts();
+    }
+
+    renderRows(rows);
+    renderPagination(pagination);
+  } catch (error) {
+    if (isCanceled(error)) return;
+
+    toast(error.message, "error");
+  } finally {
+    // So a busca "da vez" desliga o carregando; uma cancelada nao mexe.
+    if (listController === controller) {
+      rowsContainer.classList.remove("opacity-50");
+      rowsContainer.removeAttribute("aria-busy");
+      isFirstLoad = false;
+    }
+  }
+}
+
+// Qualquer filtro mudou: o resultado e outro, entao volta a pagina 1.
+function applyFilters() {
+  clearTimeout(searchTimer);
+  currentPage = 1;
+  loadProducts();
 }
 
 async function loadCategories() {
@@ -191,18 +266,67 @@ async function loadCategories() {
 // Acoes
 // ------------------------------------------------------------
 
+// Enter no campo de busca: filtra na hora, sem esperar o debounce.
 filtersForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  applyFilters();
+});
+
+// Busca ao vivo: cada tecla reinicia o relogio; filtra na pausa.
+filtersForm.elements.search.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilters, SEARCH_DELAY);
+});
+
+filtersForm.elements.categoryId.addEventListener("change", applyFilters);
+filtersForm.elements.orderBy.addEventListener("change", applyFilters);
+filtersForm.elements.lowStock.addEventListener("change", applyFilters);
+
+// O reset dispara ANTES de os campos serem limpos.
+filtersForm.addEventListener("reset", () => {
+  setTimeout(applyFilters, 0);
+});
+
+pageSizeSelect.addEventListener("change", applyFilters);
+
+prevButton.addEventListener("click", () => {
+  currentPage -= 1;
   loadProducts();
 });
 
-filtersForm.addEventListener("reset", () => {
-  setTimeout(loadProducts, 0);
+nextButton.addEventListener("click", () => {
+  currentPage += 1;
+  loadProducts();
 });
 
+// Produto com historico nao se exclui: se inativa (Aula 65).
+async function offerDeactivation(id, reason) {
+  const confirmed = await confirmDialog({
+    title: "Nao e possivel excluir",
+    message: `${reason} Voce pode inativa-lo: ele sai da busca de movimentacoes, mas o historico e preservado.`,
+    confirmLabel: "Inativar produto",
+    variant: "warning",
+  });
+
+  if (!confirmed) return;
+
+  try {
+    // O PUT exige o produto inteiro: buscamos e mudamos so o "active".
+    const product = await api.getProduct(id);
+    await api.updateProduct(id, { ...product, active: false });
+    toast("Produto inativado");
+    loadProducts();
+  } catch (error) {
+    toast(error.message, "error");
+  }
+}
+
 rowsContainer.addEventListener("click", async (event) => {
-  const editId = event.target.dataset.edit;
-  const deleteId = event.target.dataset.delete;
+  // O clique pode cair no <svg> ou no <path> do icone: subimos ate o botao.
+  const editButton = event.target.closest("[data-edit]");
+  const deleteButton = event.target.closest("[data-delete]");
+  const editId = editButton?.dataset.edit;
+  const deleteId = deleteButton?.dataset.delete;
 
   if (editId) {
     try {
@@ -214,32 +338,29 @@ rowsContainer.addEventListener("click", async (event) => {
   }
 
   if (deleteId) {
+    const name = deleteButton.dataset.name;
+
+    const confirmed = await confirmDialog({
+      title: "Excluir produto?",
+      message: `"${name}" sera excluido definitivamente. Esta acao nao pode ser desfeita.`,
+      confirmLabel: "Excluir",
+    });
+
+    if (!confirmed) return;
+
     try {
-      const product = await api.getProduct(deleteId);
-      openDeleteModal(deleteId, product.name);
+      await api.deleteProduct(deleteId);
+      toast("Produto excluido");
+      loadProducts();
     } catch (error) {
+      // 409 = o produto tem historico: oferecemos a alternativa certa.
+      if (error.status === 409) {
+        await offerDeactivation(deleteId, error.message);
+        return;
+      }
+
       toast(error.message, "error");
     }
-  }
-});
-
-deleteConfirmButton.addEventListener("click", async () => {
-  if (!pendingDeleteId) return;
-
-  const productId = pendingDeleteId;
-  deleteConfirmButton.disabled = true;
-  deleteConfirmButton.textContent = "Excluindo...";
-
-  try {
-    await api.deleteProduct(productId);
-    closeDeleteModal();
-    toast("Produto excluido");
-    await loadProducts();
-  } catch (error) {
-    toast(error.message, "error");
-  } finally {
-    deleteConfirmButton.disabled = false;
-    deleteConfirmButton.textContent = "Excluir";
   }
 });
 
@@ -262,6 +383,8 @@ form.addEventListener("submit", async (event) => {
 
   const id = data.get("id");
 
+  setButtonLoading(saveButton, true);
+
   try {
     if (id) {
       await api.updateProduct(id, payload);
@@ -275,6 +398,8 @@ form.addEventListener("submit", async (event) => {
     loadProducts();
   } catch (error) {
     toast(error.message, "error");
+  } finally {
+    setButtonLoading(saveButton, false);
   }
 });
 

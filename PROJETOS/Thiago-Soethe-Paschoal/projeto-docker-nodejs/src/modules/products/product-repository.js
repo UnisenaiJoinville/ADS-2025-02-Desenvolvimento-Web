@@ -22,18 +22,20 @@ const SELECT_PRODUCT = `
   LEFT JOIN categories c ON c.id = p.category_id
 `;
 
-export async function findAll({
-  search = "",
-  categoryId = null,
-  onlyLowStock = false,
-  orderBy = "name",
-} = {}) {
+// % e _ sao curingas do LIKE: com a barra, o MySQL os trata como texto (Aula 62).
+function escapeLike(text) {
+  return text.replace(/[\\%_]/g, "\\$&");
+}
+
+// Monta o WHERE da listagem. findAll e countAll PRECISAM filtrar igual (Aula 64).
+function buildListFilters({ search = "", categoryId = null, onlyLowStock = false }) {
   const conditions = [];
   const params = [];
 
   if (search) {
+    const pattern = `%${escapeLike(search)}%`;
     conditions.push("(p.name LIKE ? OR p.sku LIKE ?)");
-    params.push(`%${search}%`, `%${search}%`);
+    params.push(pattern, pattern);
   }
 
   if (categoryId) {
@@ -45,15 +47,48 @@ export async function findAll({
     conditions.push("p.quantity <= p.minimum_stock");
   }
 
-  const where = conditions.length
-    ? `WHERE ${conditions.join(" AND ")}`
-    : "";
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-  const orderColumn = ALLOWED_ORDER[orderBy] ?? "p.name";
+  return { where, params };
+}
+
+export async function findAll(filters = {}) {
+  const { where, params } = buildListFilters(filters);
+  const orderColumn = ALLOWED_ORDER[filters.orderBy] ?? "p.name";
 
   const [rows] = await pool.query(
-    `${SELECT_PRODUCT} ${where} ORDER BY ${orderColumn} ASC`,
+    // p.id no fim do ORDER BY: desempate estavel entre valores iguais.
+    `${SELECT_PRODUCT} ${where} ORDER BY ${orderColumn} ASC, p.id LIMIT ? OFFSET ?`,
+    [...params, filters.pageSize, filters.offset]
+  );
+
+  return rows.map(toProduct);
+}
+
+export async function countAll(filters = {}) {
+  const { where, params } = buildListFilters(filters);
+
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS total FROM products p ${where}`,
     params
+  );
+
+  return Number(rows[0].total);
+}
+
+// Busca enxuta para o autocomplete (Aula 62): poucos, so ativos, mais parecidos primeiro.
+export async function search({ term, limit }) {
+  const escaped = escapeLike(term);
+
+  const [rows] = await pool.query(
+    `${SELECT_PRODUCT}
+      WHERE p.active = TRUE
+        AND (p.name LIKE ? OR p.sku LIKE ?)
+      ORDER BY (p.sku = ?) DESC,
+               (p.name LIKE ?) DESC,
+               p.name
+      LIMIT ?`,
+    [`%${escaped}%`, `%${escaped}%`, term, `${escaped}%`, limit]
   );
 
   return rows.map(toProduct);

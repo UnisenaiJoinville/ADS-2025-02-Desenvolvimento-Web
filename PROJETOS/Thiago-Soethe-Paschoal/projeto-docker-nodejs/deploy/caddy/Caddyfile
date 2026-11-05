@@ -1,0 +1,24 @@
+# Caddy: porteiro do servidor. Recebe a internet e repassa para a API.
+# SITE_ADDRESS vem do .env:
+#   estoque.seudominio.com.br  -> HTTPS automatico (certificado gratis)
+#   :80                        -> so HTTP (apenas para testes!)
+{$SITE_ADDRESS} {
+	encode gzip zstd
+
+	# Cabecalhos de seguranca em todas as respostas
+	header {
+		Strict-Transport-Security "max-age=2592000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+		-X-Powered-By
+	}
+
+	# Passo da Aula 56: depois de criar a SUA conta, remova o "#" das
+	# linhas abaixo (e reinicie o caddy) para fechar o cadastro publico.
+	# @cadastro path /api/auth/register /cadastro.html
+	# respond @cadastro "Cadastro desativado" 403
+
+	reverse_proxy api:3000
+}

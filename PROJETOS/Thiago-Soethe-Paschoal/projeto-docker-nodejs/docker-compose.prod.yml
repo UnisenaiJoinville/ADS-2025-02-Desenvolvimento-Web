@@ -1,0 +1,78 @@
+# Compose de PRODUCAO. Uso:
+#   docker compose -f docker-compose.prod.yml up -d --build
+# Diferencas para o docker-compose.yml de aula:
+#   - nenhum bind mount de codigo (o codigo vai DENTRO da imagem)
+#   - o banco e a API NAO publicam porta no servidor
+#   - so o Caddy (proxy reverso) fica exposto, nas portas 80 e 443
+name: estoque-prod
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # Sem "ports": o MySQL so e alcancavel pelos outros containers
+    volumes:
+      - db-data:/var/lib/mysql
+      # So o esquema (tabelas), sem usuarios nem dados de demonstracao
+      - ./database/producao:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Sem "ports": quem fala com a API e o Caddy, pela rede interna
+    expose:
+      - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # Endurecimento do container
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    ports:
+      # Em producao ficam 80 e 443. As variaveis so existem para o
+      # "ensaio" no seu computador, onde essas portas podem estar ocupadas.
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      # A PASTA inteira (e nao so o arquivo), para o Caddy enxergar edicoes
+      - ./deploy/caddy:/etc/caddy:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:
