@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { renderIcons } from "./icons.js";
 import { LOGIN_PAGE, redirectIfAuthenticated } from "./auth.js";
 
 const { createApp } = Vue;
@@ -8,6 +9,9 @@ const { createApp } = Vue;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 redirectIfAuthenticated();
+
+// Icones prontos antes de o Vue ler o HTML (veja a Aula 60).
+renderIcons();
 
 createApp({
   data() {
