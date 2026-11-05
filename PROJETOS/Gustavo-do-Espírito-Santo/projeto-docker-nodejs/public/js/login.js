@@ -1,9 +1,12 @@
 import { api } from "./api.js";
 import { HOME_PAGE, redirectIfAuthenticated, saveSession } from "./auth.js";
+import { renderIcons } from "./icons.js";
 
 const { createApp } = Vue;
 
 redirectIfAuthenticated();
+
+renderIcons();
 
 createApp({
   data() {
@@ -13,6 +16,7 @@ createApp({
         password: "",
       },
       showPassword: false,
+      capsLockOn: false,
       loading: false,
       errorMessage: "",
       successMessage: "",
@@ -39,6 +43,10 @@ createApp({
   },
 
   methods: {
+    checkCapsLock(event) {
+      this.capsLockOn = event.getModifierState?.("CapsLock") ?? false;
+    },
+
     fillDemo() {
       this.form.email = "professor@estoquefacil.com";
       this.form.password = "123456";
