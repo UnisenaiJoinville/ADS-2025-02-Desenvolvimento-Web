@@ -14,7 +14,12 @@ const SEARCH_DEBOUNCE_MS = 400;
 
 const EMPTY_PRODUCT_REPORT = {
   pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
-  totals: { totalUnits: 0, totalCostValue: 0, totalSaleValue: 0, potentialProfit: 0 },
+  totals: {
+    totalUnits: 0,
+    totalCostValue: 0,
+    totalSaleValue: 0,
+    potentialProfit: 0,
+  },
   rows: [],
 };
 
@@ -59,6 +64,7 @@ if (requireAuth()) {
     data() {
       return {
         activeTab: "products",
+        exporting: { products: false, movements: false },
         tabs: [
           { id: "products", label: "Produtos" },
           { id: "movements", label: "Movimentacoes" },
@@ -103,8 +109,22 @@ if (requireAuth()) {
         productsWithoutMovement: [],
         abcCurve: [],
 
-        loading: { summary: true, categories: true, products: true, movements: false, summaries: false, analysis: false },
-        errors: { summary: "", categories: "", products: "", movements: "", summaries: "", analysis: "" },
+        loading: {
+          summary: true,
+          categories: true,
+          products: true,
+          movements: false,
+          summaries: false,
+          analysis: false,
+        },
+        errors: {
+          summary: "",
+          categories: "",
+          products: "",
+          movements: "",
+          summaries: "",
+          analysis: "",
+        },
 
         // Guarda o timer do debounce entre uma tecla e outra.
         searchTimer: null,
@@ -174,26 +194,35 @@ if (requireAuth()) {
       productFilterSummary() {
         const parts = [];
 
-        if (this.productFilters.search) parts.push(`texto "${this.productFilters.search}"`);
+        if (this.productFilters.search)
+          parts.push(`texto "${this.productFilters.search}"`);
         if (this.productFilters.categoryId) {
           const category = this.categories.find(
-            (item) => String(item.id) === String(this.productFilters.categoryId)
+            (item) =>
+              String(item.id) === String(this.productFilters.categoryId),
           );
 
           if (category) parts.push(`categoria ${category.name}`);
         }
         if (this.productFilters.stockStatus !== "ALL") {
-          const labels = { OK: "estoque saudavel", LOW: "abaixo do minimo", OUT: "zerado" };
+          const labels = {
+            OK: "estoque saudavel",
+            LOW: "abaixo do minimo",
+            OUT: "zerado",
+          };
           parts.push(labels[this.productFilters.stockStatus]);
         }
         if (this.productFilters.withoutCategory) parts.push("sem categoria");
 
-        return parts.length ? `Filtrando por: ${parts.join(" · ")}` : "Sem filtros aplicados";
+        return parts.length
+          ? `Filtrando por: ${parts.join(" · ")}`
+          : "Sem filtros aplicados";
       },
 
       productRangeLabel() {
         const { page, pageSize, total } = this.productReport.pagination;
-        const first = total === 0 ? 0 : Math.min((page - 1) * pageSize + 1, total);
+        const first =
+          total === 0 ? 0 : Math.min((page - 1) * pageSize + 1, total);
         const last = Math.min(page * pageSize, total);
 
         return `${first}-${last}`;
@@ -236,7 +265,11 @@ if (requireAuth()) {
     },
 
     async mounted() {
-      await Promise.all([this.loadCategories(), this.loadSummary(), this.loadProducts()]);
+      await Promise.all([
+        this.loadCategories(),
+        this.loadSummary(),
+        this.loadProducts(),
+      ]);
     },
 
     methods: {
@@ -252,8 +285,18 @@ if (requireAuth()) {
       monthLabel(period) {
         const [year, month] = period.split("-");
         const names = [
-          "jan", "fev", "mar", "abr", "mai", "jun",
-          "jul", "ago", "set", "out", "nov", "dez",
+          "jan",
+          "fev",
+          "mar",
+          "abr",
+          "mai",
+          "jun",
+          "jul",
+          "ago",
+          "set",
+          "out",
+          "nov",
+          "dez",
         ];
 
         return `${names[Number(month) - 1]}/${year}`;
@@ -284,15 +327,27 @@ if (requireAuth()) {
         this.activeTab = tabId;
 
         // Carrega sob demanda: a aba que ninguem abriu nao consulta a API.
-        if (tabId === "movements" && !this.loaded.movements && !this.loading.movements) {
+        if (
+          tabId === "movements" &&
+          !this.loaded.movements &&
+          !this.loading.movements
+        ) {
           this.loadMovements();
         }
 
-        if (tabId === "summaries" && !this.loaded.summaries && !this.loading.summaries) {
+        if (
+          tabId === "summaries" &&
+          !this.loaded.summaries &&
+          !this.loading.summaries
+        ) {
           this.loadSummaries();
         }
 
-        if (tabId === "analysis" && !this.loaded.analysis && !this.loading.analysis) {
+        if (
+          tabId === "analysis" &&
+          !this.loaded.analysis &&
+          !this.loading.analysis
+        ) {
           this.loadAnalysis();
         }
       },
@@ -331,13 +386,13 @@ if (requireAuth()) {
           const report = await api.reportProducts(this.productQuery);
           if (requestId !== this.requestIds.products) return;
           this.productReport = report;
-
         } catch (error) {
           if (requestId !== this.requestIds.products) return;
           this.errors.products = error.message;
           this.productReport = EMPTY_PRODUCT_REPORT;
         } finally {
-          if (requestId === this.requestIds.products) this.loading.products = false;
+          if (requestId === this.requestIds.products)
+            this.loading.products = false;
         }
       },
 
@@ -356,7 +411,8 @@ if (requireAuth()) {
           this.errors.movements = error.message;
           this.movementReport = EMPTY_MOVEMENT_REPORT;
         } finally {
-          if (requestId === this.requestIds.movements) this.loading.movements = false;
+          if (requestId === this.requestIds.movements)
+            this.loading.movements = false;
         }
       },
 
@@ -450,7 +506,8 @@ if (requireAuth()) {
 
       sortMovements(key) {
         if (this.movementFilters.sort === key) {
-          this.movementFilters.direction = this.movementFilters.direction === "asc" ? "desc" : "asc";
+          this.movementFilters.direction =
+            this.movementFilters.direction === "asc" ? "desc" : "asc";
         } else {
           this.movementFilters.sort = key;
           this.movementFilters.direction = "asc";
@@ -466,7 +523,8 @@ if (requireAuth()) {
       },
 
       changeMovementPage(page) {
-        if (page < 1 || page > this.movementReport.pagination.totalPages) return;
+        if (page < 1 || page > this.movementReport.pagination.totalPages)
+          return;
 
         this.movementFilters.page = page;
         this.loadMovements();
@@ -474,22 +532,34 @@ if (requireAuth()) {
 
       // ---------- exportacao ----------
       async exportProducts() {
+        if (this.exporting.products) return;
+        this.exporting.products = true;
         try {
-          await downloadReport("/reports/products", this.productQuery, "relatorio-produtos.csv");
+          await downloadReport(
+            "/reports/products",
+            this.productQuery,
+            "relatorio-produtos.csv",
+          );
         } catch (error) {
           this.errors.products = error.message;
+        } finally {
+          this.exporting.products = false;
         }
       },
 
       async exportMovements() {
+        if (this.exporting.movements) return;
+        this.exporting.movements = true;
         try {
           await downloadReport(
             "/reports/movements",
             this.movementQuery,
-            "relatorio-movimentacoes.csv"
+            "relatorio-movimentacoes.csv",
           );
         } catch (error) {
           this.errors.movements = error.message;
+        } finally {
+          this.exporting.movements = false;
         }
       },
     },

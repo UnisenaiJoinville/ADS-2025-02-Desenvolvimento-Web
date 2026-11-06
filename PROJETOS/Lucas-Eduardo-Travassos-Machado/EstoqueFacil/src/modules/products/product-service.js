@@ -4,6 +4,7 @@ import {
   NotFoundError,
 } from "../../shared/errors/app-error.js";
 import { buildPagination } from "../../shared/http/pagination.js";
+import * as movementRepository from "../movements/movement-repository.js";
 import * as categoryRepository from "../categories/category-repository.js";
 
 import * as repository from "./product-repository.js";
@@ -71,7 +72,22 @@ export async function updateProduct(id, input) {
 
 export async function deleteProduct(id) {
   await getProduct(id);
-  await repository.remove(id);
+
+  const count = await movementRepository.countByProduct(id);
+  if (count)
+    throw new ConflictError(
+      `Este produto tem ${count} movimentacao(oes) no historico e nao pode ser excluido.`,
+    );
+  try {
+    await repository.remove(id);
+  } catch (error) {
+    // Outra transacao pode ter criado historico depois da contagem.
+    if (error.code === "ER_ROW_IS_REFERENCED_2")
+      throw new ConflictError(
+        "Este produto tem historico e nao pode ser excluido.",
+      );
+    throw error;
+  }
 }
 
 export const searchProducts = (filters) => repository.search(filters);
