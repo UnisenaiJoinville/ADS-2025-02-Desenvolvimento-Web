@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Entrar | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Vue 3 pelo CDN: nenhuma instalacao, nenhum build -->
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-      /* Esconde a tela ate o Vue assumir o controle, para o
-         usuario nunca enxergar {{ }} piscando na pagina. */
       [v-cloak] {
         display: none;
       }
@@ -68,16 +66,31 @@
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 placeholder="Sua senha"
-                class="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-20 text-sm outline-none transition focus:border-slate-900"
+                class="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm outline-none transition focus:border-slate-900"
+                @keydown="checkCapsLock"
+                @keyup="checkCapsLock"
+                @blur="capsLockOn = false"
               />
               <button
                 type="button"
-                class="absolute inset-y-0 right-0 px-4 text-xs font-semibold text-slate-500 transition hover:text-slate-900"
+                class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-slate-400 transition hover:text-slate-900 focus-visible:text-slate-900"
+                :aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+                :title="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+                :aria-pressed="showPassword"
                 @click="showPassword = !showPassword"
               >
-                {{ showPassword ? "Ocultar" : "Mostrar" }}
+                <span v-if="showPassword"><i data-lucide="eye-off" class="h-5 w-5"></i></span>
+                <span v-else><i data-lucide="eye" class="h-5 w-5"></i></span>
               </button>
             </div>
+
+            <span
+              v-if="capsLockOn"
+              class="mt-1 flex items-center gap-1 text-xs font-medium text-amber-700"
+            >
+              <span><i data-lucide="triangle-alert" class="h-3.5 w-3.5"></i></span>
+              Caps Lock ativado
+            </span>
           </label>
 
           <button

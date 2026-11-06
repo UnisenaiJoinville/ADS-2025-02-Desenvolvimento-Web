@@ -1,9 +1,5 @@
 import { pool } from "../../config/database.js";
 
-// ------------------------------------------------------------------
-// Relatorios centrados em MOVIMENTACOES.
-// ------------------------------------------------------------------
-
 const MOVEMENT_COLUMNS = `
          m.id,
          m.type,
@@ -20,17 +16,6 @@ const MOVEMENT_COLUMNS = `
          (CASE WHEN m.type = 'IN' THEN m.quantity ELSE -m.quantity END) AS signedQuantity
 `;
 
-// INNER JOIN e seguro aqui: product_id e NOT NULL e tem chave
-// estrangeira, entao toda movimentacao tem par garantido.
-// Tres JOINs, e cada um com o tipo certo pelo seu proprio motivo:
-//
-//   products    INNER - toda movimentacao TEM produto (NOT NULL + FK).
-//                       Um INNER aqui nao descarta nada.
-//   categories  LEFT  - o produto pode nao ter categoria.
-//   users       LEFT  - o historico anterior a Aula 27 nao tem dono.
-//
-// Trocar qualquer um dos LEFT por INNER faria linhas sumirem
-// silenciosamente do relatorio. Veja a Aula 38.
 const FROM_MOVEMENT = `
     FROM stock_movements m
     INNER JOIN products   p ON p.id = m.product_id
@@ -62,11 +47,6 @@ function buildMovementWhere(filters) {
     params.push(filters.type);
   }
 
-  // A ARMADILHA DA DATA COM HORA
-  // created_at e TIMESTAMP: guarda data E hora.
-  // "created_at <= '2026-09-15'" significa "<= 2026-09-15 00:00:00",
-  // ou seja, perde o dia 15 inteiro.
-  // Por isso o fim do intervalo e "< dia seguinte", e nao "<= dia".
   if (filters.startDate) {
     conditions.push("m.created_at >= ?");
     params.push(`${filters.startDate} 00:00:00`);
@@ -119,9 +99,6 @@ function toMovementRow(row) {
   };
 }
 
-// JOIN + GROUP BY: uma linha por usuario, com as movimentacoes somadas.
-// O LEFT JOIN em users e o COALESCE fazem o grupo "Nao informado"
-// aparecer no relatorio em vez de sumir.
 export async function getMovementsByUser(filters) {
   const { where, params } = buildMovementWhere(filters);
 
@@ -147,9 +124,6 @@ export async function getMovementsByUser(filters) {
   return rows;
 }
 
-// Ranking de produtos mais movimentados.
-// HAVING filtra DEPOIS do agrupamento - e so por isso conseguimos
-// usar SUM(...) como condicao. No WHERE isso seria um erro.
 export async function getTopProducts(filters, { minUnits = 1, limit = 10 } = {}) {
   const { where, params } = buildMovementWhere(filters);
 
@@ -175,7 +149,6 @@ export async function getTopProducts(filters, { minUnits = 1, limit = 10 } = {})
   return rows;
 }
 
-// Totais da selecao inteira (nao da pagina).
 export async function sumMovements(filters) {
   const { where, params } = buildMovementWhere(filters);
 
@@ -190,8 +163,6 @@ export async function sumMovements(filters) {
   return rows[0];
 }
 
-// Agrupamento por mes. DATE_FORMAT transforma a data numa chave
-// de texto ('2026-09'), e o GROUP BY junta tudo que cair nela.
 export async function getMovementsByMonth(filters) {
   const { where, params } = buildMovementWhere(filters);
 

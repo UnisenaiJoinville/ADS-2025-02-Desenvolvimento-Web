@@ -1,4 +1,3 @@
--- Migracao 001 - tabela de usuarios (Etapa 24)
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,

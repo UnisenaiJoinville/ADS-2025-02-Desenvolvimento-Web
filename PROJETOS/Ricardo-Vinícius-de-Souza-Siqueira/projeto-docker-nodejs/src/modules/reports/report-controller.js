@@ -7,13 +7,6 @@ import {
 } from "./report-filters.js";
 import * as service from "./report-service.js";
 
-// ------------------------------------------------------------------
-// O controller dos relatorios faz o de sempre - le a requisicao,
-// chama o service, escreve a resposta - e mais uma coisa: decide o
-// FORMATO da saida (JSON para a tela, CSV para download).
-// ------------------------------------------------------------------
-
-// Colunas do CSV de produtos: ordem e titulos que o usuario vai ver.
 const PRODUCT_CSV_COLUMNS = [
   { key: "sku", label: "SKU" },
   { key: "name", label: "Produto" },
@@ -37,14 +30,14 @@ const MOVEMENT_CSV_COLUMNS = [
   { key: "note", label: "Observacao" },
 ];
 
+const CSV_PAGE_SIZE = 200;
+
 function wantsCsv(request) {
   return String(request.query.format ?? "").toLowerCase() === "csv";
 }
 
 function sendCsv(response, { fileName, rows, columns }) {
   response.setHeader("Content-Type", "text/csv; charset=utf-8");
-  // Content-Disposition: attachment faz o navegador BAIXAR o arquivo
-  // em vez de tentar exibi-lo.
   response.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
 
   response.send(toCsv(rows, columns));
@@ -54,11 +47,16 @@ export async function products(request, response) {
   const filters = parseProductReportFilters(request.query);
 
   if (wantsCsv(request)) {
-    const rows = await service.getProductExportRows(filters);
+    const report = await service.getProductReport({
+      ...filters,
+      page: 1,
+      offset: 0,
+      pageSize: CSV_PAGE_SIZE,
+    });
 
     return sendCsv(response, {
       fileName: "relatorio-produtos.csv",
-      rows,
+      rows: report.rows,
       columns: PRODUCT_CSV_COLUMNS,
     });
   }
@@ -96,11 +94,16 @@ export async function movements(request, response) {
   const filters = parseMovementReportFilters(request.query);
 
   if (wantsCsv(request)) {
-    const rows = await service.getMovementExportRows(filters);
+    const report = await service.getMovementReport({
+      ...filters,
+      page: 1,
+      offset: 0,
+      pageSize: CSV_PAGE_SIZE,
+    });
 
     return sendCsv(response, {
       fileName: "relatorio-movimentacoes.csv",
-      rows,
+      rows: report.rows,
       columns: MOVEMENT_CSV_COLUMNS,
     });
   }

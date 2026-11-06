@@ -7,8 +7,6 @@ export async function listMovements(filters) {
   return repository.findAll(filters);
 }
 
-// userId vem do token (request.user.id), nunca do corpo da requisicao:
-// quem registrou a movimentacao e quem esta logado, e ponto.
 export async function createMovement(input, userId = null) {
   const data = validateMovementInput(input);
 
@@ -16,6 +14,10 @@ export async function createMovement(input, userId = null) {
 
   if (result.status === "PRODUCT_NOT_FOUND") {
     throw new NotFoundError("Produto nao encontrado");
+  }
+
+  if (result.status === "PRODUCT_INACTIVE") {
+    throw new AppError("Produto inativo nao pode receber movimentacoes. Reative-o antes");
   }
 
   if (result.status === "INSUFFICIENT_STOCK") {

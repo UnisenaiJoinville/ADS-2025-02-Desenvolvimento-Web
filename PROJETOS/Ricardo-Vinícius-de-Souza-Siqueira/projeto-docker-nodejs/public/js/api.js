@@ -1,155 +1,136 @@
-// Camada unica de acesso a API.
-// Centralizar o fetch evita repetir tratamento de erro em cada tela.
+import axios from "https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/esm/axios.min.js";
 
 import { clearSession, getToken, LOGIN_PAGE } from "./auth.js";
 
-const BASE_URL = "/api";
+const http = axios.create({
+  baseURL: "/api",
+  timeout: 15000,
+});
 
-async function request(path, options = {}) {
+http.interceptors.request.use((config) => {
   const token = getToken();
 
-  const headers = { "Content-Type": "application/json", ...options.headers };
-
-  // Se ha sessao, todo pedido leva o cracha junto.
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  return config;
+});
 
-  // 401 COM token = a sessao venceu. 401 SEM token = senha errada no login,
-  // e nessa tela nao pode haver redirecionamento.
-  if (response.status === 401 && token) {
-    clearSession();
-    window.location.replace(LOGIN_PAGE);
+http.interceptors.response.use(
+  (response) => (response.data === "" ? null : response.data),
 
-    throw new Error("Sessao expirada. Faca login novamente");
+  (error) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && error.config?.headers?.Authorization) {
+      clearSession();
+      window.location.replace(LOGIN_PAGE);
+
+      return Promise.reject(toAppError(error, "Sessao expirada. Faca login novamente"));
+    }
+
+    return Promise.reject(toAppError(error));
+  }
+);
+
+function toAppError(error, fallbackMessage) {
+  let message = fallbackMessage ?? error.response?.data?.error;
+
+  if (!message && error.code === "ECONNABORTED") {
+    message = "O servidor demorou demais para responder. Tente de novo";
   }
 
-  if (response.status === 204) {
-    return null;
+  if (!message && !error.response) {
+    message = "Sem conexao com o servidor";
   }
 
-  const data = await response.json().catch(() => ({}));
+  const appError = new Error(message ?? "Erro ao comunicar com o servidor");
 
-  if (!response.ok) {
-    throw new Error(data.error ?? "Erro ao comunicar com o servidor");
-  }
+  appError.status = error.response?.status ?? 0;
 
-  return data;
+  return appError;
+}
+
+export function isCanceled(error) {
+  return axios.isCancel(error);
+}
+
+function cleanParams(filters = {}) {
+  return Object.fromEntries(
+    Object.entries(filters).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "" && value !== false
+    )
+  );
 }
 
 export const api = {
-    register: (payload) =>
-    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
-  login: (payload) =>
-    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
-  me: () => request("/auth/me"),
-  getDashboard: () => request("/dashboard"),
+  register: (payload) => http.post("/auth/register", payload),
+  login: (payload) => http.post("/auth/login", payload),
+  me: () => http.get("/auth/me"),
 
-  listCategories: () => request("/categories"),
-  createCategory: (payload) =>
-    request("/categories", { method: "POST", body: JSON.stringify(payload) }),
-  updateCategory: (id, payload) =>
-    request(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteCategory: (id) => request(`/categories/${id}`, { method: "DELETE" }),
+  getDashboard: () => http.get("/dashboard"),
+  getDailyMovements: (days = 30) =>
+    http.get("/dashboard/movements-by-day", { params: { days } }),
 
-  listProducts: (filters = {}) => {
-    const params = new URLSearchParams();
+  listCategories: () => http.get("/categories"),
+  createCategory: (payload) => http.post("/categories", payload),
+  updateCategory: (id, payload) => http.put(`/categories/${id}`, payload),
+  deleteCategory: (id) => http.delete(`/categories/${id}`),
 
-    if (filters.search) params.set("search", filters.search);
-    if (filters.categoryId) params.set("categoryId", filters.categoryId);
-    if (filters.lowStock) params.set("lowStock", "true");
+  listProducts: (filters = {}, options = {}) =>
+    http.get("/products", { params: cleanParams(filters), signal: options.signal }),
+  searchProducts: (term, options = {}) =>
+    http.get("/products/search", {
+      params: { q: term, limit: options.limit ?? 8 },
+      signal: options.signal,
+    }),
+  getProduct: (id) => http.get(`/products/${id}`),
+  createProduct: (payload) => http.post("/products", payload),
+  updateProduct: (id, payload) => http.put(`/products/${id}`, payload),
+  deleteProduct: (id) => http.delete(`/products/${id}`),
 
-    const query = params.toString();
+  listMovements: (filters = {}) => http.get("/movements", { params: cleanParams(filters) }),
+  createMovement: (payload) => http.post("/movements", payload),
 
-    return request(query ? `/products?${query}` : "/products");
-  },
-  getProduct: (id) => request(`/products/${id}`),
-  createProduct: (payload) =>
-    request("/products", { method: "POST", body: JSON.stringify(payload) }),
-  updateProduct: (id, payload) =>
-    request(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteProduct: (id) => request(`/products/${id}`, { method: "DELETE" }),
-
-  listMovements: (filters = {}) => {
-    const params = new URLSearchParams();
-
-    if (filters.productId) params.set("productId", filters.productId);
-    if (filters.type) params.set("type", filters.type);
-
-    const query = params.toString();
-
-    return request(query ? `/movements?${query}` : "/movements");
-  },
-  createMovement: (payload) =>
-    request("/movements", { method: "POST", body: JSON.stringify(payload) }),
-
-  // --- Relatorios ---
-  reportProducts: (filters) => request(`/reports/products${buildQuery(filters)}`),
-  reportStockSummary: () => request("/reports/stock-summary"),
-  reportStockByCategory: () => request("/reports/stock-by-category"),
-  reportProductsWithoutMovement: () => request("/reports/products-without-movement"),
-  reportAbcCurve: () => request("/reports/abc-curve"),
-  reportMovements: (filters) => request(`/reports/movements${buildQuery(filters)}`),
-  reportMovementsByUser: (filters) => request(`/reports/movements-by-user${buildQuery(filters)}`),
-  reportMovementsByMonth: (filters) => request(`/reports/movements-by-month${buildQuery(filters)}`),
-  reportTopProducts: (filters) => request(`/reports/top-products${buildQuery(filters)}`),
+  reportProducts: (filters) => http.get("/reports/products", { params: cleanParams(filters) }),
+  reportStockSummary: () => http.get("/reports/stock-summary"),
+  reportStockByCategory: () => http.get("/reports/stock-by-category"),
+  reportProductsWithoutMovement: () => http.get("/reports/products-without-movement"),
+  reportAbcCurve: () => http.get("/reports/abc-curve"),
+  reportMovements: (filters) => http.get("/reports/movements", { params: cleanParams(filters) }),
+  reportMovementsByUser: (filters) =>
+    http.get("/reports/movements-by-user", { params: cleanParams(filters) }),
+  reportMovementsByMonth: (filters) =>
+    http.get("/reports/movements-by-month", { params: cleanParams(filters) }),
+  reportTopProducts: (filters) =>
+    http.get("/reports/top-products", { params: cleanParams(filters) }),
 };
 
-// Monta a query string a partir de um objeto, ignorando o que esta
-// vazio. Sem isso, "?search=&categoryId=" chegaria ao servidor cheio
-// de filtros em branco.
-function buildQuery(filters = {}) {
-  const params = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(filters)) {
-    if (value === undefined || value === null || value === "" || value === false) {
-      continue;
-    }
-
-    params.set(key, String(value));
-  }
-
-  const query = params.toString();
-
-  return query ? `?${query}` : "";
-}
-
-// Baixar um arquivo e diferente de buscar JSON: a resposta nao e
-// convertida, vira um Blob e o navegador salva em disco.
-// Mesmo assim o token precisa ir junto - por isso isto mora aqui.
 export async function downloadReport(path, filters, fileName) {
-  const token = getToken();
+  let blob;
 
-  const response = await fetch(`${BASE_URL}${path}${buildQuery({ ...filters, format: "csv" })}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  try {
+    blob = await http.get(path, {
+      params: cleanParams({ ...filters, format: "csv" }),
+      responseType: "blob",
+    });
+  } catch (error) {
+    if (error.status === 401) throw error;
 
-  if (response.status === 401 && token) {
-    clearSession();
-    window.location.replace(LOGIN_PAGE);
-    throw new Error("Sessao expirada. Faca login novamente");
+    throw new Error("Nao foi possivel gerar o arquivo");
   }
 
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
-    throw new Error(data.error ?? "Nao foi possivel gerar o arquivo");
-  }
-
-  const blob = await response.blob();
   const url = URL.createObjectURL(blob);
 
-  // Truque padrao: cria um link invisivel, clica nele e descarta.
   const link = document.createElement("a");
   link.href = url;
   link.download = fileName;
   document.body.append(link);
-  try {
-    link.click();
-  } finally {
-    link.remove();
-    // Libera depois que o navegador inicia o download.
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
 }

@@ -22,6 +22,7 @@ export async function registerUser(input) {
   const data = validateRegisterInput(input);
 
   const existing = await repository.findByEmail(data.email);
+
   if (existing) {
     throw new ConflictError("Ja existe uma conta com esse e-mail");
   }
@@ -35,6 +36,7 @@ export async function registerUser(input) {
   });
 
   const user = toPublicUser(created);
+
   return { user, token: generateToken(user) };
 }
 
@@ -42,25 +44,34 @@ export async function loginUser(input) {
   const data = validateLoginInput(input);
 
   const found = await repository.findByEmailWithPassword(data.email);
+
   const invalidCredentials = new UnauthorizedError("E-mail ou senha invalidos");
 
-  if (!found) throw invalidCredentials;
+  if (!found) {
+    throw invalidCredentials;
+  }
 
   const passwordMatches = await bcrypt.compare(data.password, found.passwordHash);
-  if (!passwordMatches) throw invalidCredentials;
+
+  if (!passwordMatches) {
+    throw invalidCredentials;
+  }
 
   if (!found.active) {
     throw new UnauthorizedError("Esta conta esta desativada");
   }
 
   const user = toPublicUser(found);
+
   return { user, token: generateToken(user) };
 }
 
 export async function getProfile(id) {
   const user = await repository.findById(id);
+
   if (!user) {
     throw new NotFoundError("Usuario nao encontrado");
   }
+
   return user;
 }
