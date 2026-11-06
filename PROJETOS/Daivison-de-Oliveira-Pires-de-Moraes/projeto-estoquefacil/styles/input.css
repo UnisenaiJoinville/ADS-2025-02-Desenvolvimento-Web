@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+[v-cloak] {
+  display: none;
+}
+:focus-visible {
+  outline: 3px solid #0284c7;
+  outline-offset: 3px;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.dark {
+  color-scheme: dark;
+}
+.dark body,
+.dark .bg-slate-100 {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+.dark .bg-white,
+.dark .bg-white\/60 {
+  background-color: #1e293b;
+}
+.dark .bg-slate-50,
+.dark .bg-slate-200 {
+  background-color: #334155;
+}
+.dark [class*="text-slate-9"],
+.dark [class*="text-slate-8"],
+.dark [class*="text-slate-7"],
+.dark [class*="text-slate-6"] {
+  color: #e2e8f0;
+}
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #cbd5e1;
+}
+.dark [class*="border-slate-"] {
+  border-color: #475569;
+}
+.dark input,
+.dark select {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover {
+  background-color: #334155;
+}
+/* A rolagem horizontal pertence as tabelas, sem deslocar a pagina inteira. */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+main,
+section,
+form,
+nav {
+  min-width: 0;
+}
+.overflow-x-auto {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+/* Fundos semanticos tambem mudam de tema, preservando o contraste dos alertas. */
+.dark .bg-rose-50,
+.dark .bg-rose-100 {
+  background-color: #4c1d2d;
+}
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 {
+  background-color: #064e3b;
+}
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: #451a03;
+}
+.dark .bg-sky-50,
+.dark .bg-sky-100 {
+  background-color: #082f49;
+}
+.dark .text-rose-600,
+.dark .text-rose-700,
+.dark .text-rose-800 {
+  color: #fda4af;
+}
+.dark .text-emerald-600,
+.dark .text-emerald-700,
+.dark .text-emerald-800 {
+  color: #6ee7b7;
+}
+.dark .text-amber-600,
+.dark .text-amber-700,
+.dark .text-amber-800 {
+  color: #fcd34d;
+}
+.dark .text-sky-600,
+.dark .text-sky-700 {
+  color: #7dd3fc;
+}

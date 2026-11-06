@@ -1,11 +1,13 @@
-import { api } from "./api.js";
-import { requireAuth } from "./auth.js";
+import { renderIcons } from "./icons.js";
 import {
-  currency,
-  escapeHtml,
-  mountLayout,
-  toast,
+  confirmDialog,
+  setButtonLoading,
+  skeletonRows,
+  trapFocus,
 } from "./layout.js";
+import { api, isCanceled, downloadReport } from "./api.js";
+import { requireAuth } from "./auth.js";
+import { currency, escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/produtos.html");
 
@@ -16,16 +18,36 @@ const modalTitle = document.querySelector("[data-modal-title]");
 const form = document.querySelector("[data-form]");
 
 let categories = [];
+let page = 1,
+  controller,
+  debounceTimer,
+  previousFocus,
+  saving = false;
+let initialLoad = true;
+const urlState = new URLSearchParams(location.search);
+for (const key of ["search", "categoryId", "orderBy", "direction", "pageSize"])
+  if (urlState.has(key) && filtersForm.elements[key])
+    filtersForm.elements[key].value = urlState.get(key);
+for (const key of ["lowStock", "includeInactive"])
+  filtersForm.elements[key].checked = urlState.get(key) === "true";
+page = Math.max(1, Number(urlState.get("page")) || 1);
+trapFocus(modal);
 
 // ------------------------------------------------------------
 // Modal
 // ------------------------------------------------------------
 
 function openModal(product) {
+  previousFocus = document.activeElement;
   modalTitle.textContent = product ? "Editar produto" : "Novo produto";
 
   form.reset();
   form.elements.id.value = product?.id ?? "";
+  form.elements.supplier.value = product?.supplier ?? "";
+  form.elements.quantity.readOnly = Boolean(product);
+  form.elements.quantity.title = product
+    ? "Altere o saldo usando Ajuste em Movimentacoes"
+    : "Saldo inicial";
 
   if (product) {
     form.elements.name.value = product.name;
@@ -46,6 +68,8 @@ function openModal(product) {
 }
 
 function closeModal() {
+  if (saving) return;
+  if (!modal.classList.contains("hidden")) previousFocus?.focus?.();
   modal.classList.add("hidden");
   modal.classList.remove("flex");
 }
@@ -113,9 +137,7 @@ function renderRows(products) {
 
           <td class="px-4 py-3 text-right">
             <span class="font-semibold ${
-              product.lowStock
-                ? "text-rose-600"
-                : "text-slate-800"
+              product.lowStock ? "text-rose-600" : "text-slate-800"
             }">
               ${product.quantity}
             </span>
@@ -131,21 +153,21 @@ function renderRows(products) {
 
           <td class="px-4 py-3 text-right whitespace-nowrap">
             <button
-              data-edit="${product.id}"
+              data-edit="${product.id}" aria-label="Editar ${escapeHtml(product.name)}"
               class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
             >
-              Editar
+              <i data-lucide="pencil"></i><span class="sr-only">Editar</span>
             </button>
 
             <button
-              data-delete="${product.id}"
+              data-delete="${product.id}" aria-label="Excluir ${escapeHtml(product.name)}"
               class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
             >
-              Excluir
+              <i data-lucide="trash-2"></i><span class="sr-only">Excluir</span>
             </button>
           </td>
         </tr>
-      `
+      `,
     )
     .join("");
 }
@@ -181,36 +203,64 @@ function currentFilters() {
     search: data.get("search") ?? "",
     categoryId: data.get("categoryId") ?? "",
     lowStock: data.get("lowStock") === "on",
+    includeInactive: data.get("includeInactive") === "on",
+    orderBy: data.get("orderBy") || "name",
+    direction: data.get("direction") || "asc",
+    page,
+    pageSize: Number(data.get("pageSize")) || 20,
   };
 }
 
 async function loadProducts() {
+  controller?.abort();
+  const activeController = (controller = new AbortController());
+  if (initialLoad) rowsContainer.innerHTML = skeletonRows(7);
+  rowsContainer.setAttribute("aria-busy", "true");
   try {
-    const products = await api.listProducts(currentFilters());
-
-    renderRows(products);
+    const filters = currentFilters();
+    const result = await api.listProducts(filters, {
+      signal: activeController.signal,
+    });
+    if (activeController !== controller) return;
+    if (page > result.pagination.totalPages) {
+      page = result.pagination.totalPages;
+      return loadProducts();
+    }
+    renderRows(result.rows);
+    renderIcons();
+    initialLoad = false;
+    const pg = result.pagination;
+    document.querySelector("[data-page-info]").textContent =
+      `Mostrando ${pg.total ? (page - 1) * pg.pageSize + 1 : 0}-${Math.min(page * pg.pageSize, pg.total)} de ${pg.total}`;
+    document.querySelector("[data-page-number]").textContent =
+      `${page} / ${pg.totalPages}`;
+    document.querySelector("[data-prev]").disabled = page <= 1;
+    document.querySelector("[data-next]").disabled = page >= pg.totalPages;
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(filters))
+      if (v !== false && v !== "") params.set(k, v);
+    history.replaceState(null, "", "?" + params.toString());
   } catch (error) {
-    toast(error.message, "error");
+    if (!isCanceled(error)) toast(error.message, "error");
+  } finally {
+    if (controller === activeController)
+      rowsContainer.setAttribute("aria-busy", "false");
   }
 }
-
 async function loadCategories() {
   categories = await api.listCategories();
 
   const options = categories
     .map(
       (category) =>
-        `<option value="${category.id}">${escapeHtml(
-          category.name
-        )}</option>`
+        `<option value="${category.id}">${escapeHtml(category.name)}</option>`,
     )
     .join("");
 
-  filtersForm.elements.categoryId.innerHTML =
-    `<option value="">Todas as categorias</option>${options}`;
+  filtersForm.elements.categoryId.innerHTML = `<option value="">Todas as categorias</option>${options}`;
+  filtersForm.elements.categoryId.value = urlState.get("categoryId") ?? "";
 
-  form.elements.categoryId.innerHTML =
-    `<option value="">Sem categoria</option>${options}`;
+  form.elements.categoryId.innerHTML = `<option value="">Sem categoria</option>${options}`;
 }
 
 // ------------------------------------------------------------
@@ -220,16 +270,20 @@ async function loadCategories() {
 filtersForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
+  page = 1;
   loadProducts();
 });
 
 filtersForm.addEventListener("reset", () => {
-  setTimeout(loadProducts, 0);
+  setTimeout(() => {
+    page = 1;
+    loadProducts();
+  }, 0);
 });
 
 rowsContainer.addEventListener("click", async (event) => {
-  const editId = event.target.dataset.edit;
-  const deleteId = event.target.dataset.delete;
+  const editId = event.target.closest("[data-edit]")?.dataset.edit;
+  const deleteId = event.target.closest("[data-delete]")?.dataset.delete;
 
   if (editId) {
     try {
@@ -243,12 +297,14 @@ rowsContainer.addEventListener("click", async (event) => {
 
   if (deleteId) {
     if (
-      !window.confirm(
-        "Deseja realmente excluir este produto?"
-      )
-    ) {
+      !(await confirmDialog({
+        title: "Excluir produto?",
+        message:
+          "A exclusao e definitiva. Produtos com historico podem ser inativados.",
+        confirmLabel: "Excluir",
+      }))
+    )
       return;
-    }
 
     try {
       await api.deleteProduct(deleteId);
@@ -257,19 +313,40 @@ rowsContainer.addEventListener("click", async (event) => {
 
       loadProducts();
     } catch (error) {
-      toast(error.message, "error");
+      if (
+        error.status === 409 &&
+        (await confirmDialog({
+          title: "Preservar historico",
+          message: error.message,
+          confirmLabel: "Inativar produto",
+          variant: "warning",
+        }))
+      ) {
+        try {
+          await api.setProductActive(deleteId, false);
+          toast("Produto inativado");
+          await loadProducts();
+        } catch (e) {
+          toast(e.message, "error");
+        }
+      } else toast(error.message, "error");
     }
   }
 });
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (saving) return;
+  saving = true;
+  const saveButton = form.querySelector("button:not([type=button])");
+  setButtonLoading(saveButton, true);
 
   const data = new FormData(form);
 
   const payload = {
     name: data.get("name"),
     sku: data.get("sku"),
+    supplier: data.get("supplier"),
     categoryId: data.get("categoryId") || null,
     costPrice: Number(data.get("costPrice")),
     salePrice: Number(data.get("salePrice")),
@@ -291,10 +368,14 @@ form.addEventListener("submit", async (event) => {
       toast("Produto cadastrado");
     }
 
+    saving = false;
     closeModal();
     loadProducts();
   } catch (error) {
     toast(error.message, "error");
+  } finally {
+    saving = false;
+    setButtonLoading(saveButton, false);
   }
 });
 
@@ -312,3 +393,32 @@ async function init() {
 if (requireAuth()) {
   init();
 }
+filtersForm.addEventListener("input", (event) => {
+  if (event.target.name !== "search") return;
+  clearTimeout(debounceTimer);
+  controller?.abort();
+  debounceTimer = setTimeout(() => {
+    page = 1;
+    loadProducts();
+  }, 300);
+});
+filtersForm.addEventListener("change", (event) => {
+  if (event.target.name === "search") return;
+  page = 1;
+  loadProducts();
+});
+document.querySelector("[data-prev]").addEventListener("click", () => {
+  page--;
+  loadProducts();
+});
+document.querySelector("[data-next]").addEventListener("click", () => {
+  page++;
+  loadProducts();
+});
+document.querySelector("[data-export]").addEventListener("click", async () => {
+  try {
+    await downloadReport("/products/export", currentFilters(), "produtos.csv");
+  } catch (e) {
+    toast(e.message, "error");
+  }
+});

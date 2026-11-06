@@ -17,7 +17,9 @@ function escapeValue(value) {
     return "";
   }
 
-  const text = String(value);
+  const raw = String(value);
+  const text =
+    typeof value === "string" && /^[\s]*[=+@-]/.test(raw) ? "'" + raw : raw;
 
   // Regra 1: campo com separador, aspas ou quebra de linha vai entre aspas.
   // Regra 2: aspa dentro do campo e escrita duas vezes.
@@ -39,16 +41,20 @@ function escapeValue(value) {
  *        quais colunas exportar, em qual ordem e com qual titulo
  */
 export function toCsv(rows, columns) {
-  const header = columns.map((column) => escapeValue(column.label)).join(SEPARATOR);
+  const header = columns
+    .map((column) => escapeValue(column.label))
+    .join(SEPARATOR);
 
   const body = rows.map((row) =>
     columns
       .map((column) => {
-        const value = column.format ? column.format(row[column.key], row) : row[column.key];
+        const value = column.format
+          ? column.format(row[column.key], row)
+          : row[column.key];
 
         return escapeValue(value);
       })
-      .join(SEPARATOR)
+      .join(SEPARATOR),
   );
 
   // \r\n e o fim de linha previsto na especificacao do CSV (RFC 4180).

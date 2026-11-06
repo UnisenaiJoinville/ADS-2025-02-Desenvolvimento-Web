@@ -21,9 +21,21 @@ const PRODUCT_CSV_COLUMNS = [
   { key: "quantity", label: "Quantidade" },
   { key: "minimumStock", label: "Estoque minimo" },
   { key: "stockStatus", label: "Situacao" },
-  { key: "costPrice", label: "Preco de custo", format: (value) => csvNumber(value) },
-  { key: "salePrice", label: "Preco de venda", format: (value) => csvNumber(value) },
-  { key: "stockCostValue", label: "Valor em estoque", format: (value) => csvNumber(value) },
+  {
+    key: "costPrice",
+    label: "Preco de custo",
+    format: (value) => csvNumber(value),
+  },
+  {
+    key: "salePrice",
+    label: "Preco de venda",
+    format: (value) => csvNumber(value),
+  },
+  {
+    key: "stockCostValue",
+    label: "Valor em estoque",
+    format: (value) => csvNumber(value),
+  },
 ];
 
 const MOVEMENT_CSV_COLUMNS = [
@@ -31,8 +43,14 @@ const MOVEMENT_CSV_COLUMNS = [
   { key: "productSku", label: "SKU" },
   { key: "productName", label: "Produto" },
   { key: "categoryName", label: "Categoria" },
-  { key: "type", label: "Tipo", format: (value) => (value === "IN" ? "Entrada" : "Saida") },
-  { key: "quantity", label: "Quantidade" },
+  {
+    key: "type",
+    label: "Tipo",
+    format: (value) =>
+      value === "IN" ? "Entrada" : value === "ADJUST" ? "Ajuste" : "Saida",
+  },
+  { key: "quantity", label: "Quantidade registrada" },
+  { key: "signedQuantity", label: "Variacao no saldo" },
   { key: "userName", label: "Responsavel" },
   { key: "note", label: "Observacao" },
 ];
@@ -50,7 +68,10 @@ function sendCsv(response, { fileName, rows, columns }) {
   response.setHeader("Content-Type", "text/csv; charset=utf-8");
   // Content-Disposition: attachment faz o navegador BAIXAR o arquivo
   // em vez de tentar exibi-lo.
-  response.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+  response.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${fileName}"`,
+  );
 
   response.send(toCsv(rows, columns));
 }
@@ -59,12 +80,17 @@ export async function products(request, response) {
   const filters = parseProductReportFilters(request.query);
 
   if (wantsCsv(request)) {
-    const report = await service.getProductReport({
-      ...filters,
-      page: 1,
-      offset: 0,
-      pageSize: CSV_PAGE_SIZE,
-    });
+    const report = { rows: [] };
+    for (let page = 1; ; page++) {
+      const result = await service.getProductReport({
+        ...filters,
+        page,
+        pageSize: CSV_PAGE_SIZE,
+        offset: (page - 1) * CSV_PAGE_SIZE,
+      });
+      report.rows.push(...result.rows);
+      if (page >= result.pagination.totalPages) break;
+    }
 
     return sendCsv(response, {
       fileName: "relatorio-produtos.csv",
@@ -106,12 +132,17 @@ export async function movements(request, response) {
   const filters = parseMovementReportFilters(request.query);
 
   if (wantsCsv(request)) {
-    const report = await service.getMovementReport({
-      ...filters,
-      page: 1,
-      offset: 0,
-      pageSize: CSV_PAGE_SIZE,
-    });
+    const report = { rows: [] };
+    for (let page = 1; ; page++) {
+      const result = await service.getMovementReport({
+        ...filters,
+        page,
+        pageSize: CSV_PAGE_SIZE,
+        offset: (page - 1) * CSV_PAGE_SIZE,
+      });
+      report.rows.push(...result.rows);
+      if (page >= result.pagination.totalPages) break;
+    }
 
     return sendCsv(response, {
       fileName: "relatorio-movimentacoes.csv",
@@ -129,6 +160,20 @@ export async function movementsByUser(request, response) {
   const filters = parseMovementReportFilters(request.query);
   const rows = await service.getMovementsByUser(filters);
 
+  if (wantsCsv(request))
+    return sendCsv(response, {
+      fileName: "movimentacoes-por-usuario.csv",
+      rows,
+      columns: [
+        { key: "userName", label: "Responsavel" },
+        { key: "productCount", label: "Produtos distintos" },
+        { key: "movementCount", label: "Movimentacoes" },
+        { key: "unitsIn", label: "Entradas" },
+        { key: "unitsOut", label: "Saidas" },
+        { key: "unitsAdjusted", label: "Ajustes (diferenca)" },
+        { key: "balance", label: "Saldo" },
+      ],
+    });
   response.json(rows);
 }
 
@@ -142,7 +187,10 @@ export async function movementsByMonth(request, response) {
 export async function topProducts(request, response) {
   const filters = parseMovementReportFilters(request.query);
 
-  const rows = await service.getTopProducts(filters, parseTopProductsOptions(request.query));
+  const rows = await service.getTopProducts(
+    filters,
+    parseTopProductsOptions(request.query),
+  );
 
   response.json(rows);
 }

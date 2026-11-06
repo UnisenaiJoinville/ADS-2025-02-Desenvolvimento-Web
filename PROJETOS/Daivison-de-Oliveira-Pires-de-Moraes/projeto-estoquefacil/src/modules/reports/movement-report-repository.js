@@ -18,7 +18,7 @@ const MOVEMENT_COLUMNS = `
          COALESCE(c.name, 'Sem categoria') AS categoryName,
          u.id                              AS userId,
          COALESCE(u.name, 'Nao informado') AS userName,
-         (CASE WHEN m.type = 'IN' THEN m.quantity ELSE -m.quantity END) AS signedQuantity
+         (CASE WHEN m.type = 'ADJUST' THEN COALESCE(m.resulting_quantity-m.previous_quantity,0) WHEN m.type = 'IN' THEN m.quantity ELSE -m.quantity END) AS signedQuantity
 `;
 
 // Tres JOINs, e cada um com o tipo certo pelo seu proprio motivo:
@@ -91,7 +91,7 @@ export async function findMovements(filters) {
      ${where}
      ORDER BY ${filters.sort.column} ${filters.direction}, m.id DESC
      LIMIT ? OFFSET ?`,
-    [...params, filters.pageSize, filters.offset]
+    [...params, filters.pageSize, filters.offset],
   );
 
   return rows.map(toMovementRow);
@@ -104,7 +104,7 @@ export async function countMovements(filters) {
     `SELECT COUNT(*) AS total
      ${FROM_MOVEMENT}
      ${where}`,
-    params
+    params,
   );
 
   return Number(rows[0].total);
@@ -124,10 +124,11 @@ export async function sumMovements(filters) {
 
   const [rows] = await pool.query(
     `SELECT COALESCE(SUM(CASE WHEN m.type = 'IN'  THEN m.quantity ELSE 0 END), 0) AS unitsIn,
-            COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END), 0) AS unitsOut
+            COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END), 0) AS unitsOut,
+            COALESCE(SUM(CASE WHEN m.type = 'ADJUST' THEN m.resulting_quantity-m.previous_quantity ELSE 0 END),0) AS unitsAdjusted
      ${FROM_MOVEMENT}
      ${where}`,
-    params
+    params,
   );
 
   return rows[0];
@@ -148,6 +149,7 @@ export async function getMovementsByUser(filters) {
             SUM(CASE WHEN m.type = 'OUT' THEN 1 ELSE 0 END)                        AS exitsCount,
             COALESCE(SUM(CASE WHEN m.type = 'IN'  THEN m.quantity ELSE 0 END), 0)  AS unitsIn,
             COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END), 0)  AS unitsOut,
+            COALESCE(SUM(CASE WHEN m.type='ADJUST' THEN m.resulting_quantity-m.previous_quantity ELSE 0 END),0) AS unitsAdjusted,
             COUNT(DISTINCT m.product_id)                                           AS productCount,
             MIN(m.created_at)                                                      AS firstMovementAt,
             MAX(m.created_at)                                                      AS lastMovementAt
@@ -155,7 +157,7 @@ export async function getMovementsByUser(filters) {
      ${where}
      GROUP BY u.id, u.name, u.email
      ORDER BY movementCount DESC, userName`,
-    params
+    params,
   );
 
   return rows;
@@ -164,7 +166,10 @@ export async function getMovementsByUser(filters) {
 // Ranking de produtos mais movimentados.
 // HAVING filtra DEPOIS do agrupamento - e so por isso conseguimos
 // usar SUM(...) como condicao. No WHERE isso seria um erro.
-export async function getTopProducts(filters, { minUnits = 1, limit = 10 } = {}) {
+export async function getTopProducts(
+  filters,
+  { minUnits = 1, limit = 10 } = {},
+) {
   const { where, params } = buildMovementWhere(filters);
 
   const [rows] = await pool.query(
@@ -176,14 +181,15 @@ export async function getTopProducts(filters, { minUnits = 1, limit = 10 } = {})
             COUNT(*)                                                              AS movementCount,
             COALESCE(SUM(CASE WHEN m.type = 'IN'  THEN m.quantity ELSE 0 END), 0) AS unitsIn,
             COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END), 0) AS unitsOut,
-            SUM(m.quantity)                                                       AS unitsMoved
+            COALESCE(SUM(CASE WHEN m.type = 'ADJUST' THEN m.resulting_quantity-m.previous_quantity ELSE 0 END),0) AS unitsAdjusted,
+            SUM(CASE WHEN m.type = 'ADJUST' THEN 0 ELSE m.quantity END) AS unitsMoved
      ${FROM_MOVEMENT}
      ${where}
      GROUP BY p.id, p.name, p.sku, c.name, p.quantity
      HAVING unitsMoved >= ?
      ORDER BY unitsMoved DESC, productName
      LIMIT ?`,
-    [...params, minUnits, limit]
+    [...params, minUnits, limit],
   );
 
   return rows;
@@ -199,20 +205,14 @@ export async function getMovementsByMonth(filters) {
             COUNT(*)                                                              AS movementCount,
             COALESCE(SUM(CASE WHEN m.type = 'IN'  THEN m.quantity ELSE 0 END), 0) AS unitsIn,
             COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END), 0) AS unitsOut,
+            COALESCE(SUM(CASE WHEN m.type = 'ADJUST' THEN m.resulting_quantity-m.previous_quantity ELSE 0 END),0) AS unitsAdjusted,
             COUNT(DISTINCT m.product_id)                                          AS productCount
      ${FROM_MOVEMENT}
      ${where}
      GROUP BY period
      ORDER BY period`,
-    params
+    params,
   );
 
-  return rows.map((row) => ({
-    ...row,
-    movementCount: Number(row.movementCount),
-    unitsIn: Number(row.unitsIn),
-    unitsOut: Number(row.unitsOut),
-    productCount: Number(row.productCount),
-    balance: Number(row.unitsIn) - Number(row.unitsOut),
-  }));
+  return rows;
 }

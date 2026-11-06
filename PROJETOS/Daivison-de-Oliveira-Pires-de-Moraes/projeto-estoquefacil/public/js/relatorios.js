@@ -1,3 +1,4 @@
+import { createProductPicker } from "./product-picker.js";
 import { api, downloadReport } from "./api.js";
 import { requireAuth } from "./auth.js";
 import { currency, formatDateTime, mountLayout } from "./layout.js";
@@ -14,7 +15,12 @@ const SEARCH_DEBOUNCE_MS = 400;
 
 const EMPTY_PRODUCT_REPORT = {
   pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
-  totals: { totalUnits: 0, totalCostValue: 0, totalSaleValue: 0, potentialProfit: 0 },
+  totals: {
+    totalUnits: 0,
+    totalCostValue: 0,
+    totalSaleValue: 0,
+    potentialProfit: 0,
+  },
   rows: [],
 };
 
@@ -27,6 +33,8 @@ const EMPTY_MOVEMENT_REPORT = {
 function defaultProductFilters() {
   return {
     search: "",
+    minPrice: "",
+    maxPrice: "",
     categoryId: "",
     stockStatus: "ALL",
     withoutCategory: false,
@@ -39,6 +47,7 @@ function defaultProductFilters() {
 
 function defaultMovementFilters() {
   return {
+    productId: "",
     categoryId: "",
     type: "",
     startDate: "",
@@ -89,7 +98,12 @@ if (requireAuth()) {
         productsWithoutMovement: [],
         abcCurve: [],
 
-        loading: { products: false, movements: false, summaries: false, analysis: false },
+        loading: {
+          products: false,
+          movements: false,
+          summaries: false,
+          analysis: false,
+        },
         errors: { products: "", movements: "", summaries: "", analysis: "" },
 
         // Guarda o timer do debounce entre uma tecla e outra.
@@ -134,6 +148,8 @@ if (requireAuth()) {
       productQuery() {
         return {
           search: this.productFilters.search,
+          minPrice: this.productFilters.minPrice,
+          maxPrice: this.productFilters.maxPrice,
           categoryId: this.productFilters.categoryId,
           stockStatus: this.productFilters.stockStatus,
           withoutCategory: this.productFilters.withoutCategory,
@@ -146,6 +162,7 @@ if (requireAuth()) {
 
       movementQuery() {
         return {
+          productId: this.movementFilters.productId,
           categoryId: this.movementFilters.categoryId,
           type: this.movementFilters.type,
           startDate: this.movementFilters.startDate,
@@ -160,21 +177,29 @@ if (requireAuth()) {
       productFilterSummary() {
         const parts = [];
 
-        if (this.productFilters.search) parts.push(`texto "${this.productFilters.search}"`);
+        if (this.productFilters.search)
+          parts.push(`texto "${this.productFilters.search}"`);
         if (this.productFilters.categoryId) {
           const category = this.categories.find(
-            (item) => String(item.id) === String(this.productFilters.categoryId)
+            (item) =>
+              String(item.id) === String(this.productFilters.categoryId),
           );
 
           if (category) parts.push(`categoria ${category.name}`);
         }
         if (this.productFilters.stockStatus !== "ALL") {
-          const labels = { OK: "estoque saudavel", LOW: "abaixo do minimo", OUT: "zerado" };
+          const labels = {
+            OK: "estoque saudavel",
+            LOW: "abaixo do minimo",
+            OUT: "zerado",
+          };
           parts.push(labels[this.productFilters.stockStatus]);
         }
         if (this.productFilters.withoutCategory) parts.push("sem categoria");
 
-        return parts.length ? `Filtrando por: ${parts.join(" · ")}` : "Sem filtros aplicados";
+        return parts.length
+          ? `Filtrando por: ${parts.join(" · ")}`
+          : "Sem filtros aplicados";
       },
 
       productRangeLabel() {
@@ -233,8 +258,18 @@ if (requireAuth()) {
       monthLabel(period) {
         const [year, month] = period.split("-");
         const names = [
-          "jan", "fev", "mar", "abr", "mai", "jun",
-          "jul", "ago", "set", "out", "nov", "dez",
+          "jan",
+          "fev",
+          "mar",
+          "abr",
+          "mai",
+          "jun",
+          "jul",
+          "ago",
+          "set",
+          "out",
+          "nov",
+          "dez",
         ];
 
         return `${names[Number(month) - 1]}/${year}`;
@@ -261,8 +296,19 @@ if (requireAuth()) {
       },
 
       // ---------- navegacao ----------
-      changeTab(tabId) {
+      async changeTab(tabId) {
         this.activeTab = tabId;
+        await this.$nextTick();
+        if (tabId === "movements") {
+          const el = document.querySelector("[data-report-picker]");
+          if (el && !el.children.length)
+            createProductPicker(el, {
+              onSelect: (product) => {
+                this.movementFilters.productId = product?.id ?? "";
+                this.resetAndLoadMovements();
+              },
+            });
+        }
 
         // Carrega sob demanda: a aba que ninguem abriu nao consulta a API.
         if (tabId === "movements" && this.movementReport.rows.length === 0) {
@@ -296,30 +342,42 @@ if (requireAuth()) {
       },
 
       async loadProducts() {
+        const requestId = (this._productsRequest =
+          (this._productsRequest ?? 0) + 1);
         this.loading.products = true;
         this.errors.products = "";
 
         try {
-          this.productReport = await api.reportProducts(this.productQuery);
+          const result = await api.reportProducts(this.productQuery);
+          if (requestId !== this._productsRequest) return;
+          this.productReport = result;
         } catch (error) {
+          if (requestId !== this._productsRequest) return;
           this.errors.products = error.message;
           this.productReport = EMPTY_PRODUCT_REPORT;
         } finally {
-          this.loading.products = false;
+          if (requestId === this._productsRequest)
+            this.loading.products = false;
         }
       },
 
       async loadMovements() {
+        const requestId = (this._movementsRequest =
+          (this._movementsRequest ?? 0) + 1);
         this.loading.movements = true;
         this.errors.movements = "";
 
         try {
-          this.movementReport = await api.reportMovements(this.movementQuery);
+          const result = await api.reportMovements(this.movementQuery);
+          if (requestId !== this._movementsRequest) return;
+          this.movementReport = result;
         } catch (error) {
+          if (requestId !== this._movementsRequest) return;
           this.errors.movements = error.message;
           this.movementReport = EMPTY_MOVEMENT_REPORT;
         } finally {
-          this.loading.movements = false;
+          if (requestId === this._movementsRequest)
+            this.loading.movements = false;
         }
       },
 
@@ -391,6 +449,14 @@ if (requireAuth()) {
 
       clearMovementFilters() {
         this.movementFilters = defaultMovementFilters();
+        const el = document.querySelector("[data-report-picker]");
+        if (el)
+          createProductPicker(el, {
+            onSelect: (product) => {
+              this.movementFilters.productId = product?.id ?? "";
+              this.resetAndLoadMovements();
+            },
+          });
         this.loadMovements();
       },
 
@@ -415,7 +481,8 @@ if (requireAuth()) {
       },
 
       changeMovementPage(page) {
-        if (page < 1 || page > this.movementReport.pagination.totalPages) return;
+        if (page < 1 || page > this.movementReport.pagination.totalPages)
+          return;
 
         this.movementFilters.page = page;
         this.loadMovements();
@@ -424,7 +491,11 @@ if (requireAuth()) {
       // ---------- exportacao ----------
       async exportProducts() {
         try {
-          await downloadReport("/reports/products", this.productQuery, "relatorio-produtos.csv");
+          await downloadReport(
+            "/reports/products",
+            this.productQuery,
+            "relatorio-produtos.csv",
+          );
         } catch (error) {
           this.errors.products = error.message;
         }
@@ -435,7 +506,7 @@ if (requireAuth()) {
           await downloadReport(
             "/reports/movements",
             this.movementQuery,
-            "relatorio-movimentacoes.csv"
+            "relatorio-movimentacoes.csv",
           );
         } catch (error) {
           this.errors.movements = error.message;

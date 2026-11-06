@@ -1,184 +1,109 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
+import { createProductPicker } from "./product-picker.js";
 import {
   escapeHtml,
   formatDateTime,
   mountLayout,
   toast,
+  setButtonLoading,
+  skeletonRows,
 } from "./layout.js";
-
 mountLayout("/movimentacoes.html");
-
-const form = document.querySelector("[data-form]");
-const rowsContainer = document.querySelector("[data-rows]");
-const stockHint = document.querySelector("[data-stock-hint]");
-const filterButtons = document.querySelectorAll("[data-filter]");
-
-let products = [];
-let activeFilter = "";
-
-function highlightFilters() {
-  filterButtons.forEach((button) => {
-    const isActive = button.dataset.filter === activeFilter;
-
-    button.className = isActive
-      ? "rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm"
-      : "rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800";
-  });
+const form = document.querySelector("[data-form]"),
+  rows = document.querySelector("[data-rows]"),
+  hint = document.querySelector("[data-stock-hint]"),
+  submit = form.querySelector("button");
+let selected = null,
+  busy = false,
+  activeFilter = "",
+  loadSequence = 0;
+const picker = createProductPicker(
+  document.querySelector("[data-product-picker]"),
+  {
+    onSelect(p) {
+      selected = p;
+      updateHint();
+    },
+  },
+);
+function updateHint() {
+  const quantity = Number(form.elements.quantity.value),
+    type = form.elements.type.value;
+  const insufficient =
+    selected && type === "OUT" && quantity > selected.quantity;
+  form.elements.quantity.min = type === "ADJUST" ? "0" : "1";
+  form.elements.note.required = type === "ADJUST";
+  hint.textContent = selected
+    ? `Saldo atual: ${selected.quantity}. ${type === "ADJUST" ? "Ajuste define o novo saldo contado." : ""} ${insufficient ? "Estoque insuficiente." : ""}`
+    : "";
+  hint.className = insufficient
+    ? "text-sm text-rose-600"
+    : "text-sm text-slate-600";
+  submit.disabled = busy || insufficient;
 }
-
-function renderRows(movements) {
-  if (movements.length === 0) {
-    rowsContainer.innerHTML = `
-      <tr>
-        <td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">
-          Nenhuma movimentacao registrada
-        </td>
-      </tr>`;
-    return;
-  }
-
-  rowsContainer.innerHTML = movements
-    .map((movement) => {
-      const isIn = movement.type === "IN";
-
-      return `
-        <tr class="hover:bg-slate-50">
-          <td class="px-6 py-3">
-            <p class="font-medium text-slate-800">
-              ${escapeHtml(movement.productName)}
-            </p>
-            <p class="text-xs text-slate-500">
-              ${escapeHtml(movement.productSku)}
-            </p>
-          </td>
-
-          <td class="px-4 py-3">
-            <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${
-              isIn
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-rose-100 text-rose-700"
-            }">
-              ${isIn ? "Entrada" : "Saida"}
-            </span>
-          </td>
-
-          <td class="px-4 py-3 text-right font-semibold ${
-            isIn ? "text-emerald-600" : "text-rose-600"
-          }">
-            ${isIn ? "+" : "-"}${movement.quantity}
-          </td>
-
-          <td class="px-4 py-3 text-slate-600">
-            ${escapeHtml(movement.note ?? "-")}
-          </td>
-
-          <td class="px-6 py-3 text-right text-slate-500">
-            ${formatDateTime(movement.createdAt)}
-          </td>
-        </tr>
-      `;
-    })
-    .join("");
-}
-
-async function loadProducts() {
-  products = await api.listProducts();
-
-  form.elements.productId.innerHTML =
-    '<option value="">Selecione...</option>' +
-    products
-      .map(
-        (product) =>
-          `<option value="${product.id}">${escapeHtml(
-            product.name
-          )} (${escapeHtml(product.sku)})</option>`
-      )
-      .join("");
-}
-
-async function loadMovements() {
+async function load() {
+  const sequence = ++loadSequence;
+  rows.innerHTML = skeletonRows(6);
   try {
     const movements = await api.listMovements({
       type: activeFilter,
+      from: document.querySelector("[data-from]").value,
+      to: document.querySelector("[data-to]").value,
     });
-
-    renderRows(movements);
-  } catch (error) {
-    toast(error.message, "error");
+    if (sequence !== loadSequence) return;
+    rows.innerHTML = movements.length
+      ? movements
+          .map(
+            (m) =>
+              `<tr class="border-b"><td class="px-4 py-3">${escapeHtml(m.productName)}<small class="block">${escapeHtml(m.productSku)}</small></td><td class="px-4">${{ IN: "Entrada", OUT: "Saida", ADJUST: "Ajuste" }[m.type]}</td><td class="px-4 text-right">${m.type === "IN" ? "+" : m.type === "OUT" ? "-" : "="}${m.quantity}${m.type === "ADJUST" ? `<small class="block">${m.previousQuantity} → ${m.resultingQuantity}</small>` : ""}</td><td class="px-4">${escapeHtml(m.userName)}</td><td class="px-4">${escapeHtml(m.note ?? "-")}</td><td class="px-4">${formatDateTime(m.createdAt)}</td></tr>`,
+          )
+          .join("")
+      : '<tr><td colspan="6" class="p-8 text-center">Nenhuma movimentacao encontrada</td></tr>';
+  } catch (e) {
+    if (sequence === loadSequence) {
+      rows.innerHTML =
+        '<tr><td colspan="6" class="p-4">Nao foi possivel carregar.</td></tr>';
+      toast(e.message, "error");
+    }
   }
 }
-
-function updateStockHint() {
-  const productId = Number(form.elements.productId.value);
-  const product = products.find(
-    (item) => item.id === productId
-  );
-
-  stockHint.textContent = product
-    ? `Estoque atual: ${product.quantity} unidade(s) - minimo ${product.minimumStock}`
-    : "";
-}
-
-form.elements.productId.addEventListener(
-  "change",
-  updateStockHint
-);
-
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    activeFilter = button.dataset.filter;
-
-    highlightFilters();
-    loadMovements();
-  });
-});
-
+form.addEventListener("input", updateHint);
+form.addEventListener("change", updateHint);
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-
-  const data = new FormData(form);
-
-  const payload = {
-    productId: Number(data.get("productId")),
-    type: data.get("type"),
-    quantity: Number(data.get("quantity")),
-    note: data.get("note"),
-  };
-
+  if (busy) return;
+  if (!selected) return toast("Selecione um produto nas sugestoes", "error");
+  busy = true;
+  setButtonLoading(submit, true, "Registrando...");
   try {
-    await api.createMovement(payload);
-
-    toast(
-      payload.type === "IN"
-        ? "Entrada registrada"
-        : "Saida registrada"
-    );
-
+    await api.createMovement({
+      productId: selected.id,
+      type: form.elements.type.value,
+      quantity: Number(form.elements.quantity.value),
+      note: form.elements.note.value,
+    });
+    toast("Movimentacao registrada");
     form.reset();
-    stockHint.textContent = "";
-
-    // Recarrega os produtos para refletir o novo saldo no seletor.
-    await loadProducts();
-    await loadMovements();
-  } catch (error) {
-    toast(error.message, "error");
+    picker.reset();
+    await load();
+  } catch (e) {
+    toast(e.message, "error");
+  } finally {
+    busy = false;
+    setButtonLoading(submit, false);
+    updateHint();
   }
 });
-
-async function init() {
-  highlightFilters();
-
-  try {
-    await loadProducts();
-    await loadMovements();
-  } catch (error) {
-    toast(error.message, "error");
-  }
-}
-
-// Protege a tela de movimentacoes.
-// Sem sessao, o usuario sera enviado para o login.
-if (requireAuth()) {
-  init();
-}
+document.querySelectorAll("[data-filter]").forEach((button) =>
+  button.addEventListener("click", () => {
+    activeFilter = button.dataset.filter;
+    document
+      .querySelectorAll("[data-filter]")
+      .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    load();
+  }),
+);
+for (const key of ["from", "to"])
+  document.querySelector(`[data-${key}]`).addEventListener("change", load);
+if (requireAuth()) load();

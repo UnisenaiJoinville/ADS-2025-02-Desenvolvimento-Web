@@ -5,10 +5,11 @@ import { AppError } from "../../shared/errors/app-error.js";
 // a prova real e mandar uma mensagem para o endereco.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 
-function parseName(value) {
-  const name = String(value ?? "").trim().replace(/\s+/g, " ");
+export function parseName(value) {
+  if (typeof value !== "string") throw new AppError("O nome deve ser texto");
+  const name = value.trim().replace(/\s+/g, " ");
 
   if (!name) {
     throw new AppError("O nome e obrigatorio");
@@ -18,8 +19,8 @@ function parseName(value) {
     throw new AppError("O nome deve ter pelo menos 3 caracteres");
   }
 
-  if (name.length > 120) {
-    throw new AppError("O nome deve ter no maximo 120 caracteres");
+  if (name.length > 60) {
+    throw new AppError("O nome deve ter no maximo 60 caracteres");
   }
 
   return name;
@@ -28,7 +29,9 @@ function parseName(value) {
 function parseEmail(value) {
   // E-mail sempre em minusculas: "Ana@x.com" e "ana@x.com"
   // sao a MESMA pessoa. Normalizar aqui evita conta duplicada.
-  const email = String(value ?? "").trim().toLowerCase();
+  const email = String(value ?? "")
+    .trim()
+    .toLowerCase();
 
   if (!email) {
     throw new AppError("O e-mail e obrigatorio");
@@ -45,10 +48,11 @@ function parseEmail(value) {
   return email;
 }
 
-function parsePassword(value) {
+export function parsePassword(value) {
   // Senha NAO leva trim: espaco no inicio ou no fim pode ser
   // proposital. Quem digita a senha decide como ela e.
-  const password = String(value ?? "");
+  if (typeof value !== "string") throw new AppError("A senha deve ser texto");
+  const password = value;
 
   if (!password) {
     throw new AppError("A senha e obrigatoria");
@@ -56,13 +60,13 @@ function parsePassword(value) {
 
   if (password.length < MIN_PASSWORD_LENGTH) {
     throw new AppError(
-      `A senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres`
+      `A senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres`,
     );
   }
 
-  if (password.length > 72) {
+  if (Buffer.byteLength(password, "utf8") > 72) {
     // Limite do proprio algoritmo bcrypt: ele ignora o que passa disso.
-    throw new AppError("A senha deve ter no maximo 72 caracteres");
+    throw new AppError("A senha deve ter no maximo 72 bytes");
   }
 
   return password;
@@ -83,7 +87,9 @@ export function validateRegisterInput(input) {
 }
 
 export function validateLoginInput(input) {
-  const email = String(input?.email ?? "").trim().toLowerCase();
+  const email = String(input?.email ?? "")
+    .trim()
+    .toLowerCase();
   const password = String(input?.password ?? "");
 
   // No login nao detalhamos o que faltou por seguranca:

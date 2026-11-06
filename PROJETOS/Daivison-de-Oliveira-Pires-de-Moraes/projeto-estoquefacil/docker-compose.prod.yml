@@ -1,0 +1,8 @@
+# Ensaio local sem dominio; use junto com docker-compose.yml.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    environment:
+      NODE_ENV: production

@@ -9,7 +9,7 @@ export async function findAll() {
        FROM categories c
        LEFT JOIN products p ON p.category_id = c.id
       GROUP BY c.id, c.name, c.created_at
-      ORDER BY c.name`
+      ORDER BY c.name`,
   );
 
   return rows;
@@ -18,7 +18,7 @@ export async function findAll() {
 export async function findById(id) {
   const [rows] = await pool.query(
     "SELECT id, name, created_at AS createdAt FROM categories WHERE id = ?",
-    [id]
+    [id],
   );
 
   return rows[0];
@@ -27,7 +27,7 @@ export async function findById(id) {
 export async function findByName(name) {
   const [rows] = await pool.query(
     "SELECT id, name FROM categories WHERE LOWER(name) = LOWER(?)",
-    [name]
+    [name],
   );
 
   return rows[0];
@@ -36,7 +36,7 @@ export async function findByName(name) {
 export async function create({ name }) {
   const [result] = await pool.query(
     "INSERT INTO categories (name) VALUES (?)",
-    [name]
+    [name],
   );
 
   return findById(result.insertId);
@@ -49,7 +49,9 @@ export async function update(id, { name }) {
 }
 
 export async function remove(id) {
-  const [result] = await pool.query("DELETE FROM categories WHERE id = ?", [id]);
+  const [result] = await pool.query("DELETE FROM categories WHERE id = ?", [
+    id,
+  ]);
 
   return result.affectedRows > 0;
 }

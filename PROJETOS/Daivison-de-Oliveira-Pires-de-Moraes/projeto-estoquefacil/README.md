@@ -1,140 +1,55 @@
-# Estoque Fácil — Apostila passo a passo
+# Estoque Fácil — projeto revisado para uso local
 
-Esta pasta contém a construção completa do projeto **Estoque Fácil**, dividida em **33 etapas** sequenciais.
+Sistema de estoque com Node.js 22+, Express, MySQL 8 e interface HTML/JavaScript/Vue. Funciona em **http://localhost:3000**, sem domínio, DNS, certificado ou servidor externo.
 
-Cada arquivo é uma etapa curta, com passos numerados, o que você deve ver na tela e o que fazer se der erro.
+## Executar no Windows
 
-> **Regra número 1:** faça as etapas **na ordem**. Cada uma começa de onde a anterior parou.
+1. Instale Node.js 22 LTS (ou superior) e Docker Desktop.
+2. Abra o Docker Desktop e espere ficar pronto.
+3. Extraia todo o ZIP. Dentro da pasta do projeto, execute **Iniciar-Windows.bat**.
+4. Aguarde a primeira construção e acesse **http://localhost:3000**.
+5. Clique em **Criar conta**. A primeira conta recebe o perfil **ADMIN**; as seguintes, **OPERATOR**.
 
----
+Não existe usuário `admin/admin` nem conta de demonstração. A senha deve ter pelo menos 8 caracteres. O banco vem com 12 produtos e histórico de exemplo, sem dados de acesso. O cadastro inicial é serializado no banco para impedir dois primeiros administradores simultâneos.
 
-## Como usar este material
+## Executar pelo terminal (Windows, Linux ou macOS)
 
-Cada etapa tem sempre a mesma estrutura:
+Na pasta que contém `package.json`:
 
-| Seção | Para que serve |
-|---|---|
-| **Objetivo** | O que você vai conseguir fazer ao final |
-| **Antes de começar** | O que precisa estar pronto da etapa anterior |
-| **Passo 1, 2, 3...** | O que digitar e onde |
-| **Entendendo o que fizemos** | A explicação do "porquê" |
-| **Confira se deu certo** | Lista para marcar antes de seguir |
-| **Se deu erro** | Os problemas mais comuns **daquela etapa** |
+```bash
+node scripts/setup.js
+docker compose up -d --build
+```
 
----
+O setup cria `.env` com senhas aleatórias e preserva um arquivo existente. A primeira execução precisa de internet para baixar imagens e pacotes. Depois da construção, a interface utiliza arquivos locais: Vue, Axios, Lucide, Chart.js e CSS já compilado.
 
-## Roteiro completo
+```bash
+docker compose ps
+docker compose logs -f api
+docker compose down
+```
 
-### Parte 1 — Preparação (etapas 00 a 06)
+`down` mantém os dados. **Não utilize `down -v` para atualizar**: ele remove o volume do banco. Para recompilar após editar: `docker compose up -d --build`.
 
-| # | Etapa | O que você faz |
-|---|---|---|
-| 00 | [Visão geral do projeto](00-visao-geral.md) | Entende o que será construído |
-| 01 | [Preparando o ambiente](01-preparando-o-ambiente.md) | Instala e testa Node e Docker |
-| 02 | [Criando o projeto](02-criando-o-projeto.md) | Cria as pastas e o `package.json` |
-| 03 | [Variáveis de ambiente](03-variaveis-de-ambiente.md) | Cria o `.env` |
-| 04 | [Dockerfile](04-dockerfile.md) | Escreve a receita da imagem |
-| 05 | [Docker Compose](05-docker-compose.md) | Orquestra API + banco |
-| 06 | [Banco de dados](06-banco-de-dados.md) | Modela as tabelas em SQL |
+## O que está incluído
 
-### Parte 2 — Base do backend (etapas 07 a 10)
+- Produtos e categorias: cadastro, edição, filtros, fornecedor, ordenação, paginação e CSV.
+- Busca de produtos com sugestões, teclado, cancelamento e atraso de 300 ms entre digitações.
+- Entradas, saídas e ajuste de inventário, com transação e bloqueio do produto no banco.
+- Exclusão segura: produtos com histórico não podem ser apagados; a tela oferece inativação. Inativos permanecem nos relatórios e não recebem movimentações.
+- Autenticação com senha protegida por bcrypt, JWT, perfis, renovação de sessão, troca de senha e recuperação local.
+- Dashboard, preço médio, gráfico de 7/30/90 dias, relatórios de estoque, períodos, responsáveis, ranking, curva ABC acumulada, giro, parados e previsão de ruptura.
+- Ícones, confirmação própria, proteção contra clique duplicado, indicadores de carregamento, foco nos modais e tema escuro persistente.
+- Scripts de backup/restauração de teste, testes automatizados e apostila completa (71 Markdown).
 
-| # | Etapa | O que você faz |
-|---|---|---|
-| 07 | [Configuração da aplicação](07-configuracao-da-aplicacao.md) | Lê o `.env` e conecta no MySQL |
-| 08 | [Tratamento de erros](08-tratamento-de-erros.md) | Cria a base de erros do projeto |
-| 09 | [Servidor Express](09-servidor-express.md) | Monta o servidor web |
-| 10 | [Primeira execução](10-primeira-execucao.md) | **Sobe tudo pela primeira vez** |
+## Regras importantes
 
-### Parte 3 — A API (etapas 11 a 14)
+- **Saldo inicial** pode ser informado no cadastro. Depois disso, altere o saldo em **Movimentações → Ajuste**, com uma observação obrigatória. A edição de produtos não sobrescreve o estoque.
+- Ajuste guarda o **novo valor contado**, mais os saldos anterior e posterior. Nos relatórios, `signedQuantity` de ajuste é a diferença; `unitsAdjusted` aparece separado de entradas e saídas. O gráfico representa somente entradas e saídas.
+- Só ADMIN exclui produtos e categorias. Operadores podem cadastrar, editar e movimentar. Inativação não apaga histórico.
+- O token de acesso dura 15 minutos. Em **Meu perfil → Renovar sessão**, pode ser renovado com um token de 7 dias, rotativo e armazenado como hash no banco. Troca/reset de senha revoga sessões anteriores.
+- O limite de login é de 5 falhas em 15 minutos por IP. Contas existentes também guardam falhas no banco, para resistir a troca de IP/reinício da API. O contador por IP é local ao processo.
+- Recuperação de senha exibe o link **no terminal do servidor** (`docker compose logs api`); não envia e-mail. O link expira em 15 minutos e só pode ser usado uma vez.
+- As portas estão limitadas a `127.0.0.1`. Esta entrega é para uso na própria máquina, sem publicação na internet. `TRUST_PROXY=false` é intencional.
 
-| # | Etapa | O que você faz |
-|---|---|---|
-| 11 | [CRUD de Categorias](11-crud-categorias.md) | Seu primeiro CRUD completo |
-| 12 | [CRUD de Produtos](12-crud-produtos.md) | CRUD com filtros e mais regras |
-| 13 | [Movimentações e Transações](13-movimentacoes-transacoes.md) | **Transações e controle de concorrência** |
-| 14 | [Dashboard (API)](14-dashboard-api.md) | Somas e totais direto no SQL |
-
-### Parte 4 — O front-end (etapas 15 a 19)
-
-| # | Etapa | O que você faz |
-|---|---|---|
-| 15 | [Base do front-end](15-front-base.md) | Tailwind, `api.js` e `layout.js` |
-| 16 | [Tela do Dashboard](16-front-dashboard.md) | Os cards que somam e subtraem |
-| 17 | [Tela de Produtos](17-front-produtos.md) | Tabela, filtros e modal |
-| 18 | [Tela de Movimentações](18-front-movimentacoes.md) | Entradas e saídas na tela |
-| 19 | [Tela de Categorias](19-front-categorias.md) | A tela mais simples |
-
-### Parte 5 — Fechamento (etapas 20 a 22)
-
-| # | Etapa | O que você faz |
-|---|---|---|
-| 20 | [Teste final](20-teste-final.md) | Testa o sistema inteiro |
-| 21 | [Solução de problemas](21-solucao-de-problemas.md) | Dicionário de erros, para consulta |
-| 22 | [Exercícios e checklist](22-exercicios-e-checklist.md) | Para fixar o que foi construído |
-
-### Parte 6 — Autenticação e Vue.js (etapas 23 a 32)
-
-| # | Etapa | O que você faz |
-|---|---|---|
-| 23 | [Autenticação: conceitos](23-autenticacao-conceitos.md) | Entende hash, token e middleware antes de codar |
-| 24 | [Tabela de usuários](24-tabela-usuarios.md) | Cria a tabela `users` e instala `bcryptjs` e `jsonwebtoken` |
-| 25 | [Validador e repositório](25-auth-validator-repository.md) | `user-validator.js` e `user-repository.js` |
-| 26 | [Service de autenticação](26-auth-service.md) | Hash da senha e geração do token JWT |
-| 27 | [Rotas e middleware](27-auth-rotas-e-middleware.md) | **Protege a API inteira** |
-| 28 | [Primeiros passos com Vue.js](28-vue-primeiros-passos.md) | Laboratório com as diretivas do Vue |
-| 29 | [Tela de cadastro](29-tela-cadastro-vue.md) | Formulário reativo em Vue |
-| 30 | [Tela de login](30-tela-login-vue.md) | Login e armazenamento do token |
-| 31 | [Protegendo o front](31-protegendo-o-front.md) | Telas protegidas, usuário logado e botão Sair |
-| 32 | [Teste final da autenticação](32-teste-final-autenticacao.md) | Teste completo, erros comuns e exercícios |
-
----
-
-## Marcos de progresso
-
-Se quiser dividir a construção em blocos, estes são os pontos naturais de parada — cada um termina com algo funcionando:
-
-| Bloco | Etapas | Entregável ao final |
-|---|---|---|
-| 1 | 00 a 06 | Estrutura e banco modelados |
-| 2 | 07 a 10 | **API respondendo no navegador** |
-| 3 | 11 a 12 | CRUD de categorias e produtos |
-| 4 | 13 a 14 | Transações e dashboard funcionando |
-| 5 | 15 a 17 | Dashboard e produtos na tela |
-| 6 | 18 a 20 | **Sistema completo testado** |
-| 7 | 23 a 27 | API protegida por login |
-| 8 | 28 a 32 | **Telas de cadastro e login em Vue, sistema protegido** |
-
----
-
-## Antes de começar
-
-Tenha instalado:
-
-1. **Node.js** (versão LTS) — https://nodejs.org
-2. **Docker Desktop** — https://www.docker.com/products/docker-desktop
-3. **Visual Studio Code** — https://code.visualstudio.com
-4. **Git** (para ter o Git Bash no Windows) — https://git-scm.com
-
-> A [Etapa 01](01-preparando-o-ambiente.md) tem o passo a passo para conferir se está tudo certo.
-
----
-
-## Materiais relacionados
-
-- [`../apostila.md`](../apostila.md) — a mesma apostila em **arquivo único**, boa para consulta e impressão
-- [`../README.md`](../README.md) — como rodar o projeto pronto
-
----
-
-## Convenções usadas nos textos
-
-| Marca | Significado |
-|---|---|
-| `código assim` | Nome de arquivo, comando ou trecho de código |
-| **Passo N** | Uma ação que você precisa executar |
-| > Bloco citado | Explicação extra ou aviso importante |
-| **Atenção:** | Erro comum acontece aqui |
-| **Confira se deu certo** | Checkpoint: pare e confira antes de continuar |
-
-Bom trabalho, e vamos começar pela [Etapa 00](00-visao-geral.md).
+Veja [COMO_EXECUTAR.md](COMO_EXECUTAR.md), [docs/ATIVIDADES.md](docs/ATIVIDADES.md), [docs/DECISOES.md](docs/DECISOES.md) e [RELATORIO_TESTES.md](RELATORIO_TESTES.md).

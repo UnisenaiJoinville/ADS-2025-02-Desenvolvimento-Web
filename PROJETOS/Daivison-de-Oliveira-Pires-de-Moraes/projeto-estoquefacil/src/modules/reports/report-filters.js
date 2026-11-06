@@ -1,3 +1,4 @@
+import { parsePagination } from "../../shared/http/pagination.js";
 import { AppError } from "../../shared/errors/app-error.js";
 
 // ------------------------------------------------------------------
@@ -40,15 +41,19 @@ const MOVEMENT_SORT_COLUMNS = {
 
 // Escolhas fechadas: o cliente escolhe uma CHAVE, nos decidimos o SQL.
 const STOCK_STATUS = ["ALL", "OK", "LOW", "OUT"];
-const MOVEMENT_TYPES = ["IN", "OUT"];
+const MOVEMENT_TYPES = ["IN", "OUT", "ADJUST"];
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function parseText(value, { field, maxLength = 80 }) {
-  const text = String(value ?? "").trim().replace(/\s+/g, " ");
+  const text = String(value ?? "")
+    .trim()
+    .replace(/\s+/g, " ");
 
   if (text.length > maxLength) {
-    throw new AppError(`O filtro ${field} deve ter no maximo ${maxLength} caracteres`);
+    throw new AppError(
+      `O filtro ${field} deve ter no maximo ${maxLength} caracteres`,
+    );
   }
 
   return text;
@@ -77,7 +82,7 @@ function parseChoice(value, { field, allowed, fallback }) {
 
   if (!allowed.includes(choice)) {
     throw new AppError(
-      `O filtro ${field} deve ser um destes valores: ${allowed.join(", ")}`
+      `O filtro ${field} deve ser um destes valores: ${allowed.join(", ")}`,
     );
   }
 
@@ -99,7 +104,10 @@ function parseOptionalDate(value, field) {
   // como 2026-02-31.
   const parsed = new Date(`${date}T00:00:00Z`);
 
-  if (Number.isNaN(parsed.getTime()) || !parsed.toISOString().startsWith(date)) {
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    !parsed.toISOString().startsWith(date)
+  ) {
     throw new AppError(`O filtro ${field} nao e uma data valida: ${date}`);
   }
 
@@ -117,7 +125,7 @@ function parseSort(value, { columns, fallback }) {
 
   if (!Object.hasOwn(columns, key)) {
     throw new AppError(
-      `Ordenacao invalida: ${key}. Use um destes: ${Object.keys(columns).join(", ")}`
+      `Ordenacao invalida: ${key}. Use um destes: ${Object.keys(columns).join(", ")}`,
     );
   }
 
@@ -126,7 +134,9 @@ function parseSort(value, { columns, fallback }) {
 }
 
 function parseDirection(value) {
-  const direction = String(value ?? "asc").trim().toUpperCase();
+  const direction = String(value ?? "asc")
+    .trim()
+    .toUpperCase();
 
   if (direction !== "ASC" && direction !== "DESC") {
     throw new AppError('A direcao da ordenacao deve ser "asc" ou "desc"');
@@ -135,28 +145,31 @@ function parseDirection(value) {
   return direction;
 }
 
-function parsePagination(query) {
-  const page = Number(query?.page ?? 1);
-  const pageSize = Number(query?.pageSize ?? 25);
-
-  if (!Number.isInteger(page) || page <= 0) {
-    throw new AppError("O parametro page deve ser um inteiro maior que zero");
-  }
-
-  if (!Number.isInteger(pageSize) || pageSize <= 0 || pageSize > MAX_PAGE_SIZE) {
-    throw new AppError(
-      `O parametro pageSize deve ser um inteiro entre 1 e ${MAX_PAGE_SIZE}`
-    );
-  }
-
-  // OFFSET: quantas linhas pular antes de comecar a devolver.
-  return { page, pageSize, offset: (page - 1) * pageSize };
+function validateScalars(query) {
+  for (const value of Object.values(query))
+    if (typeof value !== "string")
+      throw new AppError("Cada filtro deve ter um unico valor de texto");
 }
-
+function price(value) {
+  if (value === undefined || value === "") return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0 || n > 99999999.99)
+    throw new AppError("Faixa de preco invalida");
+  return n;
+}
 export function parseProductReportFilters(query = {}) {
-  const { page, pageSize, offset } = parsePagination(query);
+  validateScalars(query);
+  const minPrice = price(query.minPrice),
+    maxPrice = price(query.maxPrice);
+  if (minPrice !== null && maxPrice !== null && minPrice > maxPrice)
+    throw new AppError("Preco minimo maior que maximo");
+  const { page, pageSize, offset } = parsePagination(query, {
+    defaultPageSize: 25,
+  });
 
   return {
+    minPrice,
+    maxPrice,
     search: parseText(query.search, { field: "search" }),
     categoryId: parseOptionalId(query.categoryId, "categoryId"),
     // "sem categoria" nao e um id: e a ausencia de um.
@@ -168,7 +181,10 @@ export function parseProductReportFilters(query = {}) {
       fallback: "ALL",
     }),
     onlyActive: String(query.onlyActive ?? "true") !== "false",
-    sort: parseSort(query.sort, { columns: PRODUCT_SORT_COLUMNS, fallback: "name" }),
+    sort: parseSort(query.sort, {
+      columns: PRODUCT_SORT_COLUMNS,
+      fallback: "name",
+    }),
     direction: parseDirection(query.direction),
     page,
     pageSize,
@@ -177,7 +193,10 @@ export function parseProductReportFilters(query = {}) {
 }
 
 export function parseMovementReportFilters(query = {}) {
-  const { page, pageSize, offset } = parsePagination(query);
+  validateScalars(query);
+  const { page, pageSize, offset } = parsePagination(query, {
+    defaultPageSize: 25,
+  });
 
   const startDate = parseOptionalDate(query.startDate, "startDate");
   const endDate = parseOptionalDate(query.endDate, "endDate");
@@ -195,7 +214,10 @@ export function parseMovementReportFilters(query = {}) {
     }),
     startDate,
     endDate,
-    sort: parseSort(query.sort, { columns: MOVEMENT_SORT_COLUMNS, fallback: "date" }),
+    sort: parseSort(query.sort, {
+      columns: MOVEMENT_SORT_COLUMNS,
+      fallback: "date",
+    }),
     direction: parseDirection(query.direction ?? "desc"),
     page,
     pageSize,
@@ -210,7 +232,9 @@ export function parseTopProductsOptions(query = {}) {
   const limit = Number(query.limit ?? 10);
 
   if (!Number.isInteger(minUnits) || minUnits < 0) {
-    throw new AppError("O parametro minUnits deve ser um inteiro maior ou igual a zero");
+    throw new AppError(
+      "O parametro minUnits deve ser um inteiro maior ou igual a zero",
+    );
   }
 
   if (!Number.isInteger(limit) || limit <= 0 || limit > 100) {

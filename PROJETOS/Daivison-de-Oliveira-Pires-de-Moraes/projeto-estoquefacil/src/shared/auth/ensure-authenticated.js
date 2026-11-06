@@ -1,29 +1,25 @@
-import { UnauthorizedError } from "../errors/app-error.js";
-
+import { UnauthorizedError, ForbiddenError } from "../errors/app-error.js";
 import { verifyToken } from "./token.js";
-
-// Middleware: roda ANTES do controller e so deixa passar quem
-// apresentar um token valido no cabecalho Authorization.
-//
-//   Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-//                  |____| |_______________________|
-//                  esquema         token
-export function ensureAuthenticated(request, response, next) {
-  const header = request.headers.authorization;
-
-  if (!header) {
-    throw new UnauthorizedError("Token nao informado");
-  }
-
-  const [scheme, token] = header.split(" ");
-
-  if (scheme !== "Bearer" || !token) {
-    throw new UnauthorizedError("Formato do token invalido");
-  }
-
-  // Se o token nao prestar, verifyToken lanca UnauthorizedError
-  // e o middleware de erro devolve 401 para o cliente.
-  request.user = verifyToken(token);
-
-  next();
+import { findById } from "../../modules/auth/user-repository.js";
+export function ensureAuthenticated(req, res, next) {
+  Promise.resolve()
+    .then(async () => {
+      const match = /^Bearer ([^\s]+)$/.exec(req.headers.authorization ?? "");
+      if (!match)
+        throw new UnauthorizedError("Token nao informado ou formato invalido");
+      const token = verifyToken(match[1]);
+      const user = await findById(token.id);
+      if (!user?.active || token.version !== user.tokenVersion)
+        throw new UnauthorizedError("Sessao invalida. Entre novamente");
+      req.user = user;
+      next();
+    })
+    .catch(next);
+}
+export function ensureRole(role) {
+  return (req, res, next) => {
+    if (req.user?.role !== role)
+      return next(new ForbiddenError("Somente ADMIN pode excluir registros"));
+    next();
+  };
 }

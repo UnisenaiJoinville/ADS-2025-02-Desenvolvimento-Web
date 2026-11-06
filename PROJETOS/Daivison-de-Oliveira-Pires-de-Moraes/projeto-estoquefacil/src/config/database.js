@@ -6,6 +6,7 @@ import { env } from "./env.js";
 // E a forma recomendada em aplicacoes web.
 export const pool = mysql.createPool({
   host: env.database.host,
+  timezone: "-03:00",
   port: env.database.port,
   user: env.database.user,
   password: env.database.password,
@@ -19,6 +20,8 @@ export const pool = mysql.createPool({
   decimalNumbers: true,
 });
 
+pool.on("connection", (c) => c.query("SET time_zone = '-03:00'"));
+
 // O container do MySQL demora alguns segundos para aceitar conexoes.
 // Tentamos algumas vezes antes de desistir.
 export async function connectWithRetry(attempts = 10, delayMs = 3000) {
@@ -31,7 +34,7 @@ export async function connectWithRetry(attempts = 10, delayMs = 3000) {
       return;
     } catch (error) {
       console.warn(
-        `Tentativa ${attempt}/${attempts} de conectar ao MySQL falhou: ${error.message}`
+        `Tentativa ${attempt}/${attempts} de conectar ao MySQL falhou: ${error.message}`,
       );
 
       if (attempt === attempts) {

@@ -1,6 +1,6 @@
 # Etapa 17 — Tela de Produtos
 
-📋 **Tipo:** prática (HTML + JavaScript)
+**Tipo:** prática (HTML + JavaScript)
 
 ---
 
@@ -250,7 +250,7 @@ Na pasta `public`, crie `produtos.html`:
 
 Salve.
 
-### 🪟 O modal sem nenhuma biblioteca
+### O modal sem nenhuma biblioteca
 
 ```html
 <div data-modal class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/50 p-4">
@@ -266,7 +266,7 @@ Salve.
 
 Para abrir, o JavaScript troca `hidden` por `flex`. Só isso.
 
-> 📌 **Por que `items-center` já está no HTML se está escondido?** Porque `hidden` (que é `display: none`) tem prioridade. Quando trocamos para `flex`, as classes de centralização entram em ação.
+> **Por que `items-center` já está no HTML se está escondido?** Porque `hidden` (que é `display: none`) tem prioridade. Quando trocamos para `flex`, as classes de centralização entram em ação.
 
 ### O `<input type="hidden" name="id">`
 
@@ -289,7 +289,7 @@ Este campo invisível é o truque que permite **um formulário servir para criar
 
 O navegador já ajuda: mostra setinhas, aceita só números e permite centavos.
 
-> ⚠️ Isso é conveniência para o usuário, **não** validação de segurança. Qualquer pessoa pode enviar dados direto pela API sem passar pelo formulário — é por isso que o `product-validator.js` da Etapa 12 continua sendo essencial.
+> **Atenção:** Isso é conveniência para o usuário, **não** validação de segurança. Qualquer pessoa pode enviar dados direto pela API sem passar pelo formulário — é por isso que o `product-validator.js` da Etapa 12 continua sendo essencial.
 
 ---
 
@@ -406,7 +406,7 @@ document.addEventListener("keydown", (event) => {
 });
 ```
 
-> 🔍 **Repare no detalhe do item 2:** `event.target === modal`. Sem essa checagem, clicar **dentro** da caixa branca também fecharia o modal — porque o clique "borbulha" para o elemento pai. A comparação garante que só o clique no fundo conta.
+> **Repare no detalhe do item 2:** `event.target === modal`. Sem essa checagem, clicar **dentro** da caixa branca também fecharia o modal — porque o clique "borbulha" para o elemento pai. A comparação garante que só o clique no fundo conta.
 
 #### O foco automático
 
@@ -537,7 +537,7 @@ async function loadCategories() {
 }
 ```
 
-#### ⚠️ A armadilha do checkbox no `FormData`
+#### A armadilha do checkbox no `FormData`
 
 ```javascript
 lowStock: data.get("lowStock") === "on",
@@ -604,14 +604,14 @@ rowsContainer.addEventListener("click", async (event) => {
 });
 ```
 
-#### 🎯 Delegação de eventos — o conceito-chave desta etapa
+#### Delegação de eventos — o conceito-chave desta etapa
 
 Os botões "Editar" e "Excluir" são criados **depois** que a página carrega, dentro do `renderRows`.
 
 Se tentássemos assim:
 
 ```javascript
-// ❌ NÃO FUNCIONA
+// NÃO FUNCIONA
 document.querySelectorAll("[data-edit]").forEach((btn) => {
   btn.addEventListener("click", ...);
 });
@@ -622,7 +622,7 @@ document.querySelectorAll("[data-edit]").forEach((btn) => {
 **A solução:** ouvir o clique no **container**, que existe desde o início:
 
 ```javascript
-// ✅ FUNCIONA sempre
+// FUNCIONA sempre
 rowsContainer.addEventListener("click", (event) => {
   const editId = event.target.dataset.edit;
   if (editId) { ... }
@@ -650,7 +650,7 @@ Vantagens:
 | | Sem delegação | Com delegação |
 |---|---|---|
 | Listeners com 100 produtos | 200 | **1** |
-| Funciona em linhas novas | ❌ | ✅ |
+| Funciona em linhas novas | Não | Sim |
 | Memória | Alta | Baixa |
 
 #### `dataset` — lendo o `data-edit`
@@ -665,7 +665,7 @@ event.target.dataset.edit    // "8"
 
 O `data-edit` no HTML vira `dataset.edit` no JavaScript. É assim que o botão "carrega" o id do produto.
 
-#### ⏱️ O `setTimeout` no reset
+#### O `setTimeout` no reset
 
 ```javascript
 filtersForm.addEventListener("reset", () => {
@@ -744,7 +744,7 @@ event.preventDefault();
 
 Sem essa linha, o navegador faria o comportamento **antigo** de formulário: recarregar a página inteira, perdendo tudo. Nós queremos enviar via `fetch` e continuar na mesma tela.
 
-> ⚠️ **Esquecer o `preventDefault` é um erro clássico.** O sintoma é: a página pisca, os dados somem e nada acontece.
+> **Esquecer o `preventDefault` é um erro clássico.** O sintoma é: a página pisca, os dados somem e nada acontece.
 
 #### Todo campo de formulário vira string
 
@@ -754,7 +754,7 @@ costPrice: Number(data.get("costPrice")),
 
 Mesmo com `type="number"` no HTML, o `FormData` devolve **string**. Convertemos explicitamente.
 
-> 📌 Sem o `Number()`, o backend receberia `"28.00"` e, embora nosso validador use `Number(value)` e resolvesse, é boa prática mandar o tipo correto desde a origem.
+> Sem o `Number()`, o backend receberia `"28.00"` e, embora nosso validador use `Number(value)` e resolvesse, é boa prática mandar o tipo correto desde a origem.
 
 #### `data.get("categoryId") || null`
 
@@ -791,7 +791,7 @@ Crie `public/js/produtos.js` juntando as partes A até F, na ordem.
 
 ---
 
-## Passo 4 — 🧪 Testar tudo na tela
+## Passo 4 — Testar tudo na tela
 
 Acesse:
 
@@ -810,14 +810,14 @@ http://localhost:3000/produtos.html
    - SKU: `hor-001` (em minúsculas de propósito!)
    - Custo: `4` / Venda: `7.50`
    - Quantidade: `30` / Mínimo: `10`
-   - **Salvar** → toast verde e o produto aparece com SKU `HOR-001` ✅
+   - **Salvar** → toast verde e o produto aparece com SKU `HOR-001`
 6. **Testar a validação** — crie outro com o **mesmo SKU** → toast vermelho: *"Ja existe um produto com o SKU HOR-001"*
 7. **Testar a regra de preço** — crie com custo `50` e venda `10` → toast vermelho
 8. **Editar** — clique em **Editar** na banana, mude a quantidade para `5`, salve → o status vira **"Estoque baixo"**
 9. **Fechar o modal** — abra e teste as três formas: `Esc`, clique no fundo, botão `X`
 10. **Excluir** — clique em **Excluir**, confirme → o produto some
 
-### 🎯 O que observar
+### O que observar
 
 - As mensagens de erro em vermelho vêm **do backend**, das validações que você escreveu na Etapa 12
 - O SKU em maiúsculas é o `.toUpperCase()` do validador
@@ -825,7 +825,7 @@ http://localhost:3000/produtos.html
 
 ---
 
-## ✅ Confira se deu certo
+## Confira se deu certo
 
 - [ ] `public/produtos.html` e `public/js/produtos.js` existem
 - [ ] A tabela lista os produtos com valores em `R$`
@@ -840,7 +840,7 @@ http://localhost:3000/produtos.html
 
 ---
 
-## 🔧 Se deu erro
+## Se deu erro
 
 | Sintoma | Causa | Solução |
 |---|---|---|
@@ -855,7 +855,7 @@ http://localhost:3000/produtos.html
 
 ---
 
-## ➡️ Próximo passo
+## Próximo passo
 
 Falta a tela onde o estoque realmente sobe e desce.
 

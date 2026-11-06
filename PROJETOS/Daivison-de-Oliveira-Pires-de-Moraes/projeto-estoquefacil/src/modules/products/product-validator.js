@@ -1,73 +1,41 @@
 import { AppError } from "../../shared/errors/app-error.js";
-
-function parseText(value, { field, maxLength, required = true }) {
-  const text = String(value ?? "").trim().replace(/\s+/g, " ");
-
-  if (required && !text) {
-    throw new AppError(`O campo ${field} e obrigatorio`);
-  }
-
-  if (text.length > maxLength) {
-    throw new AppError(`O campo ${field} deve ter no maximo ${maxLength} caracteres`);
-  }
-
-  return text;
+import { text, integer, boolean } from "../../shared/http/input.js";
+function money(value, field) {
+  if (
+    !["string", "number"].includes(typeof value) ||
+    String(value).trim() === ""
+  )
+    throw new AppError(`${field} invalido`);
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0 || n > 99999999.99)
+    throw new AppError(`${field} deve ser entre 0 e 99999999.99`);
+  return Math.round((n + Number.EPSILON) * 100) / 100;
 }
-
-function parseMoney(value, field) {
-  const amount = Number(value);
-
-  if (!Number.isFinite(amount) || amount < 0) {
-    throw new AppError(`O campo ${field} deve ser um numero maior ou igual a zero`);
-  }
-
-  // Duas casas decimais, como no banco (DECIMAL(10,2))
-  return Math.round(amount * 100) / 100;
-}
-
-function parseInteger(value, field) {
-  const amount = Number(value);
-
-  if (!Number.isInteger(amount) || amount < 0) {
-    throw new AppError(`O campo ${field} deve ser um numero inteiro maior ou igual a zero`);
-  }
-
-  return amount;
-}
-
 export function validateProductInput(input) {
-  const name = parseText(input?.name, { field: "nome", maxLength: 120 });
-  const sku = parseText(input?.sku, { field: "SKU", maxLength: 40 }).toUpperCase();
-
-  const costPrice = parseMoney(input?.costPrice ?? 0, "preco de custo");
-  const salePrice = parseMoney(input?.salePrice ?? 0, "preco de venda");
-  const quantity = parseInteger(input?.quantity ?? 0, "quantidade");
-  const minimumStock = parseInteger(input?.minimumStock ?? 0, "estoque minimo");
-
-  if (salePrice < costPrice) {
-    throw new AppError("O preco de venda nao pode ser menor que o preco de custo");
-  }
-
-  let categoryId = null;
-
-  if (input?.categoryId !== undefined && input?.categoryId !== null && input?.categoryId !== "") {
-    categoryId = Number(input.categoryId);
-
-    if (!Number.isInteger(categoryId) || categoryId <= 0) {
-      throw new AppError("Categoria invalida");
-    }
-  }
-
-  const active = input?.active === undefined ? true : Boolean(input.active);
-
+  const name = text(input?.name, "nome", 120, true);
+  const sku = text(input?.sku, "SKU", 40, true).toUpperCase();
+  const supplier = text(input?.supplier, "fornecedor", 120);
+  const costPrice = money(input?.costPrice ?? 0, "Preco de custo");
+  const salePrice = money(input?.salePrice ?? 0, "Preco de venda");
+  if (salePrice < costPrice)
+    throw new AppError(
+      "O preco de venda nao pode ser menor que o preco de custo",
+    );
+  const quantity = integer(input?.quantity ?? 0, "Quantidade");
+  const minimumStock = integer(input?.minimumStock ?? 0, "Estoque minimo");
+  const categoryId =
+    input?.categoryId == null || input.categoryId === ""
+      ? null
+      : integer(input.categoryId, "Categoria", 1);
   return {
     name,
     sku,
-    categoryId,
+    supplier: supplier || null,
     costPrice,
     salePrice,
     quantity,
     minimumStock,
-    active,
+    categoryId,
+    active: boolean(input?.active, true),
   };
 }

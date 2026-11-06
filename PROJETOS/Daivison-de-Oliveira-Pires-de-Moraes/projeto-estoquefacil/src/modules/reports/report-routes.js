@@ -1,3 +1,4 @@
+import * as advanced from "./advanced-report-controller.js";
 import { Router } from "express";
 
 import { asyncHandler } from "../../shared/http/async-handler.js";
@@ -12,12 +13,29 @@ export const reportRoutes = Router();
 // --- Relatorios de produtos e estoque ---
 reportRoutes.get("/products", asyncHandler(controller.products));
 reportRoutes.get("/stock-summary", asyncHandler(controller.stockSummary));
-reportRoutes.get("/stock-by-category", asyncHandler(controller.stockByCategory));
-reportRoutes.get("/products-without-movement", asyncHandler(controller.productsWithoutMovement));
+reportRoutes.get(
+  "/stock-by-category",
+  asyncHandler(controller.stockByCategory),
+);
+reportRoutes.get(
+  "/products-without-movement",
+  asyncHandler(controller.productsWithoutMovement),
+);
 reportRoutes.get("/abc-curve", asyncHandler(controller.abcCurve));
 
 // --- Relatorios de movimentacoes ---
 reportRoutes.get("/movements", asyncHandler(controller.movements));
-reportRoutes.get("/movements-by-user", asyncHandler(controller.movementsByUser));
-reportRoutes.get("/movements-by-month", asyncHandler(controller.movementsByMonth));
+reportRoutes.get(
+  "/movements-by-user",
+  asyncHandler(controller.movementsByUser),
+);
+reportRoutes.get(
+  "/movements-by-month",
+  asyncHandler(controller.movementsByMonth),
+);
 reportRoutes.get("/top-products", asyncHandler(controller.topProducts));
+
+reportRoutes.get("/stagnant-products", asyncHandler(advanced.stagnant));
+reportRoutes.get("/turnover-by-category", asyncHandler(advanced.turnover));
+reportRoutes.get("/stockout-forecast", asyncHandler(advanced.forecast));
+reportRoutes.get("/compare", asyncHandler(advanced.compare));

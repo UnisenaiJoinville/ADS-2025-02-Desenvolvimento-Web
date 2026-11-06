@@ -6,4 +6,5 @@ import * as controller from "./dashboard-controller.js";
 
 export const dashboardRoutes = Router();
 
+dashboardRoutes.get("/daily-movements", asyncHandler(controller.daily));
 dashboardRoutes.get("/", asyncHandler(controller.index));

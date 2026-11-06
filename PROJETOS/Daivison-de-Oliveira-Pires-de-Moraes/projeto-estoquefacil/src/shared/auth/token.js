@@ -10,22 +10,40 @@ export function generateToken(user) {
   return jwt.sign(
     // "payload": os dados publicos que viajam dentro do token.
     // Nunca coloque senha ou hash aqui.
-    { name: user.name, email: user.email },
+    {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      version: user.tokenVersion,
+    },
     env.auth.jwtSecret,
     {
       // "sub" (subject) e o campo padrao para o dono do token.
       subject: String(user.id),
       expiresIn: env.auth.jwtExpiresIn,
-    }
+      algorithm: "HS256",
+    },
   );
 }
 
 // Confere a assinatura e a validade. Se algo estiver errado, recusa.
 export function verifyToken(token) {
   try {
-    const payload = jwt.verify(token, env.auth.jwtSecret);
+    const payload = jwt.verify(token, env.auth.jwtSecret, {
+      algorithms: ["HS256"],
+    });
 
+    if (
+      !payload ||
+      typeof payload === "string" ||
+      !Number.isSafeInteger(Number(payload.sub)) ||
+      Number(payload.sub) <= 0 ||
+      !Number.isFinite(payload.exp)
+    )
+      throw new Error("Payload invalido");
     return {
+      version: payload.version,
+      role: payload.role,
       id: Number(payload.sub),
       name: payload.name,
       email: payload.email,

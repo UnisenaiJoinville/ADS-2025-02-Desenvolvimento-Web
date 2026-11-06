@@ -1,3 +1,4 @@
+import { renderIcons } from "./icons.js";
 // Funcoes compartilhadas por todas as telas.
 
 import { getUser, logout } from "./auth.js";
@@ -27,15 +28,20 @@ export function escapeHtml(value) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 const NAV_ITEMS = [
-  { href: "/index.html", label: "Dashboard", icon: "grid" },
-  { href: "/produtos.html", label: "Produtos", icon: "box" },
-  { href: "/movimentacoes.html", label: "Movimentacoes", icon: "swap" },
+  { href: "/index.html", label: "Dashboard", icon: "layout-dashboard" },
+  { href: "/produtos.html", label: "Produtos", icon: "package" },
+  {
+    href: "/movimentacoes.html",
+    label: "Movimentacoes",
+    icon: "arrow-left-right",
+  },
   { href: "/categorias.html", label: "Categorias", icon: "tag" },
-  { href: "/relatorios.html", label: "Relatorios", icon: "chart" },
+  { href: "/relatorios.html", label: "Relatorios", icon: "chart-column" },
 ];
 
 export function renderNav(active) {
@@ -46,7 +52,7 @@ export function renderNav(active) {
       ? "bg-slate-900 text-white"
       : "text-slate-600 hover:bg-slate-200 hover:text-slate-900";
 
-    return `<a href="${item.href}" class="rounded-lg px-4 py-2 text-sm font-medium transition ${classes}">${item.label}</a>`;
+    return `<a href="${item.href}" ${isActive ? 'aria-current="page"' : ""} class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${classes}"><i data-lucide="${item.icon}"></i>${item.label}</a>`;
   }).join("");
 
   return `
@@ -63,6 +69,8 @@ export function renderNav(active) {
 
         <nav class="flex flex-wrap items-center gap-1">
           ${links}
+          <a href="/perfil.html" class="px-3 py-2 text-sm">Meu perfil</a>
+          <button type="button" data-theme class="inline-flex items-center gap-2 px-3 py-2 text-sm" aria-label="Alternar tema claro e escuro"><i data-lucide="sun-moon"></i>Tema</button>
         </nav>
 
         ${renderUserBadge()}
@@ -80,16 +88,13 @@ function renderUserBadge() {
   // As iniciais do nome:
   // "Ana Paula Souza" -> "AS"
   const initials = escapeHtml(
-    user.name
+    String(user.name ?? "Usuario")
       .split(" ")
       .filter(Boolean)
       .map((part) => part[0])
-      .filter(
-        (_, index, all) =>
-          index === 0 || index === all.length - 1
-      )
+      .filter((_, index, all) => index === 0 || index === all.length - 1)
       .join("")
-      .toUpperCase()
+      .toUpperCase(),
   );
 
   return `
@@ -104,30 +109,36 @@ function renderUserBadge() {
         </p>
 
         <p class="text-xs leading-tight text-slate-500">
-          ${escapeHtml(user.email)}
+          ${escapeHtml(user.email)}<br>Ultimo acesso: ${formatDateTime(user.lastLoginAt)}
         </p>
       </div>
 
       <button
         data-logout
-        class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
       >
-        Sair
+        <i data-lucide="log-out"></i> Sair
       </button>
     </div>
   `;
 }
 
 export function mountLayout(activeHref) {
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && !localStorage.getItem("estoque-facil:token"))
+      window.location.replace("/login.html");
+  });
   const container = document.querySelector("[data-nav]");
 
   if (container) {
     container.innerHTML = renderNav(activeHref);
 
     // O botao so existe depois que o HTML acima foi inserido.
+    container.querySelector("[data-logout]")?.addEventListener("click", logout);
     container
-      .querySelector("[data-logout]")
-      ?.addEventListener("click", logout);
+      .querySelector("[data-theme]")
+      ?.addEventListener("click", () => window.toggleTheme());
+    renderIcons();
   }
 }
 
@@ -149,7 +160,8 @@ export function toast(message, variant = "success") {
 
   const stack = document.querySelector("[data-toast-stack]");
 
-  stack.append(element);
+  (stack ?? document.body).append(element);
+  element.setAttribute("role", variant === "error" ? "alert" : "status");
 
   requestAnimationFrame(() => {
     element.classList.remove("translate-y-2", "opacity-0");
@@ -160,4 +172,162 @@ export function toast(message, variant = "success") {
 
     setTimeout(() => element.remove(), 250);
   }, 3000);
+}
+// Caixa de confirmacao no lugar do window.confirm (Aula 65).
+// Devolve uma Promise: true se a pessoa confirmou, false se desistiu.
+export function confirmDialog({
+  title,
+  message,
+  confirmLabel = "Confirmar",
+  variant = "danger",
+}) {
+  return new Promise((resolve) => {
+    // Para devolver o foco ao botao que abriu a caixa, ao fechar.
+    const previousFocus = document.activeElement;
+    const isDanger = variant === "danger";
+
+    const overlay = document.createElement("div");
+    overlay.className =
+      "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4";
+
+    overlay.innerHTML = `
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+        aria-describedby="confirm-message"
+        class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+      >
+        <div class="flex gap-4">
+          <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full ${
+            isDanger
+              ? "bg-rose-100 text-rose-600"
+              : "bg-amber-100 text-amber-600"
+          }">
+            <i data-lucide="${isDanger ? "trash-2" : "triangle-alert"}" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h2 id="confirm-title" class="text-lg font-semibold text-slate-900">${escapeHtml(title)}</h2>
+            <p id="confirm-message" class="mt-1 text-sm text-slate-600">${escapeHtml(message)}</p>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            data-answer="no"
+            class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >Cancelar</button>
+          <button
+            type="button"
+            data-answer="yes"
+            class="rounded-xl px-4 py-2 text-sm font-semibold text-white ${
+              isDanger
+                ? "bg-rose-600 hover:bg-rose-700"
+                : "bg-slate-900 hover:bg-slate-700"
+            }"
+          >${escapeHtml(confirmLabel)}</button>
+        </div>
+      </div>
+    `;
+
+    function close(answer) {
+      document.removeEventListener("keydown", onKeydown);
+      overlay.remove();
+      previousFocus?.focus?.();
+      resolve(answer);
+    }
+
+    function onKeydown(event) {
+      if (event.key === "Escape") close(false);
+    }
+
+    overlay.addEventListener("click", (event) => {
+      // Clique no fundo escuro: desistiu (como o modal da Aula 17).
+      if (event.target === overlay) {
+        close(false);
+        return;
+      }
+
+      const button = event.target.closest("[data-answer]");
+
+      if (button) close(button.dataset.answer === "yes");
+    });
+
+    document.addEventListener("keydown", onKeydown);
+    document.body.append(overlay);
+    renderIcons();
+
+    // O foco comeca no CANCELAR: um Enter por engano nao apaga nada.
+    trapFocus(overlay);
+    overlay.querySelector('[data-answer="no"]').focus();
+  });
+}
+
+// Botao "trabalhando" (Aula 66): trava o botao e mostra um spinner.
+// Chame com true antes do await e com false no finally.
+export function setButtonLoading(button, loading, loadingText = "Salvando...") {
+  if (loading) {
+    // Guarda o conteudo original para devolver depois.
+    button.dataset.originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    button.innerHTML = `
+      <span class="inline-flex items-center justify-center gap-2">
+        <i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i>
+        ${escapeHtml(loadingText)}
+      </span>`;
+    renderIcons();
+    return;
+  }
+
+  button.disabled = false;
+  button.removeAttribute("aria-busy");
+
+  if (button.dataset.originalHtml !== undefined) {
+    button.innerHTML = button.dataset.originalHtml;
+    delete button.dataset.originalHtml;
+  }
+}
+
+// Linhas "fantasma" enquanto uma tabela carrega (Aula 66).
+// O formato lembra o conteudo que vai chegar, entao a tela nao "pula".
+export function skeletonRows(columns, rows = 5) {
+  const cells = Array.from(
+    { length: columns },
+    () =>
+      '<td class="px-4 py-3"><div class="h-4 animate-pulse rounded bg-slate-200"></div></td>',
+  ).join("");
+
+  return Array.from({ length: rows }, () => `<tr>${cells}</tr>`).join("");
+}
+
+export function trapFocus(element) {
+  const handler = (event) => {
+    if (event.key !== "Tab") return;
+    const nodes = [
+      ...element.querySelectorAll(
+        'button,input,select,textarea,a[href],[tabindex="0"]',
+      ),
+    ].filter((e) => !e.disabled && e.offsetParent !== null);
+    const first = nodes[0],
+      last = nodes.at(-1);
+    if (!first) return;
+    if (
+      event.shiftKey &&
+      (document.activeElement === first ||
+        !element.contains(document.activeElement))
+    ) {
+      event.preventDefault();
+      last.focus();
+    } else if (
+      !event.shiftKey &&
+      (document.activeElement === last ||
+        !element.contains(document.activeElement))
+    ) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+  element.addEventListener("keydown", handler);
+  return () => element.removeEventListener("keydown", handler);
 }

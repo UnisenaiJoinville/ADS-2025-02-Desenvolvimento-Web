@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Meu perfil | Estoque Facil</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/theme.js"></script>
+    <script defer src="/vendor/lucide.js"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div data-nav></div>
+    <main class="mx-auto max-w-4xl px-6 py-8">
+      <h1 class="mb-6 text-2xl font-bold">Meu perfil</h1>
+      <section class="rounded-2xl border bg-white p-6">
+        <p data-user class="mb-4 text-sm"></p>
+        <form data-profile class="space-y-3">
+          <label for="profile-name" class="block">Nome</label
+          ><input
+            id="profile-name"
+            name="name"
+            required
+            minlength="3"
+            maxlength="60"
+            class="w-full rounded border px-3 py-2"
+          /><button class="rounded bg-slate-900 px-4 py-2 text-white">
+            Salvar nome
+          </button>
+        </form>
+      </section>
+      <section class="mt-6 rounded-2xl border bg-white p-6">
+        <h2 class="mb-4 font-semibold">Trocar senha</h2>
+        <form data-password class="space-y-3">
+          <label for="current-password" class="block">Senha atual</label
+          ><input
+            id="current-password"
+            name="currentPassword"
+            type="password"
+            required
+            autocomplete="current-password"
+            class="w-full rounded border px-3 py-2"
+          /><label for="new-password" class="block"
+            >Nova senha (minimo 8 caracteres)</label
+          ><input
+            id="new-password"
+            name="newPassword"
+            type="password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+            class="w-full rounded border px-3 py-2"
+          /><button class="rounded bg-slate-900 px-4 py-2 text-white">
+            Trocar senha
+          </button>
+          <p class="text-sm">
+            Depois da troca, entre novamente em todos os dispositivos.
+          </p>
+        </form>
+      </section>
+      <section class="mt-6 rounded-2xl border bg-white p-6">
+        <h2 class="font-semibold">Sessao</h2>
+        <p class="mb-3 text-sm">
+          O acesso dura 15 minutos. A renovacao pode ser feita por ate 7 dias.
+        </p>
+        <button data-renew class="rounded border px-4 py-2">
+          Renovar sessao
+        </button>
+      </section>
+    </main>
+    <div
+      data-toast-stack
+      class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"
+    ></div>
+    <script type="module" src="/js/perfil.js"></script>
+  </body>
+</html>

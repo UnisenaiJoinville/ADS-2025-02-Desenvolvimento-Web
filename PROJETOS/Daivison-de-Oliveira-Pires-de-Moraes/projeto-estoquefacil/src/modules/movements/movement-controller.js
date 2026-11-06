@@ -1,3 +1,4 @@
+import { dateRange } from "../../shared/http/input.js";
 import { AppError } from "../../shared/errors/app-error.js";
 import { parseId } from "../../shared/http/parse-id.js";
 
@@ -5,6 +6,12 @@ import * as service from "./movement-service.js";
 
 export async function index(request, response) {
   const { productId, type, limit } = request.query;
+  const period = dateRange(
+    request.query.from ?? request.query.startDate,
+    request.query.to ?? request.query.endDate,
+  );
+  if (type && !["IN", "OUT", "ADJUST"].includes(type))
+    throw new AppError("Tipo invalido");
 
   const parsedLimit = limit ? Number(limit) : 100;
 
@@ -13,6 +20,7 @@ export async function index(request, response) {
   }
 
   const movements = await service.listMovements({
+    ...period,
     productId: productId ? parseId(productId, "productId") : null,
     type: type ? String(type).toUpperCase() : null,
     limit: parsedLimit,

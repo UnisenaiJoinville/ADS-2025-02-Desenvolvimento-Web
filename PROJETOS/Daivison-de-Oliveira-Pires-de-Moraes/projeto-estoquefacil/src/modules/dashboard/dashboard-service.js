@@ -2,13 +2,14 @@ import * as repository from "./dashboard-repository.js";
 
 export async function getDashboard() {
   // As consultas sao independentes: podemos executar em paralelo.
-  const [summary, month, byCategory, lowStock, recentMovements] = await Promise.all([
-    repository.getSummary(),
-    repository.getMonthTotals(),
-    repository.getStockByCategory(),
-    repository.getLowStockProducts(5),
-    repository.getRecentMovements(8),
-  ]);
+  const [summary, month, byCategory, lowStock, recentMovements] =
+    await Promise.all([
+      repository.getSummary(),
+      repository.getMonthTotals(),
+      repository.getStockByCategory(),
+      repository.getLowStockProducts(5),
+      repository.getRecentMovements(8),
+    ]);
 
   const unitsIn = Number(month.unitsIn);
   const unitsOut = Number(month.unitsOut);
@@ -16,6 +17,7 @@ export async function getDashboard() {
   return {
     totals: {
       totalProducts: Number(summary.totalProducts),
+      averageSalePrice: Number(summary.averageSalePrice),
       totalUnits: Number(summary.totalUnits),
       stockCostValue: Number(summary.stockCostValue),
       stockSaleValue: Number(summary.stockSaleValue),
@@ -39,4 +41,12 @@ export async function getDashboard() {
     lowStock,
     recentMovements,
   };
+}
+
+export async function getDailyMovements(days) {
+  return (await repository.getDailyMovements(days)).map((r) => ({
+    day: r.day,
+    unitsIn: Number(r.unitsIn),
+    unitsOut: Number(r.unitsOut),
+  }));
 }

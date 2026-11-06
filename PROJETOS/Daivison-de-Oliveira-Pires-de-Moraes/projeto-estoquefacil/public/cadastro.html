@@ -1,11 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Criar conta | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/theme.js"></script>
+    <script defer src="/vendor/lucide.js"></script>
+    <script src="/vendor/vue.js"></script>
     <style>
       [v-cloak] {
         display: none;
@@ -13,10 +15,16 @@
     </style>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
-    <main id="app" v-cloak class="grid min-h-screen place-items-center px-6 py-10">
+    <main
+      id="app"
+      v-cloak
+      class="grid min-h-screen place-items-center px-6 py-10"
+    >
       <div class="w-full max-w-md">
         <div class="mb-8 flex flex-col items-center gap-3">
-          <div class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-xl font-bold text-white">
+          <div
+            class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-xl font-bold text-white"
+          >
             EF
           </div>
           <div class="text-center">
@@ -38,7 +46,9 @@
 
           <!-- NOME -->
           <label class="block">
-            <span class="text-sm font-medium text-slate-700">Nome completo</span>
+            <span class="text-sm font-medium text-slate-700"
+              >Nome completo</span
+            >
             <input
               v-model.trim="form.name"
               type="text"
@@ -48,7 +58,10 @@
               :class="visibleErrors.name ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
               @blur="touched.name = true"
             />
-            <span v-if="visibleErrors.name" class="mt-1 block text-xs text-rose-600">
+            <span
+              v-if="visibleErrors.name"
+              class="mt-1 block text-xs text-rose-600"
+            >
               {{ visibleErrors.name }}
             </span>
           </label>
@@ -65,7 +78,10 @@
               :class="visibleErrors.email ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
               @blur="touched.email = true"
             />
-            <span v-if="visibleErrors.email" class="mt-1 block text-xs text-rose-600">
+            <span
+              v-if="visibleErrors.email"
+              class="mt-1 block text-xs text-rose-600"
+            >
               {{ visibleErrors.email }}
             </span>
           </label>
@@ -76,9 +92,11 @@
             <div class="relative mt-1">
               <input
                 v-model="form.password"
+                @keyup="checkCapsLock"
+                @keydown="checkCapsLock"
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="new-password"
-                placeholder="Minimo de 6 caracteres"
+                placeholder="Minimo de 8 caracteres"
                 class="w-full rounded-xl border px-4 py-2.5 pr-20 text-sm outline-none transition focus:border-slate-900"
                 :class="visibleErrors.password ? 'border-rose-300 bg-rose-50' : 'border-slate-200'"
                 @blur="touched.password = true"
@@ -87,14 +105,20 @@
                 type="button"
                 class="absolute inset-y-0 right-0 px-4 text-xs font-semibold text-slate-500 transition hover:text-slate-900"
                 @click="showPassword = !showPassword"
+                :aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
               >
-                {{ showPassword ? "Ocultar" : "Mostrar" }}
+                <span v-show="!showPassword"><i data-lucide="eye"></i></span
+                ><span v-show="showPassword"
+                  ><i data-lucide="eye-off"></i
+                ></span>
               </button>
             </div>
 
             <!-- Medidor de forca: puro estado derivado -->
             <div v-if="form.password" class="mt-2">
-              <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+              <div
+                class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200"
+              >
                 <div
                   class="h-full rounded-full transition-all duration-300"
                   :class="strength.color"
@@ -106,14 +130,19 @@
               </span>
             </div>
 
-            <span v-if="visibleErrors.password" class="mt-1 block text-xs text-rose-600">
+            <span
+              v-if="visibleErrors.password"
+              class="mt-1 block text-xs text-rose-600"
+            >
               {{ visibleErrors.password }}
             </span>
           </label>
 
           <!-- CONFIRMACAO -->
           <label class="mt-4 block">
-            <span class="text-sm font-medium text-slate-700">Confirme a senha</span>
+            <span class="text-sm font-medium text-slate-700"
+              >Confirme a senha</span
+            >
             <input
               v-model="form.passwordConfirmation"
               :type="showPassword ? 'text' : 'password'"
@@ -131,6 +160,9 @@
             </span>
           </label>
 
+          <p v-if="capsLock" class="mt-2 text-sm text-amber-700">
+            Caps Lock ativado
+          </p>
           <button
             type="submit"
             :disabled="!canSubmit"
@@ -141,7 +173,10 @@
 
           <p class="mt-6 text-center text-sm text-slate-500">
             Ja tem conta?
-            <a href="/login.html" class="font-semibold text-slate-900 hover:underline">
+            <a
+              href="/login.html"
+              class="font-semibold text-slate-900 hover:underline"
+            >
               Entrar
             </a>
           </p>

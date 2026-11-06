@@ -1,5 +1,6 @@
+import { renderIcons } from "./icons.js";
 import { api } from "./api.js";
-import { LOGIN_PAGE, redirectIfAuthenticated } from "./auth.js";
+import { HOME_PAGE, saveSession, redirectIfAuthenticated } from "./auth.js";
 
 const { createApp } = Vue;
 
@@ -9,6 +10,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 redirectIfAuthenticated();
 
+renderIcons();
 createApp({
   data() {
     return {
@@ -27,6 +29,8 @@ createApp({
         passwordConfirmation: false,
       },
       showPassword: false,
+      capsLock: false,
+      remaining: null,
       loading: false,
       errorMessage: "",
     };
@@ -44,6 +48,11 @@ createApp({
         errors.name = "O nome deve ter pelo menos 3 caracteres";
       }
 
+      if (name.length > 60)
+        errors.name = "O nome deve ter no maximo 60 caracteres";
+      if (new TextEncoder().encode(password).length > 72)
+        errors.password = "Senha deve ter no maximo 72 bytes";
+
       if (!email) {
         errors.email = "Informe seu e-mail";
       } else if (!EMAIL_PATTERN.test(email)) {
@@ -52,8 +61,8 @@ createApp({
 
       if (!password) {
         errors.password = "Informe uma senha";
-      } else if (password.length < 6) {
-        errors.password = "A senha deve ter pelo menos 6 caracteres";
+      } else if (password.length < 8) {
+        errors.password = "A senha deve ter pelo menos 8 caracteres";
       }
 
       if (!passwordConfirmation) {
@@ -84,7 +93,7 @@ createApp({
       // Um ponto para cada criterio atendido.
       let score = 0;
 
-      if (password.length >= 6) score += 1;
+      if (password.length >= 8) score += 1;
       if (password.length >= 10) score += 1;
       if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
       if (/\d/.test(password)) score += 1;
@@ -108,6 +117,9 @@ createApp({
   },
 
   methods: {
+    checkCapsLock(event) {
+      this.capsLock = event.getModifierState?.("CapsLock") ?? false;
+    },
     markAllTouched() {
       for (const field of Object.keys(this.touched)) {
         this.touched[field] = true;
@@ -125,17 +137,15 @@ createApp({
       this.loading = true;
 
       try {
-        await api.register({
+        const session = await api.register({
           name: this.form.name,
           email: this.form.email,
           password: this.form.password,
           passwordConfirmation: this.form.passwordConfirmation,
         });
 
-        // Manda para o login com um recado e o e-mail ja preenchido.
-        const email = encodeURIComponent(this.form.email);
-
-        window.location.replace(`${LOGIN_PAGE}?cadastro=ok&email=${email}`);
+        saveSession(session);
+        window.location.replace(HOME_PAGE);
       } catch (error) {
         this.errorMessage = error.message;
       } finally {

@@ -1,9 +1,12 @@
+import { renderIcons } from "./icons.js";
+import { confirmDialog, setButtonLoading, skeletonRows } from "./layout.js";
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
 import { escapeHtml, mountLayout, toast } from "./layout.js";
 
 mountLayout("/categorias.html");
 
+let saving = false;
 const form = document.querySelector("[data-form]");
 const rowsContainer = document.querySelector("[data-rows]");
 const cancelButton = document.querySelector("[data-cancel]");
@@ -28,15 +31,15 @@ function renderRows(categories) {
               data-edit="${category.id}"
               data-name="${escapeHtml(category.name)}"
               class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
-            >Editar</button>
+             aria-label="Editar categoria"><i data-lucide="pencil"></i><span class="sr-only">Editar</span></button>
 
             <button
               data-delete="${category.id}"
               class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
-            >Excluir</button>
+             aria-label="Excluir categoria"><i data-lucide="trash-2"></i><span class="sr-only">Excluir</span></button>
           </td>
         </tr>
-      `
+      `,
     )
     .join("");
 }
@@ -51,6 +54,7 @@ async function loadCategories() {
   try {
     const categories = await api.listCategories();
     renderRows(categories);
+    renderIcons();
   } catch (error) {
     toast(error.message, "error");
   }
@@ -59,25 +63,26 @@ async function loadCategories() {
 cancelButton.addEventListener("click", resetForm);
 
 rowsContainer.addEventListener("click", async (event) => {
-  const editId = event.target.dataset.edit;
-  const deleteId = event.target.dataset.delete;
+  const editButton = event.target.closest("[data-edit]");
+  const editId = editButton?.dataset.edit;
+  const deleteId = event.target.closest("[data-delete]")?.dataset.delete;
 
   if (editId) {
     form.elements.id.value = editId;
-    form.elements.name.value = event.target.dataset.name;
+    form.elements.name.value = editButton.dataset.name;
     form.elements.name.focus();
     cancelButton.classList.remove("hidden");
   }
 
   if (deleteId) {
     if (
-      !window.confirm(
-        "Excluir esta categoria? Os produtos ficarao sem categoria."
-      )
-    ) {
+      !(await confirmDialog({
+        title: "Excluir categoria?",
+        message: "Os produtos ficarao sem categoria.",
+        confirmLabel: "Excluir",
+      }))
+    )
       return;
-    }
-
     try {
       await api.deleteCategory(deleteId);
 
@@ -92,6 +97,10 @@ rowsContainer.addEventListener("click", async (event) => {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (saving) return;
+  saving = true;
+  const saveButton = form.querySelector("button:not([type=button])");
+  setButtonLoading(saveButton, true);
 
   const data = new FormData(form);
   const id = data.get("id");
@@ -112,10 +121,14 @@ form.addEventListener("submit", async (event) => {
     loadCategories();
   } catch (error) {
     toast(error.message, "error");
+  } finally {
+    saving = false;
+    setButtonLoading(saveButton, false);
   }
 });
 
 // Protege a página e só carrega os dados se houver uma sessão válida.
 if (requireAuth()) {
+  rowsContainer.innerHTML = skeletonRows(3);
   loadCategories();
 }
