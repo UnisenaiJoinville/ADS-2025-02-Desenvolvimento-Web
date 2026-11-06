@@ -1,3 +1,4 @@
+import { renderIcons } from "./icons.js";
 import { api } from "./api.js";
 import { HOME_PAGE, redirectIfAuthenticated, saveSession } from "./auth.js";
 
@@ -6,6 +7,7 @@ const { createApp } = Vue;
 
 // Quem ja tem sessao nao precisa ver esta tela.
 redirectIfAuthenticated();
+renderIcons();
 
 createApp({
   // data() devolve o ESTADO da tela. Tudo que esta aqui e reativo:
@@ -17,6 +19,7 @@ createApp({
         password: "",
       },
       showPassword: false,
+      capsLockOn: false,
       loading: false,
       errorMessage: "",
       successMessage: "",
@@ -47,6 +50,9 @@ createApp({
   },
 
   methods: {
+    checkCapsLock(event) {
+      this.capsLockOn = event.getModifierState?.("CapsLock") ?? false;
+    },
     fillDemo() {
       this.form.email = "professor@estoquefacil.com";
       this.form.password = "123456";
@@ -54,6 +60,7 @@ createApp({
     },
 
     async handleSubmit() {
+      if (this.loading) return;
       this.errorMessage = "";
       this.successMessage = "";
       this.loading = true;
