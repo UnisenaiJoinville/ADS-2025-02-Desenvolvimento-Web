@@ -1,3 +1,5 @@
+import { AppError } from "../../shared/errors/app-error.js";
+import { parsePagination } from "../../shared/http/pagination.js";
 import { parseId } from "../../shared/http/parse-id.js";
 
 import * as service from "./product-service.js";
@@ -9,6 +11,7 @@ export async function index(request, response) {
     search: typeof search === "string" ? search.trim() : "",
     categoryId: categoryId ? parseId(categoryId, "categoryId") : null,
     onlyLowStock: lowStock === "true",
+    ...parsePagination(request.query),
   });
 
   response.json(products);
@@ -40,4 +43,21 @@ export async function destroy(request, response) {
   await service.deleteProduct(id);
 
   response.status(204).send();
+}
+
+export async function search(request, response) {
+  const { q, limit } = request.query;
+  const term = typeof q === "string" ? q.trim() : "";
+  const size = limit === undefined ? 8 : Number(limit);
+  if (term.length > 60)
+    throw new AppError("A busca deve ter no maximo 60 caracteres");
+  if (
+    (limit !== undefined && typeof limit !== "string") ||
+    !Number.isInteger(size) ||
+    size < 1 ||
+    size > 20
+  ) {
+    throw new AppError("O parametro limit deve ser um inteiro entre 1 e 20");
+  }
+  response.json(await service.searchProducts({ term, limit: size }));
 }
