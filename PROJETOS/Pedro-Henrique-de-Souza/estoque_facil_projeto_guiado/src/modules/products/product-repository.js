@@ -17,13 +17,22 @@ const SELECT_PRODUCT = `
     LEFT JOIN categories c ON c.id = p.category_id
 `;
 
-export async function findAll({ search = "", categoryId = null, onlyLowStock = false } = {}) {
+// % e _ sao CURINGAS do LIKE. Escapamos para que "50%" digitado
+// signifique o texto "50%" (Aula 62). Usado pela busca e pela listagem.
+function escapeLike(text) {
+  return text.replace(/[\\%_]/g, "\\$&");
+}
+
+// Monta o WHERE da listagem. Usado pelo findAll E pelo countAll:
+// as duas consultas PRECISAM filtrar exatamente igual (Aula 64).
+function buildListFilters({ search = "", categoryId = null, onlyLowStock = false }) {
   const conditions = [];
   const params = [];
 
   if (search) {
+    const pattern = `%${escapeLike(search)}%`;
     conditions.push("(p.name LIKE ? OR p.sku LIKE ?)");
-    params.push(`%${search}%`, `%${search}%`);
+    params.push(pattern, pattern);
   }
 
   if (categoryId) {
@@ -37,9 +46,49 @@ export async function findAll({ search = "", categoryId = null, onlyLowStock = f
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
+  return { where, params };
+}
+
+export async function findAll(filters = {}) {
+  const { where, params } = buildListFilters(filters);
+
   const [rows] = await pool.query(
-    `${SELECT_PRODUCT} ${where} ORDER BY p.name`,
+    // p.id no fim do ORDER BY: desempate estavel entre nomes iguais.
+    `${SELECT_PRODUCT} ${where} ORDER BY p.name, p.id LIMIT ? OFFSET ?`,
+    [...params, filters.pageSize, filters.offset]
+  );
+
+  return rows.map(toProduct);
+}
+
+export async function countAll(filters = {}) {
+  const { where, params } = buildListFilters(filters);
+
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS total FROM products p ${where}`,
     params
+  );
+
+  return Number(rows[0].total);
+}
+
+// Busca enxuta para o campo de autocomplete (Aula 62).
+// Devolve poucos produtos, so os ativos, e os mais parecidos primeiro.
+export async function search({ term, limit }) {
+  // % e _ sao CURINGAS do LIKE. Se o usuario digitar "50%", queremos
+  // procurar o texto "50%", e nao "50 seguido de qualquer coisa".
+  // A barra invertida diz ao MySQL: "o proximo caractere e literal".
+  const escaped = escapeLike(term);
+
+  const [rows] = await pool.query(
+    `${SELECT_PRODUCT}
+      WHERE p.active = TRUE
+        AND (p.name LIKE ? OR p.sku LIKE ?)
+      ORDER BY (p.sku = ?) DESC,
+               (p.name LIKE ?) DESC,
+               p.name
+      LIMIT ?`,
+    [`%${escaped}%`, `%${escaped}%`, term, `${escaped}%`, limit]
   );
 
   return rows.map(toProduct);

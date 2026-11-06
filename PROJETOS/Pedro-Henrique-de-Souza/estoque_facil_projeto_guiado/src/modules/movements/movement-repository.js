@@ -60,7 +60,7 @@ export async function createWithStockUpdate({ productId, userId, type, quantity,
     // FOR UPDATE trava a linha do produto ate o fim da transacao,
     // evitando que duas requisicoes simultaneas leiam o mesmo saldo.
     const [productRows] = await connection.query(
-      "SELECT id, name, quantity FROM products WHERE id = ? FOR UPDATE",
+      "SELECT id, name, quantity, active FROM products WHERE id = ? FOR UPDATE",
       [productId]
     );
 
@@ -69,6 +69,12 @@ export async function createWithStockUpdate({ productId, userId, type, quantity,
     if (!product) {
       await connection.rollback();
       return { status: "PRODUCT_NOT_FOUND" };
+    }
+
+    // Produto inativo e um produto "aposentado": nao entra nem sai (Aula 65).
+    if (!product.active) {
+      await connection.rollback();
+      return { status: "PRODUCT_INACTIVE" };
     }
 
     const delta = type === "IN" ? quantity : -quantity;
@@ -106,4 +112,15 @@ export async function createWithStockUpdate({ productId, userId, type, quantity,
     // SEMPRE devolve a conexao para o pool.
     connection.release();
   }
+}
+
+// Quantas movimentacoes um produto tem (Aula 65).
+// Usado para explicar POR QUE um produto nao pode ser excluido.
+export async function countByProduct(productId) {
+  const [rows] = await pool.query(
+    "SELECT COUNT(*) AS total FROM stock_movements WHERE product_id = ?",
+    [productId]
+  );
+
+  return Number(rows[0].total);
 }
