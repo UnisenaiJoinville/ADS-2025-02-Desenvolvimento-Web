@@ -17,6 +17,7 @@ export function generateToken(user) {
 export function verifyToken(token) {
   try {
     const payload = jwt.verify(token, env.auth.jwtSecret);
+
     return {
       id: Number(payload.sub),
       name: payload.name,
@@ -26,6 +27,7 @@ export function verifyToken(token) {
     if (error.name === "TokenExpiredError") {
       throw new UnauthorizedError("Sessao expirada. Faca login novamente");
     }
+
     throw new UnauthorizedError("Token invalido");
   }
 }

@@ -1,6 +1,3 @@
-// Guarda a sessao do usuario no navegador.
-// Nenhuma tela mexe no localStorage direto: todo mundo passa por aqui.
-
 const TOKEN_KEY = "estoque-facil:token";
 const USER_KEY = "estoque-facil:user";
 
@@ -9,7 +6,6 @@ export const HOME_PAGE = "/index.html";
 
 export function saveSession({ token, user }) {
   localStorage.setItem(TOKEN_KEY, token);
-  // localStorage so guarda texto: objeto precisa virar JSON.
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
@@ -25,7 +21,6 @@ export function getUser() {
   try {
     return JSON.parse(raw);
   } catch {
-    // Se alguem editou o localStorage na mao, nao quebramos a tela.
     return null;
   }
 }
@@ -39,8 +34,6 @@ export function isAuthenticated() {
   return Boolean(getToken());
 }
 
-// Porteiro das telas internas: sem token, nem carrega a pagina.
-// Devolve false para a tela poder parar o que estava fazendo.
 export function requireAuth() {
   if (isAuthenticated()) {
     return true;
@@ -51,7 +44,6 @@ export function requireAuth() {
   return false;
 }
 
-// O contrario: quem ja esta logado nao precisa ver login/cadastro.
 export function redirectIfAuthenticated() {
   if (isAuthenticated()) {
     window.location.replace(HOME_PAGE);

@@ -1,13 +1,14 @@
 import { api } from "./api.js";
 import { LOGIN_PAGE, redirectIfAuthenticated } from "./auth.js";
+import { renderIcons } from "./icons.js";
 
 const { createApp } = Vue;
 
-// A MESMA regra do back-end (src/modules/auth/user-validator.js).
-// Validar aqui e so conforto: quem manda e sempre o servidor.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 redirectIfAuthenticated();
+
+renderIcons();
 
 createApp({
   data() {
@@ -18,8 +19,6 @@ createApp({
         password: "",
         passwordConfirmation: "",
       },
-      // Guarda quais campos o usuario ja visitou, para so
-      // cobrar o preenchimento depois que ele sair do campo.
       touched: {
         name: false,
         email: false,
@@ -33,7 +32,6 @@ createApp({
   },
 
   computed: {
-    // Todos os erros do formulario, sempre atualizados.
     errors() {
       const errors = {};
       const { name, email, password, passwordConfirmation } = this.form;
@@ -65,7 +63,6 @@ createApp({
       return errors;
     },
 
-    // Os erros que a tela pode EXIBIR agora: so dos campos ja visitados.
     visibleErrors() {
       const visible = {};
 
@@ -81,7 +78,6 @@ createApp({
     strength() {
       const { password } = this.form;
 
-      // Um ponto para cada criterio atendido.
       let score = 0;
 
       if (password.length >= 6) score += 1;
@@ -102,7 +98,6 @@ createApp({
     },
 
     canSubmit() {
-      // Object.keys({}).length === 0 significa "nenhum erro".
       return Object.keys(this.errors).length === 0 && !this.loading;
     },
   },
@@ -132,7 +127,6 @@ createApp({
           passwordConfirmation: this.form.passwordConfirmation,
         });
 
-        // Manda para o login com um recado e o e-mail ja preenchido.
         const email = encodeURIComponent(this.form.email);
 
         window.location.replace(`${LOGIN_PAGE}?cadastro=ok&email=${email}`);

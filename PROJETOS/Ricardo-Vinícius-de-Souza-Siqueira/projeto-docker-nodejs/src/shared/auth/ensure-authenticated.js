@@ -1,4 +1,5 @@
 import { UnauthorizedError } from "../errors/app-error.js";
+
 import { verifyToken } from "./token.js";
 
 export function ensureAuthenticated(request, response, next) {
@@ -15,5 +16,6 @@ export function ensureAuthenticated(request, response, next) {
   }
 
   request.user = verifyToken(token);
+
   next();
 }

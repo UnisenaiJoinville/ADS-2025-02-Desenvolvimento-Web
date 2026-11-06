@@ -6,7 +6,6 @@ export function notFoundHandler(request, response) {
   });
 }
 
-// Middleware de erro do Express: precisa dos 4 parametros.
 export function errorHandler(error, request, response, next) {
   if (error instanceof AppError) {
     return response.status(error.statusCode).json({ error: error.message });

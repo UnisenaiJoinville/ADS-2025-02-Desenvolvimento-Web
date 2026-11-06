@@ -1,6 +1,14 @@
+import { api, isCanceled } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { api } from "./api.js";
-import { escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+import { renderIcons } from "./icons.js";
+import {
+  escapeHtml,
+  formatDateTime,
+  mountLayout,
+  setButtonLoading,
+  skeletonRows,
+  toast,
+} from "./layout.js";
 
 mountLayout("/movimentacoes.html");
 
@@ -8,9 +16,22 @@ const form = document.querySelector("[data-form]");
 const rowsContainer = document.querySelector("[data-rows]");
 const stockHint = document.querySelector("[data-stock-hint]");
 const filterButtons = document.querySelectorAll("[data-filter]");
+const submitButton = document.querySelector("[data-submit]");
 
-let products = [];
+const searchInput = document.querySelector("[data-product-search]");
+const optionsList = document.querySelector("[data-product-options]");
+const clearButton = document.querySelector("[data-product-clear]");
+
+const SEARCH_DELAY = 300;
+
 let activeFilter = "";
+
+let selectedProduct = null;
+let suggestions = [];
+let lastTerm = "";
+let highlightedIndex = -1;
+let searchTimer = null;
+let searchController = null;
 
 function highlightFilters() {
   filterButtons.forEach((button) => {
@@ -57,20 +78,9 @@ function renderRows(movements) {
     .join("");
 }
 
-async function loadProducts() {
-  products = await api.listProducts();
-
-  form.elements.productId.innerHTML =
-    '<option value="">Selecione...</option>' +
-    products
-      .map(
-        (product) =>
-          `<option value="${product.id}">${escapeHtml(product.name)} (${escapeHtml(product.sku)})</option>`
-      )
-      .join("");
-}
-
 async function loadMovements() {
+  rowsContainer.innerHTML = skeletonRows(5);
+
   try {
     const movements = await api.listMovements({ type: activeFilter });
     renderRows(movements);
@@ -79,16 +89,224 @@ async function loadMovements() {
   }
 }
 
-function updateStockHint() {
-  const productId = Number(form.elements.productId.value);
-  const product = products.find((item) => item.id === productId);
-
-  stockHint.textContent = product
-    ? `Estoque atual: ${product.quantity} unidade(s) - minimo ${product.minimumStock}`
-    : "";
+function openOptions() {
+  optionsList.classList.remove("hidden");
+  searchInput.setAttribute("aria-expanded", "true");
 }
 
-form.elements.productId.addEventListener("change", updateStockHint);
+function closeOptions() {
+  optionsList.classList.add("hidden");
+  searchInput.setAttribute("aria-expanded", "false");
+  searchInput.removeAttribute("aria-activedescendant");
+  highlightedIndex = -1;
+}
+
+function isOptionsOpen() {
+  return !optionsList.classList.contains("hidden");
+}
+
+function highlightMatch(text, term) {
+  const index = term ? text.toLowerCase().indexOf(term.toLowerCase()) : -1;
+
+  if (index === -1) {
+    return escapeHtml(text);
+  }
+
+  const before = text.slice(0, index);
+  const match = text.slice(index, index + term.length);
+  const after = text.slice(index + term.length);
+
+  return `${escapeHtml(before)}<mark class="rounded bg-amber-100 px-0.5 text-inherit">${escapeHtml(match)}</mark>${escapeHtml(after)}`;
+}
+
+function renderMessage(message, icon, iconClass = "") {
+  optionsList.innerHTML = `
+    <li class="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
+      <i data-lucide="${icon}" class="h-4 w-4 shrink-0 ${iconClass}"></i>
+      ${escapeHtml(message)}
+    </li>`;
+
+  renderIcons();
+  openOptions();
+}
+
+function renderSuggestions() {
+  if (suggestions.length === 0) {
+    renderMessage(
+      lastTerm ? `Nenhum produto ativo encontrado para "${lastTerm}"` : "Nenhum produto ativo cadastrado",
+      "package-search"
+    );
+    return;
+  }
+
+  optionsList.innerHTML = suggestions
+    .map((product, index) => {
+      const isHighlighted = index === highlightedIndex;
+
+      return `
+        <li
+          id="product-option-${product.id}"
+          role="option"
+          aria-selected="${isHighlighted}"
+          data-index="${index}"
+          class="flex cursor-pointer items-center justify-between gap-3 px-4 py-2.5 text-sm ${
+            isHighlighted ? "bg-slate-100" : "hover:bg-slate-50"
+          }"
+        >
+          <div class="min-w-0">
+            <p class="truncate font-medium text-slate-800">${highlightMatch(product.name, lastTerm)}</p>
+            <p class="text-xs text-slate-500">${highlightMatch(product.sku, lastTerm)}</p>
+          </div>
+          <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
+            product.lowStock ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-600"
+          }">${product.quantity} un.</span>
+        </li>
+      `;
+    })
+    .join("");
+
+  if (highlightedIndex >= 0) {
+    searchInput.setAttribute(
+      "aria-activedescendant",
+      `product-option-${suggestions[highlightedIndex].id}`
+    );
+  }
+
+  openOptions();
+}
+
+async function searchProducts(term) {
+  searchController?.abort();
+  searchController = new AbortController();
+
+  renderMessage("Buscando...", "loader-circle", "animate-spin");
+
+  try {
+    suggestions = await api.searchProducts(term, { signal: searchController.signal });
+    lastTerm = term;
+    highlightedIndex = suggestions.length > 0 ? 0 : -1;
+    renderSuggestions();
+  } catch (error) {
+    if (isCanceled(error)) return;
+
+    renderMessage(error.message, "triangle-alert");
+  }
+}
+
+function scheduleSearch() {
+  clearTimeout(searchTimer);
+
+  searchTimer = setTimeout(() => {
+    searchProducts(searchInput.value.trim());
+  }, SEARCH_DELAY);
+}
+
+function selectProduct(product) {
+  selectedProduct = product;
+  form.elements.productId.value = product.id;
+  searchInput.value = `${product.name} (${product.sku})`;
+  clearButton.classList.remove("hidden");
+
+  closeOptions();
+  updateStockHint();
+}
+
+function clearSelection() {
+  selectedProduct = null;
+  form.elements.productId.value = "";
+  updateStockHint();
+}
+
+function updateStockHint() {
+  if (!selectedProduct) {
+    stockHint.textContent = "";
+    submitButton.disabled = false;
+    return;
+  }
+
+  const quantity = Number(form.elements.quantity.value);
+  const isOut = form.elements.type.value === "OUT";
+  const exceedsStock = isOut && quantity > selectedProduct.quantity;
+
+  stockHint.className = exceedsStock
+    ? "mt-1 text-xs font-semibold text-rose-600"
+    : "mt-1 text-xs text-slate-500";
+
+  stockHint.textContent = exceedsStock
+    ? `Saida maior que o estoque: so ha ${selectedProduct.quantity} unidade(s)`
+    : `Estoque atual: ${selectedProduct.quantity} unidade(s) - minimo ${selectedProduct.minimumStock}`;
+
+  submitButton.disabled = exceedsStock;
+}
+
+searchInput.addEventListener("input", () => {
+  if (selectedProduct) clearSelection();
+
+  clearButton.classList.toggle("hidden", searchInput.value === "");
+  scheduleSearch();
+});
+
+searchInput.addEventListener("focus", () => {
+  if (!selectedProduct) scheduleSearch();
+});
+
+searchInput.addEventListener("blur", () => {
+  clearTimeout(searchTimer);
+  searchController?.abort();
+  closeOptions();
+});
+
+searchInput.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+
+    if (!isOptionsOpen()) {
+      scheduleSearch();
+      return;
+    }
+
+    if (suggestions.length === 0) return;
+
+    const step = event.key === "ArrowDown" ? 1 : -1;
+    highlightedIndex = (highlightedIndex + step + suggestions.length) % suggestions.length;
+    renderSuggestions();
+
+    optionsList.children[highlightedIndex]?.scrollIntoView({ block: "nearest" });
+    return;
+  }
+
+  if (event.key === "Enter" && isOptionsOpen() && highlightedIndex >= 0) {
+    event.preventDefault();
+    selectProduct(suggestions[highlightedIndex]);
+    return;
+  }
+
+  if (event.key === "Escape") {
+    closeOptions();
+  }
+});
+
+optionsList.addEventListener("mousedown", (event) => {
+  event.preventDefault();
+
+  const option = event.target.closest("[data-index]");
+
+  if (option) {
+    selectProduct(suggestions[Number(option.dataset.index)]);
+  }
+});
+
+clearButton.addEventListener("click", () => {
+  searchInput.value = "";
+  clearButton.classList.add("hidden");
+  clearSelection();
+  searchInput.focus();
+});
+
+form.elements.quantity.addEventListener("input", updateStockHint);
+form.querySelectorAll('input[name="type"]').forEach((radio) => {
+  radio.addEventListener("change", updateStockHint);
+});
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -101,6 +319,12 @@ filterButtons.forEach((button) => {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  if (!selectedProduct) {
+    toast("Escolha um produto da lista", "error");
+    searchInput.focus();
+    return;
+  }
+
   const data = new FormData(form);
 
   const payload = {
@@ -110,33 +334,31 @@ form.addEventListener("submit", async (event) => {
     note: data.get("note"),
   };
 
+  setButtonLoading(submitButton, true, "Registrando...");
+
   try {
     await api.createMovement(payload);
 
     toast(payload.type === "IN" ? "Entrada registrada" : "Saida registrada");
 
     form.reset();
-    stockHint.textContent = "";
+    clearButton.classList.add("hidden");
+    clearSelection();
 
-    // Recarrega os produtos para refletir o novo saldo no seletor.
-    await loadProducts();
     await loadMovements();
   } catch (error) {
     toast(error.message, "error");
+  } finally {
+    setButtonLoading(submitButton, false);
+    updateStockHint();
   }
 });
 
 async function init() {
   highlightFilters();
-
-  try {
-    await loadProducts();
-    await loadMovements();
-  } catch (error) {
-    toast(error.message, "error");
-  }
+  await loadMovements();
 }
 
 if (requireAuth()) {
-  init(); 
+  init();
 }

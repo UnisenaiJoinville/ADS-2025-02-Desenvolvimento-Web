@@ -1,154 +1,136 @@
-// Camada unica de acesso a API.
-// Centralizar o fetch evita repetir tratamento de erro em cada tela.
+import axios from "https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/esm/axios.min.js";
 
-import {
-  clearSession,
-  getRefreshToken,
-  getToken,
-  LOGIN_PAGE,
-  saveTokens,
-} from "./auth.js";
+import { clearSession, getToken, LOGIN_PAGE } from "./auth.js";
 
-const BASE_URL = "/api";
+const http = axios.create({
+  baseURL: "/api",
+  timeout: 15000,
+});
 
-// Renovacao do token de acesso (exercicio 3.2).
-// Guardamos a promessa em andamento: se 5 pedidos tomarem 401 ao mesmo
-// tempo, so UMA renovacao e feita e todos esperam por ela. Isso importa
-// porque cada refresh token so pode ser usado uma vez (rotacao).
-let refreshing = null;
-
-function refreshAccessToken() {
-  if (!refreshing) {
-    refreshing = (async () => {
-      const refreshToken = getRefreshToken();
-
-      if (!refreshToken) return false;
-
-      try {
-        const response = await fetch(`${BASE_URL}/auth/refresh`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken }),
-        });
-
-        if (!response.ok) return false;
-
-        saveTokens(await response.json());
-
-        return true;
-      } catch {
-        return false;
-      }
-    })().finally(() => {
-      refreshing = null;
-    });
-  }
-
-  return refreshing;
-}
-
-function endSession() {
-  clearSession();
-  window.location.replace(LOGIN_PAGE);
-
-  throw new Error("Sessao expirada. Faca login novamente");
-}
-
-async function request(path, options = {}, alreadyRetried = false) {
+http.interceptors.request.use((config) => {
   const token = getToken();
 
-  const headers = { "Content-Type": "application/json", ...options.headers };
-
-  // Se ha sessao, todo pedido leva o cracha junto.
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  return config;
+});
 
-  // 401 COM token = o token de acesso venceu. Tentamos renovar UMA vez
-  // e repetimos o pedido; se nao der, a sessao acabou de vez.
-  // 401 SEM token = e a propria tela de login dizendo "senha errada",
-  // e nela nao pode haver redirecionamento nenhum.
-  if (response.status === 401 && token) {
-    if (!alreadyRetried && (await refreshAccessToken())) {
-      return request(path, options, true);
+http.interceptors.response.use(
+  (response) => (response.data === "" ? null : response.data),
+
+  (error) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
     }
 
-    endSession();
+    if (error.response?.status === 401 && error.config?.headers?.Authorization) {
+      clearSession();
+      window.location.replace(LOGIN_PAGE);
+
+      return Promise.reject(toAppError(error, "Sessao expirada. Faca login novamente"));
+    }
+
+    return Promise.reject(toAppError(error));
+  }
+);
+
+function toAppError(error, fallbackMessage) {
+  let message = fallbackMessage ?? error.response?.data?.error;
+
+  if (!message && error.code === "ECONNABORTED") {
+    message = "O servidor demorou demais para responder. Tente de novo";
   }
 
-  if (response.status === 204) {
-    return null;
+  if (!message && !error.response) {
+    message = "Sem conexao com o servidor";
   }
 
-  const data = await response.json().catch(() => ({}));
+  const appError = new Error(message ?? "Erro ao comunicar com o servidor");
 
-  if (!response.ok) {
-    throw new Error(data.error ?? "Erro ao comunicar com o servidor");
-  }
+  appError.status = error.response?.status ?? 0;
 
-  return data;
+  return appError;
+}
+
+export function isCanceled(error) {
+  return axios.isCancel(error);
+}
+
+function cleanParams(filters = {}) {
+  return Object.fromEntries(
+    Object.entries(filters).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "" && value !== false
+    )
+  );
 }
 
 export const api = {
-  register: (payload) =>
-    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
-  login: (payload) =>
-    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
-  me: () => request("/auth/me"),
-  updateProfile: (payload) =>
-    request("/auth/me", { method: "PUT", body: JSON.stringify(payload) }),
-  changePassword: (payload) =>
-    request("/auth/password", { method: "PUT", body: JSON.stringify(payload) }),
-  forgotPassword: (payload) =>
-    request("/auth/forgot-password", {
-      method: "POST",
-      body: JSON.stringify(payload),
+  register: (payload) => http.post("/auth/register", payload),
+  login: (payload) => http.post("/auth/login", payload),
+  me: () => http.get("/auth/me"),
+
+  getDashboard: () => http.get("/dashboard"),
+  getDailyMovements: (days = 30) =>
+    http.get("/dashboard/movements-by-day", { params: { days } }),
+
+  listCategories: () => http.get("/categories"),
+  createCategory: (payload) => http.post("/categories", payload),
+  updateCategory: (id, payload) => http.put(`/categories/${id}`, payload),
+  deleteCategory: (id) => http.delete(`/categories/${id}`),
+
+  listProducts: (filters = {}, options = {}) =>
+    http.get("/products", { params: cleanParams(filters), signal: options.signal }),
+  searchProducts: (term, options = {}) =>
+    http.get("/products/search", {
+      params: { q: term, limit: options.limit ?? 8 },
+      signal: options.signal,
     }),
-  resetPassword: (payload) =>
-    request("/auth/reset-password", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+  getProduct: (id) => http.get(`/products/${id}`),
+  createProduct: (payload) => http.post("/products", payload),
+  updateProduct: (id, payload) => http.put(`/products/${id}`, payload),
+  deleteProduct: (id) => http.delete(`/products/${id}`),
 
-  getDashboard: () => request("/dashboard"),
+  listMovements: (filters = {}) => http.get("/movements", { params: cleanParams(filters) }),
+  createMovement: (payload) => http.post("/movements", payload),
 
-  listCategories: () => request("/categories"),
-  createCategory: (payload) =>
-    request("/categories", { method: "POST", body: JSON.stringify(payload) }),
-  updateCategory: (id, payload) =>
-    request(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteCategory: (id) => request(`/categories/${id}`, { method: "DELETE" }),
+  reportProducts: (filters) => http.get("/reports/products", { params: cleanParams(filters) }),
+  reportStockSummary: () => http.get("/reports/stock-summary"),
+  reportStockByCategory: () => http.get("/reports/stock-by-category"),
+  reportProductsWithoutMovement: () => http.get("/reports/products-without-movement"),
+  reportAbcCurve: () => http.get("/reports/abc-curve"),
+  reportMovements: (filters) => http.get("/reports/movements", { params: cleanParams(filters) }),
+  reportMovementsByUser: (filters) =>
+    http.get("/reports/movements-by-user", { params: cleanParams(filters) }),
+  reportMovementsByMonth: (filters) =>
+    http.get("/reports/movements-by-month", { params: cleanParams(filters) }),
+  reportTopProducts: (filters) =>
+    http.get("/reports/top-products", { params: cleanParams(filters) }),
+};
 
-  listProducts: (filters = {}) => {
-    const params = new URLSearchParams();
+export async function downloadReport(path, filters, fileName) {
+  let blob;
 
-    if (filters.search) params.set("search", filters.search);
-    if (filters.categoryId) params.set("categoryId", filters.categoryId);
-    if (filters.lowStock) params.set("lowStock", "true");
+  try {
+    blob = await http.get(path, {
+      params: cleanParams({ ...filters, format: "csv" }),
+      responseType: "blob",
+    });
+  } catch (error) {
+    if (error.status === 401) throw error;
 
-    const query = params.toString();
+    throw new Error("Nao foi possivel gerar o arquivo");
+  }
 
-    return request(query ? `/products?${query}` : "/products");
-  },
-  getProduct: (id) => request(`/products/${id}`),
-  createProduct: (payload) =>
-    request("/products", { method: "POST", body: JSON.stringify(payload) }),
-  updateProduct: (id, payload) =>
-    request(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteProduct: (id) => request(`/products/${id}`, { method: "DELETE" }),
+  const url = URL.createObjectURL(blob);
 
-  listMovements: (filters = {}) => {
-    const params = new URLSearchParams();
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
 
-    if (filters.productId) params.set("productId", filters.productId);
-    if (filters.type) params.set("type", filters.type);
-
-    const query = params.toString();
-
-    return request(query ? `/movements?${query}` : "/movements");
-  },
-  createMovement: (payload) =>
-    request("/movements", { method: "POST", body: JSON.stringify(payload) }),
-};
+  URL.revokeObjectURL(url);
+}

@@ -2,8 +2,6 @@ import mysql from "mysql2/promise";
 
 import { env } from "./env.js";
 
-// Um POOL mantem varias conexoes prontas e as reaproveita.
-// E a forma recomendada em aplicacoes web.
 export const pool = mysql.createPool({
   host: env.database.host,
   port: env.database.port,
@@ -17,8 +15,6 @@ export const pool = mysql.createPool({
   decimalNumbers: true,
 });
 
-// O container do MySQL demora alguns segundos para aceitar conexoes.
-// Tentamos algumas vezes antes de desistir.
 export async function connectWithRetry(attempts = 10, delayMs = 3000) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {

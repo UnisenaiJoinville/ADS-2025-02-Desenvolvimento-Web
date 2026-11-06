@@ -1,52 +1,10 @@
--- ============================================================
--- Migracao 002 - dados de apoio para o modulo de relatorios
---                (Aula 33)
--- ------------------------------------------------------------
--- POR QUE ESTA MIGRACAO EXISTE
--- Os dados que o projeto ja tinha sao "bem comportados demais":
--- todo produto tem categoria, toda categoria tem produto e todo
--- produto tem movimentacao. Com dados assim, INNER JOIN e
--- LEFT JOIN devolvem SEMPRE o mesmo resultado - e a diferenca
--- entre os dois, que e o coracao das aulas 36 e 37, fica invisivel.
---
--- Entao acrescentamos, de proposito, as excecoes:
---   1. uma categoria SEM nenhum produto  -> 'Ferramentas'
---   2. um produto SEM categoria          -> 'DIV-001' (category_id NULL)
---   3. um produto SEM movimentacao       -> 'INF-003'
---   4. um produto com estoque ZERADO     -> 'LIM-002'
---   5. um produto ABAIXO do minimo       -> 'PAP-003'
---   6. historico espalhado por 5 meses   -> relatorios por periodo
---   7. um segundo usuario                -> relatorios por usuario
---
--- COMO RODAR (com os containers no ar):
---   docker compose exec -T db mysql -uestoque -pestoque123 estoque_db \
---     < database/migrations/002-dados-relatorios.sql
---
--- Pode ser executado mais de uma vez sem duplicar nada.
---
--- PARA DESFAZER: veja database/migrations/002-rollback.sql
--- ============================================================
-
-
--- ------------------------------------------------------------
--- 1. Categoria sem nenhum produto
--- ------------------------------------------------------------
--- O name e UNIQUE, entao INSERT IGNORE basta para nao duplicar.
 INSERT IGNORE INTO categories (name) VALUES ('Ferramentas');
 
-
--- ------------------------------------------------------------
--- 2. Produtos novos
--- ------------------------------------------------------------
--- O sku e UNIQUE, entao INSERT IGNORE tambem resolve aqui.
-
--- Produto SEM categoria: category_id fica NULL de proposito.
 INSERT IGNORE INTO products
   (name, sku, category_id, cost_price, sale_price, quantity, minimum_stock, active)
 VALUES
   ('Fita adesiva transparente', 'DIV-001', NULL, 2.50, 6.90, 24, 10, TRUE);
 
--- Os demais precisam do id da categoria, que descobrimos pelo nome.
 INSERT IGNORE INTO products
   (name, sku, category_id, cost_price, sale_price, quantity, minimum_stock, active)
 SELECT d.name, d.sku, c.id, d.cost_price, d.sale_price, d.quantity, d.minimum_stock, TRUE
@@ -62,22 +20,6 @@ SELECT d.name, d.sku, c.id, d.cost_price, d.sale_price, d.quantity, d.minimum_st
        ) d
   INNER JOIN categories c ON c.name = d.category;
 
-
--- ------------------------------------------------------------
--- 3. Historico de movimentacoes espalhado por varios meses
--- ------------------------------------------------------------
--- Repare que o produto INF-003 (Cabo HDMI) NAO aparece aqui:
--- ele foi cadastrado com saldo inicial 15 e nunca foi movimentado.
--- E justamente ele que vai sumir do INNER JOIN na Aula 37.
---
--- As quantidades fecham com o saldo de cada produto:
---   DIV-001:  +40 -16              = 24
---   LIM-002:  +24 -24              =  0
---   BEB-003:  +60 -5 -10 +20 -20   = 45
---   PAP-003:  +30 -12 -11          =  7
---
--- O NOT EXISTS no final garante que rodar o script duas vezes
--- nao duplique as linhas: (produto + data) ja identifica a linha.
 INSERT INTO stock_movements (product_id, type, quantity, note, created_at)
 SELECT p.id, d.type, d.quantity, d.note, d.created_at
   FROM (
@@ -106,21 +48,11 @@ SELECT p.id, d.type, d.quantity, d.note, d.created_at
             AND m.created_at = d.created_at
        );
 
-
--- ------------------------------------------------------------
--- 4. Um segundo usuario
--- ------------------------------------------------------------
--- Senha em texto puro: "123456" (o que esta gravado e o HASH).
--- Serve para os relatorios de movimentacoes por usuario (Aula 38).
 INSERT IGNORE INTO users (name, email, password_hash) VALUES
   ('Ana Paula Souza',
    'ana@estoquefacil.com',
    '$2b$10$iQHvaAxA22NsuZUXJGsXwO5JIjSkDwbJpKm.h7s32PwLIiUrd6TJq');
 
-
--- ------------------------------------------------------------
--- 5. Conferencia
--- ------------------------------------------------------------
 SELECT 'categorias'                AS indicador, COUNT(*) AS total FROM categories
 UNION ALL
 SELECT 'produtos',                  COUNT(*) FROM products

@@ -10,8 +10,7 @@ import { ensureAuthenticated } from "../shared/auth/ensure-authenticated.js";
 
 export const routes = Router();
 
-// --- Rotas publicas -------------------------------------------------
-
+// Rotas publicas
 routes.get("/health", (request, response) => {
   response.json({
     status: "ok",
@@ -21,10 +20,7 @@ routes.get("/health", (request, response) => {
 
 routes.use("/auth", authRoutes);
 
-// --- A partir daqui, tudo exige token -------------------------------
-// Este middleware roda para TODA rota declarada abaixo dele.
-// A ordem das linhas neste arquivo e a regra de seguranca do sistema.
-
+// Todas as rotas abaixo exigem autenticacao
 routes.use(ensureAuthenticated);
 
 routes.use("/categories", categoryRoutes);
