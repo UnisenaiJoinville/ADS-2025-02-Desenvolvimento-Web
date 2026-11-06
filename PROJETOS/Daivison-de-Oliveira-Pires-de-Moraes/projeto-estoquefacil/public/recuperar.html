@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Recuperar senha | Estoque Facil</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/theme.js"></script>
+    <script defer src="/vendor/lucide.js"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div data-nav></div>
+    <main class="mx-auto max-w-4xl px-6 py-8">
+      <h1 class="mb-6 text-2xl font-bold">Recuperar senha</h1>
+      <section class="rounded-2xl border bg-white p-6">
+        <p class="mb-4 text-sm">
+          Nesta versao local, o link de recuperacao aparece no terminal onde o
+          servidor esta rodando.
+        </p>
+        <form data-forgot class="space-y-3">
+          <label for="forgot-email" class="block">E-mail da conta</label
+          ><input
+            id="forgot-email"
+            name="email"
+            type="email"
+            required
+            class="w-full rounded border px-3 py-2"
+          /><button class="rounded bg-slate-900 px-4 py-2 text-white">
+            Gerar link no terminal
+          </button>
+        </form>
+        <form data-reset class="hidden space-y-3">
+          <label for="reset-password" class="block"
+            >Nova senha (minimo 8 caracteres)</label
+          ><input
+            id="reset-password"
+            name="newPassword"
+            type="password"
+            minlength="8"
+            required
+            autocomplete="new-password"
+            class="w-full rounded border px-3 py-2"
+          /><button class="rounded bg-slate-900 px-4 py-2 text-white">
+            Definir nova senha
+          </button>
+        </form>
+        <p data-message role="status" class="mt-4"></p>
+        <a href="/login.html" class="mt-6 block underline">Voltar ao login</a>
+      </section>
+    </main>
+    <div
+      data-toast-stack
+      class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"
+    ></div>
+    <script type="module" src="/js/recuperar.js"></script>
+  </body>
+</html>

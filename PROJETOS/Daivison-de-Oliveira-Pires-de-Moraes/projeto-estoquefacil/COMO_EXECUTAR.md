@@ -1,162 +1,84 @@
-# Estoque Fácil — solução da atividade
+# Execução e manutenção local
 
-Este projeto foi montado seguindo a apostila enviada. A ideia é deixar o sistema pronto para abrir no VS Code, subir com Docker e testar no navegador.
+## Início rápido
 
-## Dependências
+**Requisitos:** Node.js 22+ e Docker Desktop aberto (Linux: Docker Engine e Compose v2).
 
-- Docker Desktop
-- Node.js 22+
-- VS Code
-
-O projeto usa Node.js + Express no backend, MySQL 8 no banco e Tailwind CSS via CDN no front-end.
-
-## Passo a passo
-
-### 1. Abrir no VS Code
-
-Extraia o ZIP e abra a pasta `estoque-facil` no VS Code.
-
-Abra **Terminal > New Terminal**.
-
-Confira:
+Windows: extraia o ZIP e abra `Iniciar-Windows.bat`. Terminal em qualquer plataforma:
 
 ```bash
-docker --version
-docker compose version
-node --version
+node scripts/setup.js
+docker compose up -d --build
 ```
 
-### 2. Configurar o ambiente
+Acesse `http://localhost:3000`. No primeiro uso, crie sua conta. A primeira será ADMIN. Não há senha padrão. O banco traz apenas exemplos de estoque.
 
-O arquivo `.env` já está incluído para facilitar a execução.
+O MySQL pode levar algum tempo para inicializar. Confira `docker compose ps`; o banco precisa aparecer `healthy`. Aguarde também o serviço API ficar saudável. Logs: `docker compose logs --tail 100 api db`.
 
-Se precisar recriá-lo:
+Se a porta 3000 estiver ocupada, altere `API_HOST_PORT=3001` em `.env` e use `http://localhost:3001`. Para conflito na porta do banco, altere `DB_HOST_PORT`. O banco e a API continuam usando internamente 3306 e 3000.
+
+## Desenvolvimento direto com Node
 
 ```bash
-cp .env.example .env
+npm ci
+npm run build
+node scripts/setup.js
 ```
 
-No PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-### 3. Subir o projeto
-
-Na raiz da pasta:
+Se estiver usando o banco do Compose, suba somente `docker compose up -d db`. No `.env`, altere `DB_HOST=127.0.0.1` e `DB_PORT=3308` (ou sua porta externa). As credenciais são as mesmas geradas pelo setup. Então:
 
 ```bash
-docker compose up --build
+npm run dev
 ```
 
-Espere o MySQL iniciar e a API conectar.
+O Compose força `DB_HOST=db` e `DB_PORT=3306` para a API dentro do container, mesmo que o `.env` tenha os valores locais. Não abra o HTML diretamente por `file://`: a interface precisa do servidor HTTP e da API.
 
-### 4. Testar a API
+Depois de modificar estilos ou bibliotecas, rode `npm run build`. O ZIP já inclui CSS e bibliotecas locais compilados, além do código para recriá-los.
 
-Abra:
-
-`http://localhost:3000/api/health`
-
-Deve aparecer algo parecido com:
-
-```json
-{"status":"ok","timestamp":"..."}
-```
-
-### 5. Abrir o sistema
-
-- `http://localhost:3000/`
-- `http://localhost:3000/produtos.html`
-- `http://localhost:3000/movimentacoes.html`
-- `http://localhost:3000/categorias.html`
-
-### 6. Conferir os containers
+## Testes reproduzíveis
 
 ```bash
-docker compose ps
+npm ci
+npm run build
+npm test
+npm run check
+docker compose -f docker-compose.test.yml up -d --wait
+npm run test:integration
+npx playwright install chromium
+npm run test:ui
 ```
 
-Para ver os logs:
+No Linux, se faltarem dependências do navegador, instale-as conforme as instruções apresentadas pelo Playwright. Os testes de integração e interface usam bancos separados terminados em `_test`, limpando **somente esses bancos**. Não aponte testes para um banco de trabalho.
+
+Configuração padrão de teste: MySQL em `127.0.0.1:3307`, usuário `root`, senha `testpass`. Variáveis opcionais: `TEST_DB_HOST`, `TEST_DB_PORT`, `TEST_DB_USER`, `TEST_DB_PASSWORD`, `TEST_DB_NAME`, `TEST_UI_DB_NAME`. O usuário de teste precisa criar/apagar bancos de teste.
 
 ```bash
-docker compose logs api --tail 50
-docker compose logs db --tail 50
+docker compose -f docker-compose.test.yml down
 ```
 
-### 7. Parar
+## Backup e restauração de ensaio
+
+Use Git Bash, WSL ou terminal Unix:
 
 ```bash
-docker compose down
+bash deploy/backup.sh
+bash deploy/restore-test.sh backups/ARQUIVO.sql.gz
 ```
 
-Para zerar o banco e executar o `init.sql` novamente:
+O segundo comando restaura exclusivamente em `restore_test`, sem substituir o banco de uso. Compare tabelas e contagens. Não foi criado agendamento nem conexão externa automaticamente. O script de disco pode ser chamado com `bash deploy/check-disk.sh /caminho/alertas.log`; uma sugestão de cron local Linux é `*/15 * * * * /caminho/check-disk.sh /caminho/alertas.log`.
+
+## Atualização de banco existente
+
+**Instalação nova:** o `init.sql` já contém tudo; não execute as migrações antigas de novo.
+
+**Banco da versão anterior:** faça backup, confira quais alterações já existem e aplique apenas as faltantes. Os scripts 001–003 do material são históricos e há arquivos de rollback que não devem ser executados automaticamente. Para um banco já concluído até a aula 45, as alterações desta entrega estão em `004-revisao-local.sql` e `005-checks.sql`. Antes dos CHECKs, corrija eventuais saldos/preços inválidos. Não recrie volumes para atualizar dados importantes.
+
+A troca das senhas em `.env` não altera automaticamente usuários de um banco já criado. Preserve o `.env` junto com seu ambiente local; ele não está incluído no ZIP.
+
+## Ensaio do perfil de produção sem domínio
 
 ```bash
-docker compose down -v
-docker compose up --build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
-## O que foi feito
-
-- API REST com Express
-- CRUD de categorias
-- CRUD de produtos
-- Entrada e saída de estoque
-- Transação no banco para manter o estoque consistente
-- Dashboard com resumo do estoque
-- Front-end com quatro telas
-- Validação de dados
-- Tratamento de erros HTTP
-- MySQL em container
-- Docker Compose para subir API e banco juntos
-
-## Problemas comuns
-
-### Porta 3308 ocupada
-
-Altere no `.env`:
-
-```text
-DB_HOST_PORT=3309
-```
-
-Depois reinicie:
-
-```bash
-docker compose down
-docker compose up --build
-```
-
-### Banco não sobe
-
-Tente:
-
-```bash
-docker compose down -v
-docker compose up --build
-```
-
-### API não responde
-
-Veja:
-
-```bash
-docker compose logs api --tail 100
-```
-
-### Checklist para apresentar a atividade
-
-- [ ] Docker funcionando
-- [ ] API respondendo
-- [ ] Dashboard abrindo
-- [ ] Categorias funcionando
-- [ ] Produtos funcionando
-- [ ] Entrada aumentando estoque
-- [ ] Saída diminuindo estoque
-- [ ] Dashboard mostrando os valores
-- [ ] Containers funcionando no Docker
-
-## Observação
-
-Os comentários do código são curtos e diretos, sem tentar deixar o projeto com cara de documentação automática. A ideia é conseguir ler, entender e explicar cada parte durante a apresentação.
+Continua em localhost. Não há Caddy, DNS nem certificados. `database/producao/001-schema.sql` contém estrutura vazia, para uma instalação manual sem estoque de exemplo; o Compose principal monta apenas `database/init.sql`.

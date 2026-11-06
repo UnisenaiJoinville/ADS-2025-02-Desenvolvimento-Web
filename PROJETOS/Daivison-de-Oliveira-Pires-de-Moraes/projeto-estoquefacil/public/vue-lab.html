@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Laboratorio Vue</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/vendor/vue.js"></script>
+  </head>
+  <body class="bg-slate-100">
+    <main id="app" v-cloak class="mx-auto max-w-xl space-y-4 p-8">
+      <h1 class="text-2xl font-bold">Laboratorio Vue</h1>
+      <p>Contador: {{count}} · Dobro: {{double}}</p>
+      <button @click="count--" class="border px-4 py-2">−</button
+      ><button @click="count++" class="border px-4 py-2">+</button
+      ><label class="block">Nome <input v-model="name" class="border" /></label>
+      <p>Ola, {{name}}!</p>
+      <label class="block"
+        >E-mail
+        <input
+          v-model="email"
+          class="border"
+          :class="email.includes('@')?'text-emerald-700':'text-rose-700'" /></label
+      ><button @click="visible=!visible" class="border px-4 py-2">
+        Mostrar / Esconder
+      </button>
+      <p v-if="visible">Criado e removido com v-if</p>
+      <p v-show="visible">Ocultado com v-show</p>
+      <form @submit.prevent="add">
+        <label>Item <input v-model="item" class="border" /></label
+        ><button :disabled="!item.trim()" class="border px-4 py-2">
+          Adicionar
+        </button>
+      </form>
+      <ul>
+        <li v-for="(value,i) in items" :key="i">
+          {{value}} <button @click="items.splice(i,1)">Remover</button>
+        </li>
+      </ul>
+      <a href="/login.html">Ir ao sistema</a>
+    </main>
+    <script src="/js/vue-lab.js"></script>
+  </body>
+</html>

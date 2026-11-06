@@ -1,3 +1,4 @@
+import { renderIcons } from "./icons.js";
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
 import {
@@ -16,11 +17,11 @@ const byCategoryContainer = document.querySelector("[data-by-category]");
 const lowStockContainer = document.querySelector("[data-low-stock]");
 const recentContainer = document.querySelector("[data-recent]");
 
-function card({ label, value, hint, accent }) {
+function card({ label, value, hint, accent, icon = "package" }) {
   return `
     <article class="rounded-2xl border border-slate-200 bg-white p-5">
       <div class="flex items-start justify-between gap-3">
-        <p class="text-sm font-medium text-slate-500">${label}</p>
+        <p class="flex items-center gap-2 text-sm font-medium text-slate-500"><i data-lucide="${icon}"></i>${label}</p>
         <span class="h-2.5 w-2.5 rounded-full ${accent}"></span>
       </div>
       <p class="mt-3 text-3xl font-bold tracking-tight text-slate-900">${value}</p>
@@ -39,23 +40,34 @@ function renderCards(totals) {
     }),
     card({
       label: "Valor de custo",
+      icon: "wallet",
       value: currency.format(totals.stockCostValue),
       hint: "Capital investido no estoque",
       accent: "bg-sky-500",
     }),
     card({
       label: "Valor de venda",
+      icon: "trending-up",
       value: currency.format(totals.stockSaleValue),
       hint: `Lucro potencial de ${currency.format(totals.potentialProfit)}`,
       accent: "bg-emerald-500",
     }),
     card({
       label: "Estoque baixo",
+      icon: "triangle-alert",
       value: totals.lowStockCount,
       hint: `${totals.outOfStockCount} produto(s) zerado(s)`,
       accent: totals.lowStockCount > 0 ? "bg-rose-500" : "bg-emerald-500",
     }),
+    card({
+      label: "Preco medio de venda",
+      value: currency.format(totals.averageSalePrice),
+      hint: "Media dos produtos ativos",
+      accent: "bg-sky-500",
+      icon: "badge-dollar-sign",
+    }),
   ].join("");
+  renderIcons();
 }
 
 function renderMonth(month) {
@@ -88,22 +100,15 @@ function renderMonth(month) {
 
 function renderByCategory(rows) {
   if (rows.length === 0) {
-    byCategoryContainer.innerHTML = emptyState(
-      "Nenhum produto cadastrado"
-    );
+    byCategoryContainer.innerHTML = emptyState("Nenhum produto cadastrado");
     return;
   }
 
-  const maxValue = Math.max(
-    ...rows.map((row) => row.costValue),
-    1
-  );
+  const maxValue = Math.max(...rows.map((row) => row.costValue), 1);
 
   byCategoryContainer.innerHTML = rows
     .map((row) => {
-      const percentage = Math.round(
-        (row.costValue / maxValue) * 100
-      );
+      const percentage = Math.round((row.costValue / maxValue) * 100);
 
       return `
         <div>
@@ -135,9 +140,7 @@ function renderByCategory(rows) {
 
 function renderLowStock(rows) {
   if (rows.length === 0) {
-    lowStockContainer.innerHTML = emptyState(
-      "Nenhum produto abaixo do minimo"
-    );
+    lowStockContainer.innerHTML = emptyState("Nenhum produto abaixo do minimo");
     return;
   }
 
@@ -165,7 +168,7 @@ function renderLowStock(rows) {
             </p>
           </div>
         </div>
-      `
+      `,
     )
     .join("");
 }
@@ -203,14 +206,14 @@ function renderRecent(rows) {
                 ? "bg-emerald-100 text-emerald-700"
                 : "bg-rose-100 text-rose-700"
             }">
-              ${isIn ? "Entrada" : "Saida"}
+              ${row.type === "ADJUST" ? "Ajuste" : isIn ? "Entrada" : "Saida"}
             </span>
           </td>
 
           <td class="py-3 pr-4 text-right font-semibold ${
             isIn ? "text-emerald-600" : "text-rose-600"
           }">
-            ${isIn ? "+" : "-"}${row.quantity}
+            ${row.type === "ADJUST" ? "=" : isIn ? "+" : "-"}${row.quantity}
           </td>
 
           <td class="py-3 text-right text-slate-500">
@@ -231,6 +234,11 @@ function emptyState(message) {
 }
 
 async function loadDashboard() {
+  cardsContainer.innerHTML = Array.from(
+    { length: 5 },
+    () =>
+      '<div class="animate-pulse rounded-2xl bg-slate-200 p-8" aria-label="Carregando indicador"><div class="h-16"></div></div>',
+  ).join("");
   try {
     const data = await api.getDashboard();
 
@@ -244,15 +252,80 @@ async function loadDashboard() {
   }
 }
 
-document
-  .querySelector("[data-reload]")
-  .addEventListener("click", () => {
-    loadDashboard();
-    toast("Dashboard atualizado", "info");
-  });
+document.querySelector("[data-reload]").addEventListener("click", () => {
+  loadDashboard();
+  loadChart();
+  toast("Dashboard atualizado", "info");
+});
 
 // Protege o dashboard.
 // Se nao houver sessao, o usuario sera enviado para o login.
 if (requireAuth()) {
   loadDashboard();
 }
+let chart = null,
+  chartSequence = 0;
+async function loadChart() {
+  const sequence = ++chartSequence;
+  try {
+    const rows = await api.getDailyMovements(
+      Number(document.querySelector("[data-chart-days]").value),
+    );
+    if (sequence !== chartSequence) return;
+    document.querySelector("[data-chart-summary]").textContent =
+      `${rows.length} dias: ${rows.reduce((s, r) => s + r.unitsIn, 0)} entradas e ${rows.reduce((s, r) => s + r.unitsOut, 0)} saidas (ajustes de inventario ficam no historico).`;
+    if (!window.Chart) return;
+    const data = {
+      labels: rows.map((r) => r.day.slice(8, 10) + "/" + r.day.slice(5, 7)),
+      datasets: [
+        {
+          label: "Entradas",
+          data: rows.map((r) => r.unitsIn),
+          backgroundColor: "#059669",
+        },
+        {
+          label: "Saidas",
+          data: rows.map((r) => r.unitsOut),
+          backgroundColor: "#e11d48",
+        },
+      ],
+    };
+    if (chart) {
+      chart.data = data;
+      chart.update();
+    } else
+      chart = new Chart(document.querySelector("[data-chart]"), {
+        type: "bar",
+        data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? false
+            : { duration: 300 },
+          scales: { y: { beginAtZero: true } },
+        },
+      });
+    applyChartTheme(true);
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+document
+  .querySelector("[data-chart-days]")
+  .addEventListener("change", loadChart);
+if (requireAuth()) loadChart();
+
+function applyChartTheme(animate = false) {
+  if (!chart) return;
+  const dark = document.documentElement.classList.contains("dark");
+  const color = dark ? "#cbd5e1" : "#475569",
+    grid = dark ? "#334155" : "#e2e8f0";
+  chart.options.plugins.legend.labels.color = color;
+  for (const axis of ["x", "y"]) {
+    chart.options.scales[axis].ticks.color = color;
+    chart.options.scales[axis].grid.color = grid;
+  }
+  chart.update(animate ? undefined : "none");
+}
+window.addEventListener("themechange", () => applyChartTheme(false));

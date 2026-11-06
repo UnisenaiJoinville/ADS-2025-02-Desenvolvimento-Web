@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Produtos | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/theme.js"></script>
+    <script defer src="/vendor/lucide.js"></script>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
     <div data-nav></div>
@@ -13,7 +15,9 @@
       <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 class="text-2xl font-bold text-slate-900">Produtos</h1>
-          <p class="text-sm text-slate-500">Cadastro completo: criar, listar, editar e excluir</p>
+          <p class="text-sm text-slate-500">
+            Cadastro completo: criar, listar, editar e excluir
+          </p>
         </div>
         <button
           data-new
@@ -27,25 +31,63 @@
       <section class="mb-4 rounded-2xl border border-slate-200 bg-white p-4">
         <form data-filters class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <input
+            aria-label="Buscar por nome ou SKU"
             name="search"
             type="search"
             placeholder="Buscar por nome ou SKU"
             class="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
           />
           <select
+            aria-label="Categoria"
             name="categoryId"
             class="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
           >
             <option value="">Todas as categorias</option>
           </select>
           <label class="flex items-center gap-2 px-1 text-sm text-slate-600">
-            <input name="lowStock" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
+            <input
+              aria-label="Apenas estoque baixo"
+              name="lowStock"
+              type="checkbox"
+              class="h-4 w-4 rounded border-slate-300"
+            />
             Apenas estoque baixo
           </label>
+          <label class="flex items-center gap-2 text-sm"
+            ><input
+              aria-label="Mostrar inativos"
+              type="checkbox"
+              name="includeInactive"
+            />Mostrar inativos</label
+          >
+          <select
+            name="orderBy"
+            aria-label="Ordenar produtos"
+            class="rounded-xl border px-3 py-2"
+          >
+            <option value="name">Nome</option>
+            <option value="quantity">Estoque</option>
+            <option value="salePrice">Preco de venda</option>
+          </select>
+          <select
+            name="direction"
+            aria-label="Direcao"
+            class="rounded-xl border px-3 py-2"
+          >
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+          <select
+            name="pageSize"
+            aria-label="Produtos por pagina"
+            class="rounded-xl border px-3 py-2"
+          >
+            <option>5</option>
+            <option selected>20</option>
+            <option>50</option>
+            <option>100</option>
+          </select>
           <div class="flex gap-2">
-            <button class="flex-1 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
-              Filtrar
-            </button>
             <button
               type="reset"
               class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
@@ -56,10 +98,14 @@
         </form>
       </section>
 
-      <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <section
+        class="overflow-hidden rounded-2xl border border-slate-200 bg-white"
+      >
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead
+              class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"
+            >
               <tr>
                 <th class="px-4 py-3">Produto</th>
                 <th class="px-4 py-3">Categoria</th>
@@ -74,32 +120,99 @@
           </table>
         </div>
       </section>
+      <div
+        class="mt-4 flex flex-wrap items-center justify-between gap-3"
+        data-pagination
+      >
+        <span data-page-info aria-live="polite"></span>
+        <div>
+          <button
+            data-prev
+            aria-label="Pagina anterior"
+            class="rounded border px-4 py-2"
+          >
+            Anterior
+          </button>
+          <span data-page-number></span>
+          <button
+            data-next
+            aria-label="Proxima pagina"
+            class="rounded border px-4 py-2"
+          >
+            Proxima
+          </button>
+        </div>
+        <button data-export class="rounded border px-4 py-2">
+          Exportar CSV
+        </button>
+      </div>
     </main>
 
     <!-- Modal de cadastro / edicao -->
-    <div data-modal class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/50 p-4">
-      <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
+    <div
+      data-modal
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-title"
+      class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/50 p-4"
+    >
+      <div
+        class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6"
+      >
         <div class="mb-4 flex items-start justify-between">
-          <h2 data-modal-title class="text-lg font-semibold text-slate-900">Novo produto</h2>
-          <button data-close class="text-2xl leading-none text-slate-400 hover:text-slate-700">&times;</button>
+          <h2
+            id="product-title"
+            data-modal-title
+            class="text-lg font-semibold text-slate-900"
+          >
+            Novo produto
+          </h2>
+          <button
+            type="button"
+            aria-label="Fechar modal"
+            data-close
+            class="text-2xl leading-none text-slate-400 hover:text-slate-700"
+          >
+            &times;
+          </button>
         </div>
 
         <form data-form class="space-y-4">
           <input type="hidden" name="id" />
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Nome</label>
+            <label
+              for="produtos-name"
+              class="mb-1 block text-sm font-medium text-slate-700"
+              >Nome</label
+            >
             <input
+              id="produtos-name"
               name="name"
               required
               class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
             />
           </div>
 
+          <div>
+            <label for="product-supplier" class="mb-1 block text-sm font-medium"
+              >Fornecedor</label
+            ><input
+              id="product-supplier"
+              name="supplier"
+              maxlength="120"
+              class="w-full rounded-xl border px-3 py-2"
+            />
+          </div>
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">SKU</label>
+              <label
+                for="produtos-sku"
+                class="mb-1 block text-sm font-medium text-slate-700"
+                >SKU</label
+              >
               <input
+                id="produtos-sku"
                 name="sku"
                 required
                 placeholder="BEB-001"
@@ -107,8 +220,14 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Categoria</label>
+              <label
+                for="produtos-categoryId"
+                class="mb-1 block text-sm font-medium text-slate-700"
+                >Categoria</label
+              >
               <select
+                aria-label="Categoria"
+                id="produtos-categoryId"
                 name="categoryId"
                 class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
               >
@@ -119,8 +238,13 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Preco de custo</label>
+              <label
+                for="produtos-costPrice"
+                class="mb-1 block text-sm font-medium text-slate-700"
+                >Preco de custo</label
+              >
               <input
+                id="produtos-costPrice"
                 name="costPrice"
                 type="number"
                 step="0.01"
@@ -131,8 +255,13 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Preco de venda</label>
+              <label
+                for="produtos-salePrice"
+                class="mb-1 block text-sm font-medium text-slate-700"
+                >Preco de venda</label
+              >
               <input
+                id="produtos-salePrice"
                 name="salePrice"
                 type="number"
                 step="0.01"
@@ -146,8 +275,13 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Quantidade inicial</label>
+              <label
+                for="produtos-quantity"
+                class="mb-1 block text-sm font-medium text-slate-700"
+                >Quantidade inicial</label
+              >
               <input
+                id="produtos-quantity"
                 name="quantity"
                 type="number"
                 min="0"
@@ -157,8 +291,13 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Estoque minimo</label>
+              <label
+                for="produtos-minimumStock"
+                class="mb-1 block text-sm font-medium text-slate-700"
+                >Estoque minimo</label
+              >
               <input
+                id="produtos-minimumStock"
                 name="minimumStock"
                 type="number"
                 min="0"
@@ -170,7 +309,12 @@
           </div>
 
           <label class="flex items-center gap-2 text-sm text-slate-700">
-            <input name="active" type="checkbox" checked class="h-4 w-4 rounded border-slate-300" />
+            <input
+              name="active"
+              type="checkbox"
+              checked
+              class="h-4 w-4 rounded border-slate-300"
+            />
             Produto ativo
           </label>
 
@@ -182,7 +326,9 @@
             >
               Cancelar
             </button>
-            <button class="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-700">
+            <button
+              class="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+            >
               Salvar
             </button>
           </div>
@@ -190,7 +336,10 @@
       </div>
     </div>
 
-    <div data-toast-stack class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+    <div
+      data-toast-stack
+      class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"
+    ></div>
 
     <script type="module" src="/js/produtos.js"></script>
   </body>

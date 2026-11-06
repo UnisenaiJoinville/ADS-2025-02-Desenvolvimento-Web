@@ -1,3 +1,5 @@
+import { cacheVersion } from "../../shared/http/cache-version.js";
+import { buildPagination } from "../../shared/http/pagination.js";
 import * as movementRepository from "./movement-report-repository.js";
 import * as productRepository from "./product-report-repository.js";
 
@@ -11,16 +13,6 @@ import * as productRepository from "./product-report-repository.js";
 
 // Todo relatorio paginado devolve o mesmo envelope. Padronizar isso
 // aqui evita que cada tela do front invente um jeito de ler a resposta.
-function buildPagination({ page, pageSize }, total) {
-  return {
-    page,
-    pageSize,
-    total,
-    // Math.ceil: 26 registros de 25 em 25 sao 2 paginas, nao 1,04.
-    totalPages: Math.max(1, Math.ceil(total / pageSize)),
-  };
-}
-
 // --- Produtos e estoque -------------------------------------------
 
 export async function getProductReport(filters) {
@@ -38,20 +30,25 @@ export async function getProductReport(filters) {
       totalUnits: Number(totals.totalUnits),
       totalCostValue: Number(totals.totalCostValue),
       totalSaleValue: Number(totals.totalSaleValue),
-      potentialProfit: Number(totals.totalSaleValue) - Number(totals.totalCostValue),
+      potentialProfit:
+        Number(totals.totalSaleValue) - Number(totals.totalCostValue),
     },
     sort: { key: filters.sort.key, direction: filters.direction.toLowerCase() },
     rows,
   };
 }
 
+let summaryCache;
 export async function getStockSummary() {
+  const version = cacheVersion();
+  if (summaryCache?.version === version && summaryCache.expires > Date.now())
+    return summaryCache.data;
   const summary = await productRepository.getStockSummary();
 
   const totalCostValue = Number(summary.totalCostValue);
   const totalSaleValue = Number(summary.totalSaleValue);
 
-  return {
+  const data = {
     productCount: Number(summary.productCount),
     categoryCount: Number(summary.categoryCount),
     totalUnits: Number(summary.totalUnits),
@@ -65,6 +62,8 @@ export async function getStockSummary() {
     outOfStockCount: Number(summary.outOfStockCount ?? 0),
     lowStockCount: Number(summary.lowStockCount ?? 0),
   };
+  summaryCache = { version, expires: Date.now() + 60000, data };
+  return data;
 }
 
 export async function getStockByCategory() {
@@ -74,7 +73,7 @@ export async function getStockByCategory() {
   // linhas, e calcular isso em JavaScript e mais simples de ler.
   const totalCostValue = rows.reduce(
     (accumulated, row) => accumulated + Number(row.totalCostValue),
-    0
+    0,
   );
 
   return rows.map((row) => ({
@@ -86,7 +85,8 @@ export async function getStockByCategory() {
     totalSaleValue: Number(row.totalSaleValue),
     sharePercent:
       totalCostValue > 0
-        ? Math.round((Number(row.totalCostValue) / totalCostValue) * 10000) / 100
+        ? Math.round((Number(row.totalCostValue) / totalCostValue) * 10000) /
+          100
         : 0,
   }));
 }
@@ -119,7 +119,12 @@ export async function getMovementReport(filters) {
 
   return {
     pagination: buildPagination(filters, total),
-    totals: { unitsIn, unitsOut, balance: unitsIn - unitsOut },
+    totals: {
+      unitsIn,
+      unitsOut,
+      unitsAdjusted: Number(totals.unitsAdjusted ?? 0),
+      balance: unitsIn - unitsOut + Number(totals.unitsAdjusted ?? 0),
+    },
     sort: { key: filters.sort.key, direction: filters.direction.toLowerCase() },
     rows,
   };
@@ -142,7 +147,8 @@ export async function getMovementsByUser(filters) {
       productCount: Number(row.productCount),
       unitsIn,
       unitsOut,
-      balance: unitsIn - unitsOut,
+      unitsAdjusted: Number(row.unitsAdjusted ?? 0),
+      balance: unitsIn - unitsOut + Number(row.unitsAdjusted ?? 0),
       firstMovementAt: row.firstMovementAt,
       lastMovementAt: row.lastMovementAt,
     };
@@ -150,7 +156,18 @@ export async function getMovementsByUser(filters) {
 }
 
 export async function getMovementsByMonth(filters) {
-  return movementRepository.getMovementsByMonth(filters);
+  return (await movementRepository.getMovementsByMonth(filters)).map((row) => ({
+    ...row,
+    movementCount: Number(row.movementCount),
+    unitsIn: Number(row.unitsIn),
+    unitsOut: Number(row.unitsOut),
+    productCount: Number(row.productCount),
+    unitsAdjusted: Number(row.unitsAdjusted ?? 0),
+    balance:
+      Number(row.unitsIn) -
+      Number(row.unitsOut) +
+      Number(row.unitsAdjusted ?? 0),
+  }));
 }
 
 export async function getTopProducts(filters, options) {

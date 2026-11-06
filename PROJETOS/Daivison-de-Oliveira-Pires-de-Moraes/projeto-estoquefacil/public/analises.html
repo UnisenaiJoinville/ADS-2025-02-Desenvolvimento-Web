@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Relatorios avancados | Estoque Facil</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/theme.js"></script>
+    <script defer src="/vendor/lucide.js"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div data-nav></div>
+    <main class="mx-auto max-w-4xl px-6 py-8">
+      <h1 class="mb-6 text-2xl font-bold">Relatorios avancados</h1>
+      <section class="rounded-2xl border bg-white p-6">
+        <form data-analysis class="flex flex-wrap gap-3">
+          <label
+            >Relatorio<select
+              name="report"
+              class="block rounded border px-3 py-2"
+            >
+              <option value="stagnant-products">
+                Parados ha mais de 90 dias
+              </option>
+              <option value="turnover-by-category">Giro por categoria</option>
+              <option value="stockout-forecast">Previsao de ruptura</option>
+              <option value="compare">Comparar meses</option>
+            </select></label
+          ><label
+            >De<input
+              aria-label="Data inicial"
+              name="startDate"
+              type="date"
+              class="block rounded border px-2 py-2" /></label
+          ><label
+            >Ate<input
+              aria-label="Data final"
+              name="endDate"
+              type="date"
+              class="block rounded border px-2 py-2" /></label
+          ><label
+            >Mes A<input
+              name="periodA"
+              type="month"
+              value="2026-05"
+              class="block rounded border px-2 py-2" /></label
+          ><label
+            >Mes B<input
+              name="periodB"
+              type="month"
+              value="2026-06"
+              class="block rounded border px-2 py-2" /></label
+          ><button class="rounded bg-slate-900 px-4 py-2 text-white">
+            Consultar
+          </button>
+        </form>
+        <p role="status" data-analysis-status class="mt-3 text-sm"></p>
+        <div data-analysis-result class="mt-6 overflow-x-auto"></div>
+        <button data-user-csv class="mt-6 rounded border px-4 py-2">
+          Exportar movimentacoes por usuario (CSV)
+        </button>
+        <p class="mt-4 text-sm">
+          Sem saidas nos ultimos 60 dias, a previsao de ruptura fica sem
+          estimativa. Ajustes sao contagens de inventario e nao vendas.
+        </p>
+      </section>
+    </main>
+    <div
+      data-toast-stack
+      class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"
+    ></div>
+    <script type="module" src="/js/analises.js"></script>
+  </body>
+</html>

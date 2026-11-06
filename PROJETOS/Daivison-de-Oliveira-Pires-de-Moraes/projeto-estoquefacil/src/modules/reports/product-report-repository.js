@@ -42,6 +42,14 @@ function buildProductWhere(filters) {
   const conditions = [];
   const params = [];
 
+  if (filters.minPrice != null) {
+    conditions.push("p.sale_price >= ?");
+    params.push(filters.minPrice);
+  }
+  if (filters.maxPrice != null) {
+    conditions.push("p.sale_price <= ?");
+    params.push(filters.maxPrice);
+  }
   if (filters.onlyActive) {
     conditions.push("p.active = TRUE");
   }
@@ -94,7 +102,7 @@ export async function findProducts(filters) {
      ${where}
      ORDER BY ${filters.sort.column} ${filters.direction}, p.id
      LIMIT ? OFFSET ?`,
-    [...params, filters.pageSize, filters.offset]
+    [...params, filters.pageSize, filters.offset],
   );
 
   return rows.map(toProductRow);
@@ -109,7 +117,7 @@ export async function countProducts(filters) {
     `SELECT COUNT(*) AS total
      ${FROM_PRODUCT}
      ${where}`,
-    params
+    params,
   );
 
   return Number(rows[0].total);
@@ -125,7 +133,7 @@ export async function sumProducts(filters) {
             COALESCE(SUM(p.quantity * p.sale_price), 0)  AS totalSaleValue
      ${FROM_PRODUCT}
      ${where}`,
-    params
+    params,
   );
 
   return rows[0];
@@ -158,7 +166,7 @@ export async function getStockSummary() {
             SUM(CASE WHEN p.quantity > 0 AND p.quantity <= p.minimum_stock
                      THEN 1 ELSE 0 END)                                            AS lowStockCount
        FROM products p
-      WHERE p.active = TRUE`
+      WHERE p.active = TRUE`,
   );
 
   return rows[0];
@@ -197,7 +205,7 @@ export async function getStockByCategory() {
         AND p.active = TRUE
      HAVING productCount > 0
 
-      ORDER BY totalCostValue DESC, categoryName`
+      ORDER BY totalCostValue DESC, categoryName`,
   );
 
   return rows;
@@ -218,7 +226,7 @@ export async function findProductsWithoutMovement() {
        LEFT JOIN stock_movements m ON m.product_id = p.id
       WHERE m.id IS NULL
         AND p.active = TRUE
-      ORDER BY p.created_at DESC, p.name`
+      ORDER BY p.created_at DESC, p.name`,
   );
 
   return rows;
@@ -228,34 +236,19 @@ export async function findProductsWithoutMovement() {
 // estoque. A subquery existe porque precisamos do valor de CADA
 // produto e do TOTAL geral na mesma linha - e um nao cabe dentro
 // do outro sem um nivel a mais de consulta.
-export async function getAbcCurve() {
-  const [rows] = await pool.query(
-    `SELECT base.id,
-            base.name,
-            base.sku,
-            base.categoryName,
-            base.stockCostValue,
-            ROUND(100 * base.stockCostValue / NULLIF(base.totalValue, 0), 2) AS sharePercent,
-            CASE
-              WHEN 100 * base.stockCostValue / NULLIF(base.totalValue, 0) >= 20 THEN 'A'
-              WHEN 100 * base.stockCostValue / NULLIF(base.totalValue, 0) >=  5 THEN 'B'
-              ELSE 'C'
-            END AS abcClass
-       FROM (
-             SELECT p.id,
-                    p.name,
-                    p.sku,
-                    COALESCE(c.name, 'Sem categoria') AS categoryName,
-                    (p.quantity * p.cost_price)       AS stockCostValue,
-                    (SELECT COALESCE(SUM(p2.quantity * p2.cost_price), 0)
-                       FROM products p2
-                      WHERE p2.active = TRUE)         AS totalValue
-               FROM products p
-               LEFT JOIN categories c ON c.id = p.category_id
-              WHERE p.active = TRUE
-            ) AS base
-      ORDER BY base.stockCostValue DESC, base.name`
-  );
 
+export async function getAbcCurve() {
+  const [rows] = await pool.query(`WITH base AS (
+    SELECT p.id,p.name,p.sku,COALESCE(c.name,'Sem categoria') AS categoryName,p.quantity*p.cost_price AS stockCostValue
+    FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.active=TRUE
+  ), ranked AS (
+    SELECT base.*,SUM(stockCostValue) OVER() AS totalValue,
+    SUM(stockCostValue) OVER(ORDER BY stockCostValue DESC,id ROWS UNBOUNDED PRECEDING) AS accumulatedValue FROM base
+  ) SELECT *,COALESCE(ROUND(100*stockCostValue/NULLIF(totalValue,0),2),0) AS sharePercent,
+    COALESCE(ROUND(100*accumulatedValue/NULLIF(totalValue,0),2),0) AS accumulatedPercent,
+    CASE WHEN totalValue=0 OR stockCostValue=0 THEN 'C'
+      WHEN 100*(accumulatedValue-stockCostValue)/totalValue < 80 THEN 'A'
+      WHEN 100*(accumulatedValue-stockCostValue)/totalValue < 95 THEN 'B' ELSE 'C' END AS abcClass
+    FROM ranked ORDER BY stockCostValue DESC,id`);
   return rows;
 }

@@ -3,13 +3,14 @@ import { pool } from "../../config/database.js";
 export async function getSummary() {
   const [rows] = await pool.query(
     `SELECT COUNT(*)                                   AS totalProducts,
+            COALESCE(AVG(sale_price),0) AS averageSalePrice,
             COALESCE(SUM(quantity), 0)                 AS totalUnits,
             COALESCE(SUM(quantity * cost_price), 0)    AS stockCostValue,
             COALESCE(SUM(quantity * sale_price), 0)    AS stockSaleValue,
             SUM(CASE WHEN quantity <= minimum_stock THEN 1 ELSE 0 END) AS lowStockCount,
             SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END)              AS outOfStockCount
        FROM products
-      WHERE active = TRUE`
+      WHERE active = TRUE`,
   );
 
   return rows[0];
@@ -21,7 +22,7 @@ export async function getMonthTotals() {
             COALESCE(SUM(CASE WHEN type = 'OUT' THEN quantity ELSE 0 END), 0) AS unitsOut
        FROM stock_movements
       WHERE YEAR(created_at)  = YEAR(CURRENT_DATE())
-        AND MONTH(created_at) = MONTH(CURRENT_DATE())`
+        AND MONTH(created_at) = MONTH(CURRENT_DATE())`,
   );
 
   return rows[0];
@@ -37,7 +38,7 @@ export async function getStockByCategory() {
        LEFT JOIN categories c ON c.id = p.category_id
       WHERE p.active = TRUE
       GROUP BY c.id, c.name
-      ORDER BY costValue DESC`
+      ORDER BY costValue DESC`,
   );
 
   return rows;
@@ -55,7 +56,7 @@ export async function getLowStockProducts(limit = 5) {
         AND quantity <= minimum_stock
       ORDER BY (quantity - minimum_stock) ASC, name
       LIMIT ?`,
-    [limit]
+    [limit],
   );
 
   return rows;
@@ -73,8 +74,23 @@ export async function getRecentMovements(limit = 8) {
        INNER JOIN products p ON p.id = m.product_id
       ORDER BY m.created_at DESC, m.id DESC
       LIMIT ?`,
-    [limit]
+    [limit],
   );
 
+  return rows;
+}
+
+export async function getDailyMovements(days) {
+  const [rows] = await pool.query(
+    `WITH RECURSIVE calendar AS (
+    SELECT DATE_SUB(CURRENT_DATE(), INTERVAL ? DAY) AS day
+    UNION ALL SELECT DATE_ADD(day, INTERVAL 1 DAY) FROM calendar WHERE day < CURRENT_DATE()
+  ) SELECT DATE_FORMAT(c.day,'%Y-%m-%d') AS day,
+    COALESCE(SUM(CASE WHEN m.type = 'IN' THEN m.quantity ELSE 0 END),0) AS unitsIn,
+    COALESCE(SUM(CASE WHEN m.type = 'OUT' THEN m.quantity ELSE 0 END),0) AS unitsOut
+    FROM calendar c LEFT JOIN stock_movements m ON m.created_at >= c.day AND m.created_at < DATE_ADD(c.day, INTERVAL 1 DAY)
+    GROUP BY c.day ORDER BY c.day`,
+    [days - 1],
+  );
   return rows;
 }

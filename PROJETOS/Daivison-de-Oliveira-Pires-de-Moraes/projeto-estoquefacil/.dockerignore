@@ -1,6 +1,11 @@
 node_modules
-npm-debug.log
 .env
+.env.*
+!.env.example
+!.env.production.example
 .git
-.gitignore
-apostilas
+apostila-passo-a-passo
+tests
+test-results
+backups
+*.zip

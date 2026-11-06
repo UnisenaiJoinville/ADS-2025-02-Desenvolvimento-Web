@@ -5,16 +5,12 @@ import { categoryRoutes } from "../modules/categories/category-routes.js";
 import { dashboardRoutes } from "../modules/dashboard/dashboard-routes.js";
 import { movementRoutes } from "../modules/movements/movement-routes.js";
 import { productRoutes } from "../modules/products/product-routes.js";
-<<<<<<< HEAD
 import { reportRoutes } from "../modules/reports/report-routes.js";
-=======
->>>>>>> 2ba8bbc3c6315d7df1eb2b70172e01dc4cc591f3
 import { ensureAuthenticated } from "../shared/auth/ensure-authenticated.js";
 
 export const routes = Router();
 
-// --- Rotas publicas -------------------------------------------------
-
+// Rotas publicas
 routes.get("/health", (request, response) => {
   response.json({
     status: "ok",
@@ -24,18 +20,11 @@ routes.get("/health", (request, response) => {
 
 routes.use("/auth", authRoutes);
 
-// --- A partir daqui, tudo exige token -------------------------------
-// Este middleware roda para TODA rota declarada abaixo dele.
-// A ordem das linhas neste arquivo e a regra de seguranca do sistema.
-
+// Todas as rotas abaixo exigem autenticacao
 routes.use(ensureAuthenticated);
 
 routes.use("/categories", categoryRoutes);
 routes.use("/products", productRoutes);
 routes.use("/movements", movementRoutes);
-<<<<<<< HEAD
 routes.use("/dashboard", dashboardRoutes);
 routes.use("/reports", reportRoutes);
-=======
-routes.use("/dashboard", dashboardRoutes);
->>>>>>> 2ba8bbc3c6315d7df1eb2b70172e01dc4cc591f3

@@ -1,4 +1,9 @@
-import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
+import { buildPagination } from "../../shared/http/pagination.js";
+import {
+  AppError,
+  ConflictError,
+  NotFoundError,
+} from "../../shared/errors/app-error.js";
 import * as categoryRepository from "../categories/category-repository.js";
 
 import * as repository from "./product-repository.js";
@@ -17,7 +22,18 @@ async function ensureCategoryExists(categoryId) {
 }
 
 export async function listProducts(filters) {
-  return repository.findAll(filters);
+  const [rows, total] = await Promise.all([
+    repository.findAll(filters),
+    repository.countAll(filters),
+  ]);
+  return { pagination: buildPagination(filters, total), rows };
+}
+export async function searchProducts(filters) {
+  return repository.search(filters);
+}
+export async function setProductActive(id, active) {
+  await getProduct(id);
+  return repository.setActive(id, active);
 }
 
 export async function getProduct(id) {
@@ -45,9 +61,14 @@ export async function createProduct(input) {
 }
 
 export async function updateProduct(id, input) {
-  await getProduct(id);
+  const current = await getProduct(id);
 
   const data = validateProductInput(input);
+
+  if (data.quantity !== current.quantity)
+    throw new ConflictError(
+      "Altere o saldo pela tela Movimentacoes usando Ajuste",
+    );
 
   const existing = await repository.findBySku(data.sku);
 
@@ -63,5 +84,9 @@ export async function updateProduct(id, input) {
 export async function deleteProduct(id) {
   await getProduct(id);
 
+  if (await repository.countMovements(id))
+    throw new ConflictError(
+      "Produto com historico nao pode ser excluido. Inative-o para preservar as movimentacoes.",
+    );
   await repository.remove(id);
 }
