@@ -1,50 +1,16 @@
 import * as movementRepository from "./movement-report-repository.js";
 import * as productRepository from "./product-report-repository.js";
 
-// ------------------------------------------------------------------
-// O service dos relatorios tem duas tarefas:
-//   1. orquestrar as consultas (varias delas rodam em paralelo);
-//   2. montar o envelope que o front recebe, sempre no mesmo formato.
-//
-// Ele continua sem saber o que e request, response ou SQL.
-// ------------------------------------------------------------------
-
-// Todo relatorio paginado devolve o mesmo envelope. Padronizar isso
-// aqui evita que cada tela do front invente um jeito de ler a resposta.
 function buildPagination({ page, pageSize }, total) {
   return {
     page,
     pageSize,
     total,
-    // Math.ceil: 26 registros de 25 em 25 sao 2 paginas, nao 1,04.
     totalPages: Math.max(1, Math.ceil(total / pageSize)),
   };
 }
 
-// Consulta em lotes para exportar toda a selecao, sem repetir os totais
-// a cada pagina. O limite por consulta nao limita o arquivo final.
-export async function getProductExportRows(filters) {
-  return collectExportRows(productRepository.findProducts, filters);
-}
-
-export async function getMovementExportRows(filters) {
-  return collectExportRows(movementRepository.findMovements, filters);
-}
-
-async function collectExportRows(findRows, filters) {
-  const pageSize = 200;
-  const rows = [];
-
-  for (let offset = 0; ; offset += pageSize) {
-    const batch = await findRows({ ...filters, pageSize, offset });
-    rows.push(...batch);
-    if (batch.length < pageSize) return rows;
-  }
-}
-
 export async function getProductReport(filters) {
-  // As tres consultas sao independentes entre si: nenhuma precisa
-  // do resultado da outra. Promise.all roda as tres ao mesmo tempo.
   const [rows, total, totals] = await Promise.all([
     productRepository.findProducts(filters),
     productRepository.countProducts(filters),
@@ -57,7 +23,7 @@ export async function getProductReport(filters) {
       totalUnits: Number(totals.totalUnits),
       totalCostValue: Number(totals.totalCostValue),
       totalSaleValue: Number(totals.totalSaleValue),
-      potentialProfit: Math.round((Number(totals.totalSaleValue) - Number(totals.totalCostValue)) * 100) / 100,
+      potentialProfit: Number(totals.totalSaleValue) - Number(totals.totalCostValue),
     },
     sort: { key: filters.sort.key, direction: filters.direction.toLowerCase() },
     rows,
@@ -76,8 +42,7 @@ export async function getStockSummary() {
     totalUnits: Number(summary.totalUnits),
     totalCostValue,
     totalSaleValue,
-    potentialProfit: Math.round((totalSaleValue - totalCostValue) * 100) / 100,
-    // AVG devolve muitas casas decimais. Dinheiro mostra duas.
+    potentialProfit: totalSaleValue - totalCostValue,
     averageCostPrice: Math.round(Number(summary.averageCostPrice) * 100) / 100,
     minSalePrice: Number(summary.minSalePrice),
     maxSalePrice: Number(summary.maxSalePrice),
@@ -89,8 +54,6 @@ export async function getStockSummary() {
 export async function getStockByCategory() {
   const rows = await productRepository.getStockByCategory();
 
-  // O percentual nao vem do SQL: ele depende do total de TODAS as
-  // linhas, e calcular isso em JavaScript e mais simples de ler.
   const totalCostValue = rows.reduce(
     (accumulated, row) => accumulated + Number(row.totalCostValue),
     0
@@ -108,6 +71,24 @@ export async function getStockByCategory() {
         ? Math.round((Number(row.totalCostValue) / totalCostValue) * 10000) / 100
         : 0,
   }));
+}
+
+export async function getMovementReport(filters) {
+  const [rows, total, totals] = await Promise.all([
+    movementRepository.findMovements(filters),
+    movementRepository.countMovements(filters),
+    movementRepository.sumMovements(filters),
+  ]);
+
+  const unitsIn = Number(totals.unitsIn);
+  const unitsOut = Number(totals.unitsOut);
+
+  return {
+    pagination: buildPagination(filters, total),
+    totals: { unitsIn, unitsOut, balance: unitsIn - unitsOut },
+    sort: { key: filters.sort.key, direction: filters.direction.toLowerCase() },
+    rows,
+  };
 }
 
 export async function getProductsWithoutMovement() {
@@ -149,24 +130,6 @@ export async function getTopProducts(filters, options) {
     unitsOut: Number(row.unitsOut),
     unitsMoved: Number(row.unitsMoved),
   }));
-}
-
-export async function getMovementReport(filters) {
-  const [rows, total, totals] = await Promise.all([
-    movementRepository.findMovements(filters),
-    movementRepository.countMovements(filters),
-    movementRepository.sumMovements(filters),
-  ]);
-
-  const unitsIn = Number(totals.unitsIn);
-  const unitsOut = Number(totals.unitsOut);
-
-  return {
-    pagination: buildPagination(filters, total),
-    totals: { unitsIn, unitsOut, balance: unitsIn - unitsOut },
-    sort: { key: filters.sort.key, direction: filters.direction.toLowerCase() },
-    rows,
-  };
 }
 
 export async function getMovementsByMonth(filters) {

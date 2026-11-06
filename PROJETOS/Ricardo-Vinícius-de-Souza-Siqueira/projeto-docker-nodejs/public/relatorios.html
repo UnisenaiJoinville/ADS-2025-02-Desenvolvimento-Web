@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatorios | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
       [v-cloak] {
@@ -13,8 +14,6 @@
     </style>
   </head>
   <body class="min-h-screen bg-slate-100 text-slate-900">
-    <!-- O menu continua sendo montado pelo layout.js, fora do Vue.
-         O Vue so controla o que esta dentro de #app. -->
     <div data-nav></div>
 
     <main id="app" v-cloak class="mx-auto max-w-7xl px-6 py-8">
@@ -26,13 +25,6 @@
       <!-- ============================================================
            INDICADORES GERAIS
            ============================================================ -->
-      <p v-if="loading.summary" class="mb-4 text-sm text-slate-500">Carregando indicadores...</p>
-      <p v-else-if="errors.summary" role="alert" class="mb-4 text-sm text-rose-700">
-        {{ errors.summary }} <button @click="loadSummary" class="underline">Tentar novamente</button>
-      </p>
-      <p v-if="errors.categories" role="alert" class="mb-4 text-sm text-rose-700">
-        {{ errors.categories }} <button @click="loadCategories" class="underline">Recarregar categorias</button>
-      </p>
       <section class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article
           v-for="card in summaryCards"
@@ -73,7 +65,6 @@
           <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <input
               v-model.trim="productFilters.search"
-              aria-label="Buscar produtos por nome ou SKU"
               type="search"
               placeholder="Buscar por nome ou SKU"
               class="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
@@ -112,7 +103,7 @@
                 Limpar filtros
               </button>
               <button
-                :disabled="loading.products || productReport.rows.length === 0"
+                :disabled="productReport.rows.length === 0"
                 class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                 @click="exportProducts"
               >
@@ -194,12 +185,7 @@
             <p class="text-xs text-slate-500">
               Mostrando {{ productRangeLabel }} de {{ productReport.pagination.total }} registro(s)
             </p>
-            <div class="flex flex-wrap items-center gap-2">
-              <label class="text-xs text-slate-500">Por pagina
-                <select v-model.number="productFilters.pageSize" class="ml-1 rounded-lg border border-slate-200 px-2 py-1">
-                  <option :value="5">5</option><option :value="10">10</option><option :value="25">25</option><option :value="50">50</option>
-                </select>
-              </label>
+            <div class="flex items-center gap-2">
               <button
                 :disabled="productFilters.page <= 1"
                 class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
@@ -269,7 +255,7 @@
                 Limpar
               </button>
               <button
-                :disabled="loading.movements || movementReport.rows.length === 0"
+                :disabled="movementReport.rows.length === 0"
                 class="flex-1 rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                 @click="exportMovements"
               >
@@ -309,13 +295,12 @@
             <table class="w-full text-left text-sm">
               <thead class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th v-for="column in movementColumns" :key="column.key" class="px-4 py-3"
-                    :class="column.align === 'right' ? 'text-right' : ''">
-                    <button @click="sortMovements(column.key)" class="hover:text-slate-900">
-                      {{ column.label }}
-                      <span v-if="movementFilters.sort === column.key">{{ movementFilters.direction === 'asc' ? '?' : '?' }}</span>
-                    </button>
-                  </th>
+                  <th class="px-4 py-3">Data</th>
+                  <th class="px-4 py-3">Produto</th>
+                  <th class="px-4 py-3">Categoria</th>
+                  <th class="px-4 py-3">Tipo</th>
+                  <th class="px-4 py-3 text-right">Qtd.</th>
+                  <th class="px-4 py-3">Responsavel</th>
                   <th class="px-4 py-3">Observacao</th>
                 </tr>
               </thead>
@@ -357,12 +342,7 @@
             <p class="text-xs text-slate-500">
               {{ movementReport.pagination.total }} movimentacao(oes) no filtro
             </p>
-            <div class="flex flex-wrap items-center gap-2">
-              <label class="text-xs text-slate-500">Por pagina
-                <select v-model.number="movementFilters.pageSize" class="ml-1 rounded-lg border border-slate-200 px-2 py-1">
-                  <option :value="5">5</option><option :value="10">10</option><option :value="25">25</option><option :value="50">50</option>
-                </select>
-              </label>
+            <div class="flex items-center gap-2">
               <button
                 :disabled="movementFilters.page <= 1"
                 class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
@@ -394,9 +374,6 @@
           <p class="mb-4 text-sm text-slate-500">Inclui categorias vazias e produtos sem categoria</p>
 
           <p v-if="loading.summaries" class="py-8 text-center text-sm text-slate-500">Carregando...</p>
-          <p v-else-if="errors.summaries" role="alert" class="py-4 text-sm text-rose-700">
-            {{ errors.summaries }} <button @click="loadSummaries" class="underline">Tentar novamente</button>
-          </p>
           <p v-else-if="stockByCategory.length === 0" class="py-8 text-center text-sm text-slate-400">
             Nenhuma categoria cadastrada.
           </p>
@@ -424,10 +401,6 @@
           <p class="mb-4 text-sm text-slate-500">Quem registrou o que, desde o inicio</p>
 
           <p v-if="loading.summaries" class="py-8 text-center text-sm text-slate-500">Carregando...</p>
-          <p v-else-if="errors.summaries" role="alert" class="py-4 text-sm text-rose-700">
-            {{ errors.summaries }} <button @click="loadSummaries" class="underline">Tentar novamente</button>
-          </p>
-          <p v-else-if="movementsByUser.length === 0" class="py-8 text-center text-sm text-slate-400">Ainda nao ha movimentacoes.</p>
           <div v-else class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
@@ -457,9 +430,6 @@
           <p class="mb-4 text-sm text-slate-500">Evolucao do estoque ao longo do tempo</p>
 
           <p v-if="loading.summaries" class="py-8 text-center text-sm text-slate-500">Carregando...</p>
-          <p v-else-if="errors.summaries" role="alert" class="py-4 text-sm text-rose-700">
-            {{ errors.summaries }} <button @click="loadSummaries" class="underline">Tentar novamente</button>
-          </p>
           <p v-else-if="movementsByMonth.length === 0" class="py-8 text-center text-sm text-slate-400">
             Ainda nao ha movimentacoes.
           </p>
@@ -502,9 +472,6 @@
           <p class="mb-4 text-sm text-slate-500">Soma de entradas e saidas</p>
 
           <p v-if="loading.analysis" class="py-8 text-center text-sm text-slate-500">Carregando...</p>
-          <p v-else-if="errors.analysis" role="alert" class="py-4 text-sm text-rose-700">
-            {{ errors.analysis }} <button @click="loadAnalysis" class="underline">Tentar novamente</button>
-          </p>
           <ol v-else-if="topProducts.length > 0" class="space-y-2">
             <li
               v-for="(row, index) in topProducts"
@@ -534,9 +501,6 @@
           <p class="mb-4 text-sm text-slate-500">Nunca tiveram nenhuma movimentacao</p>
 
           <p v-if="loading.analysis" class="py-8 text-center text-sm text-slate-500">Carregando...</p>
-          <p v-else-if="errors.analysis" role="alert" class="py-4 text-sm text-rose-700">
-            {{ errors.analysis }} <button @click="loadAnalysis" class="underline">Tentar novamente</button>
-          </p>
           <div v-else-if="productsWithoutMovement.length > 0" class="space-y-2">
             <div
               v-for="row in productsWithoutMovement"
@@ -558,14 +522,10 @@
         <div class="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-2">
           <h2 class="text-lg font-semibold">Curva ABC</h2>
           <p class="mb-4 text-sm text-slate-500">
-            Participacao individual no valor do estoque: A a partir de 20%, B a partir de 5%, C abaixo de 5%
+            Participacao de cada produto no valor total do estoque
           </p>
 
           <p v-if="loading.analysis" class="py-8 text-center text-sm text-slate-500">Carregando...</p>
-          <p v-else-if="errors.analysis" role="alert" class="py-4 text-sm text-rose-700">
-            {{ errors.analysis }} <button @click="loadAnalysis" class="underline">Tentar novamente</button>
-          </p>
-          <p v-else-if="abcCurve.length === 0" class="py-8 text-center text-sm text-slate-400">Nenhum produto ativo para analisar.</p>
           <div v-else class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">

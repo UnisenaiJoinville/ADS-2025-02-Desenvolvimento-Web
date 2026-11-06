@@ -4,12 +4,8 @@ import { currency, formatDateTime, mountLayout } from "./layout.js";
 
 const { createApp } = Vue;
 
-// Menu e porteiro continuam iguais aos das outras telas: o Vue
-// cuida so do conteudo, nao do layout em volta.
 mountLayout("/relatorios.html");
 
-// Quanto tempo esperar depois da ultima tecla antes de consultar
-// a API. Sem isso, "caneta" dispararia 6 requisicoes.
 const SEARCH_DEBOUNCE_MS = 400;
 
 const EMPTY_PRODUCT_REPORT = {
@@ -52,10 +48,6 @@ function defaultMovementFilters() {
 
 if (requireAuth()) {
   createApp({
-    beforeUnmount() {
-      clearTimeout(this.searchTimer);
-    },
-
     data() {
       return {
         activeTab: "products",
@@ -68,8 +60,6 @@ if (requireAuth()) {
 
         categories: [],
         summary: null,
-        loaded: { movements: false, summaries: false, analysis: false },
-        requestIds: { products: 0, movements: 0 },
 
         productFilters: defaultProductFilters(),
         productReport: EMPTY_PRODUCT_REPORT,
@@ -84,14 +74,6 @@ if (requireAuth()) {
           { key: "stockValue", label: "Valor", align: "right" },
         ],
 
-        movementColumns: [
-          { key: "date", label: "Data" },
-          { key: "product", label: "Produto" },
-          { key: "category", label: "Categoria" },
-          { key: "type", label: "Tipo" },
-          { key: "quantity", label: "Qtd.", align: "right" },
-          { key: "user", label: "Responsavel" },
-        ],
         movementFilters: defaultMovementFilters(),
         movementReport: EMPTY_MOVEMENT_REPORT,
 
@@ -103,10 +85,9 @@ if (requireAuth()) {
         productsWithoutMovement: [],
         abcCurve: [],
 
-        loading: { summary: true, categories: true, products: true, movements: false, summaries: false, analysis: false },
-        errors: { summary: "", categories: "", products: "", movements: "", summaries: "", analysis: "" },
+        loading: { products: false, movements: false, summaries: false, analysis: false },
+        errors: { products: "", movements: "", summaries: "", analysis: "" },
 
-        // Guarda o timer do debounce entre uma tecla e outra.
         searchTimer: null,
       };
     },
@@ -143,8 +124,6 @@ if (requireAuth()) {
         ];
       },
 
-      // Converte o estado da tela no objeto que a API espera.
-      // Os campos vazios somem no buildQuery do api.js.
       productQuery() {
         return {
           search: this.productFilters.search,
@@ -193,7 +172,7 @@ if (requireAuth()) {
 
       productRangeLabel() {
         const { page, pageSize, total } = this.productReport.pagination;
-        const first = total === 0 ? 0 : Math.min((page - 1) * pageSize + 1, total);
+        const first = (page - 1) * pageSize + 1;
         const last = Math.min(page * pageSize, total);
 
         return `${first}-${last}`;
@@ -201,14 +180,6 @@ if (requireAuth()) {
     },
 
     watch: {
-      "productFilters.pageSize"() {
-        this.resetAndLoadProducts();
-      },
-      "movementFilters.pageSize"() {
-        this.resetAndLoadMovements();
-      },
-      // Cada filtro que muda volta para a pagina 1: continuar na
-      // pagina 7 depois de trocar o filtro quase sempre da lista vazia.
       "productFilters.search"() {
         this.debouncedProductSearch();
       },
@@ -236,11 +207,11 @@ if (requireAuth()) {
     },
 
     async mounted() {
-      await Promise.all([this.loadCategories(), this.loadSummary(), this.loadProducts()]);
+      await Promise.all([this.loadCategories(), this.loadSummary()]);
+      await this.loadProducts();
     },
 
     methods: {
-      // ---------- formatacao ----------
       money(value) {
         return currency.format(Number(value ?? 0));
       },
@@ -279,84 +250,63 @@ if (requireAuth()) {
         return classes[value] ?? "bg-slate-100 text-slate-600";
       },
 
-      // ---------- navegacao ----------
       changeTab(tabId) {
         this.activeTab = tabId;
 
-        // Carrega sob demanda: a aba que ninguem abriu nao consulta a API.
-        if (tabId === "movements" && !this.loaded.movements && !this.loading.movements) {
+        if (tabId === "movements" && this.movementReport.rows.length === 0) {
           this.loadMovements();
         }
 
-        if (tabId === "summaries" && !this.loaded.summaries && !this.loading.summaries) {
+        if (tabId === "summaries" && this.stockByCategory.length === 0) {
           this.loadSummaries();
         }
 
-        if (tabId === "analysis" && !this.loaded.analysis && !this.loading.analysis) {
+        if (tabId === "analysis" && this.abcCurve.length === 0) {
           this.loadAnalysis();
         }
       },
 
-      // ---------- carregamento ----------
       async loadCategories() {
-        this.loading.categories = true;
-        this.errors.categories = "";
         try {
           this.categories = await api.listCategories();
         } catch (error) {
-          this.errors.categories = error.message;
-        } finally {
-          this.loading.categories = false;
+          this.errors.products = error.message;
         }
       },
 
       async loadSummary() {
-        this.loading.summary = true;
-        this.errors.summary = "";
         try {
           this.summary = await api.reportStockSummary();
         } catch (error) {
-          this.errors.summary = error.message;
-        } finally {
-          this.loading.summary = false;
+          this.errors.products = error.message;
         }
       },
 
       async loadProducts() {
-        // Uma resposta antiga nao pode sobrescrever o filtro mais recente.
-        const requestId = ++this.requestIds.products;
         this.loading.products = true;
         this.errors.products = "";
-        try {
-          const report = await api.reportProducts(this.productQuery);
-          if (requestId !== this.requestIds.products) return;
-          this.productReport = report;
 
+        try {
+          this.productReport = await api.reportProducts(this.productQuery);
         } catch (error) {
-          if (requestId !== this.requestIds.products) return;
           this.errors.products = error.message;
           this.productReport = EMPTY_PRODUCT_REPORT;
         } finally {
-          if (requestId === this.requestIds.products) this.loading.products = false;
+          this.loading.products = false;
         }
       },
 
       async loadMovements() {
-        // Uma resposta antiga nao pode sobrescrever o filtro mais recente.
-        const requestId = ++this.requestIds.movements;
         this.loading.movements = true;
         this.errors.movements = "";
+
         try {
-          const report = await api.reportMovements(this.movementQuery);
-          if (requestId !== this.requestIds.movements) return;
-          this.movementReport = report;
-          this.loaded.movements = true;
+          this.movementReport = await api.reportMovements(this.movementQuery);
         } catch (error) {
-          if (requestId !== this.requestIds.movements) return;
           this.errors.movements = error.message;
           this.movementReport = EMPTY_MOVEMENT_REPORT;
         } finally {
-          if (requestId === this.requestIds.movements) this.loading.movements = false;
+          this.loading.movements = false;
         }
       },
 
@@ -374,7 +324,6 @@ if (requireAuth()) {
           this.stockByCategory = byCategory;
           this.movementsByUser = byUser;
           this.movementsByMonth = byMonth;
-          this.loaded.summaries = true;
         } catch (error) {
           this.errors.summaries = error.message;
         } finally {
@@ -396,7 +345,6 @@ if (requireAuth()) {
           this.topProducts = top;
           this.productsWithoutMovement = parked;
           this.abcCurve = abc;
-          this.loaded.analysis = true;
         } catch (error) {
           this.errors.analysis = error.message;
         } finally {
@@ -404,7 +352,6 @@ if (requireAuth()) {
         }
       },
 
-      // ---------- filtros ----------
       debouncedProductSearch() {
         clearTimeout(this.searchTimer);
 
@@ -414,7 +361,6 @@ if (requireAuth()) {
       },
 
       resetAndLoadProducts() {
-        clearTimeout(this.searchTimer);
         this.productFilters.page = 1;
         this.loadProducts();
       },
@@ -425,7 +371,6 @@ if (requireAuth()) {
       },
 
       clearProductFilters() {
-        clearTimeout(this.searchTimer);
         this.productFilters = defaultProductFilters();
         this.loadProducts();
       },
@@ -436,7 +381,6 @@ if (requireAuth()) {
       },
 
       sortProducts(key) {
-        // Clicar na coluna que ja ordena inverte a direcao.
         if (this.productFilters.sort === key) {
           this.productFilters.direction =
             this.productFilters.direction === "asc" ? "desc" : "asc";
@@ -446,16 +390,6 @@ if (requireAuth()) {
         }
 
         this.resetAndLoadProducts();
-      },
-
-      sortMovements(key) {
-        if (this.movementFilters.sort === key) {
-          this.movementFilters.direction = this.movementFilters.direction === "asc" ? "desc" : "asc";
-        } else {
-          this.movementFilters.sort = key;
-          this.movementFilters.direction = "asc";
-        }
-        this.resetAndLoadMovements();
       },
 
       changeProductPage(page) {
@@ -472,7 +406,6 @@ if (requireAuth()) {
         this.loadMovements();
       },
 
-      // ---------- exportacao ----------
       async exportProducts() {
         try {
           await downloadReport("/reports/products", this.productQuery, "relatorio-produtos.csv");

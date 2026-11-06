@@ -1,19 +1,3 @@
--- ============================================================
--- Estoque Facil - laboratorio de SQL dos relatorios
--- Aulas 33 a 35
--- ------------------------------------------------------------
--- Este arquivo NAO roda sozinho. E um caderno: voce copia uma
--- consulta por vez e cola no terminal do MySQL.
---
--- Para abrir o terminal:
---   docker compose exec db mysql -uestoque -pestoque123 estoque_db
---
--- Dica: termine com \G em vez de ; para ver o resultado em
--- formato de lista, uma coluna por linha. Ajuda quando a
--- consulta tem muitas colunas.
--- ============================================================
-
-
 -- ############################################################
 -- AULA 33 - CONHECENDO O BANCO
 -- ############################################################
@@ -231,15 +215,13 @@ SELECT category_id,
 HAVING COUNT(*) >= 3;
 
 -- [35.13] A diferenca entre WHERE e HAVING, lado a lado
---   WHERE  joga fora LINHAS antes de agrupar
---   HAVING joga fora GRUPOS depois de agrupar
 SELECT category_id,
        COUNT(*)      AS produtos,
        SUM(quantity) AS unidades
   FROM products
- WHERE active = TRUE          -- linha por linha
+ WHERE active = TRUE
  GROUP BY category_id
-HAVING SUM(quantity) > 20     -- grupo por grupo
+HAVING SUM(quantity) > 20
  ORDER BY unidades DESC;
 
 -- [35.14] Isto da ERRO: funcao de agregacao nao cabe no WHERE

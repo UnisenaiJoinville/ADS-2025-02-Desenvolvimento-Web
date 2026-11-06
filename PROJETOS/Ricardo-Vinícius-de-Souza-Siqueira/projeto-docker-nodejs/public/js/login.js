@@ -1,15 +1,14 @@
 import { api } from "./api.js";
 import { HOME_PAGE, redirectIfAuthenticated, saveSession } from "./auth.js";
+import { renderIcons } from "./icons.js";
 
-// O CDN do Vue publica tudo dentro da variavel global "Vue".
 const { createApp } = Vue;
 
-// Quem ja tem sessao nao precisa ver esta tela.
 redirectIfAuthenticated();
 
+renderIcons();
+
 createApp({
-  // data() devolve o ESTADO da tela. Tudo que esta aqui e reativo:
-  // mudou o valor, o HTML se redesenha sozinho.
   data() {
     return {
       form: {
@@ -17,14 +16,13 @@ createApp({
         password: "",
       },
       showPassword: false,
+      capsLockOn: false,
       loading: false,
       errorMessage: "",
       successMessage: "",
     };
   },
 
-  // computed: valores DERIVADOS do estado. O Vue recalcula
-  // automaticamente quando alguma peca usada aqui muda.
   computed: {
     canSubmit() {
       return (
@@ -35,9 +33,7 @@ createApp({
     },
   },
 
-  // mounted() roda uma vez, logo depois que a tela aparece.
   mounted() {
-    // A tela de cadastro nos manda para ca com ?cadastro=ok
     const params = new URLSearchParams(window.location.search);
 
     if (params.get("cadastro") === "ok") {
@@ -47,6 +43,10 @@ createApp({
   },
 
   methods: {
+    checkCapsLock(event) {
+      this.capsLockOn = event.getModifierState?.("CapsLock") ?? false;
+    },
+
     fillDemo() {
       this.form.email = "professor@estoquefacil.com";
       this.form.password = "123456";
@@ -66,14 +66,11 @@ createApp({
 
         saveSession({ user, token });
 
-        // replace() troca a pagina SEM deixar o login no historico:
-        // o botao "voltar" nao devolve o usuario para ca.
         window.location.replace(HOME_PAGE);
       } catch (error) {
         this.errorMessage = error.message;
         this.form.password = "";
       } finally {
-        // finally roda deu certo ou deu errado - o botao sempre destrava.
         this.loading = false;
       }
     },

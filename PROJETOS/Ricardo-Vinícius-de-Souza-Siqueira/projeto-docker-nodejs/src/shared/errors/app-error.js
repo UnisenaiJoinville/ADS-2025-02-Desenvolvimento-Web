@@ -1,5 +1,3 @@
-// Erro de NEGOCIO: sabemos o que aconteceu e qual status HTTP devolver.
-// Qualquer outro erro sera tratado como 500 (falha inesperada).
 export class AppError extends Error {
   constructor(message, statusCode = 400) {
     super(message);

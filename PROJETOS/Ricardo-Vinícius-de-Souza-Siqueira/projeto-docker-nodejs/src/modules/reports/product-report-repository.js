@@ -1,12 +1,5 @@
 import { pool } from "../../config/database.js";
 
-// ------------------------------------------------------------------
-// Relatorios centrados em PRODUTOS, CATEGORIAS e ESTOQUE.
-// Aqui mora todo o SQL deste lado do modulo - e so ele.
-// ------------------------------------------------------------------
-
-// A coluna calculada stockStatus traduz duas regras de negocio
-// numa unica palavra, que o front usa para pintar a linha.
 const PRODUCT_COLUMNS = `
          p.id,
          p.name,
@@ -28,8 +21,11 @@ const PRODUCT_COLUMNS = `
          END                         AS stockStatus
 `;
 
-// Monta o WHERE a partir dos filtros ja validados.
-// Devolve o texto e a lista de valores na MESMA ordem dos "?".
+const FROM_PRODUCT = `
+    FROM products p
+    LEFT JOIN categories c ON c.id = p.category_id
+`;
+
 function buildProductWhere(filters) {
   const conditions = [];
   const params = [];
@@ -49,13 +45,9 @@ function buildProductWhere(filters) {
   }
 
   if (filters.withoutCategory) {
-    // Procurar NULL com "= NULL" nunca da certo: NULL nao e igual
-    // a nada, nem a si mesmo. O operador correto e IS NULL.
     conditions.push("p.category_id IS NULL");
   }
 
-  // O apelido stockStatus NAO pode ser usado aqui: o WHERE e avaliado
-  // antes da lista do SELECT existir. Repetimos a condicao.
   if (filters.stockStatus === "OUT") {
     conditions.push("p.quantity = 0");
   }
@@ -77,9 +69,6 @@ function buildProductWhere(filters) {
 export async function findProducts(filters) {
   const { where, params } = buildProductWhere(filters);
 
-  // filters.sort.column e filters.direction NAO vem do usuario:
-  // vieram da lista branca do report-filters.js. Por isso podem
-  // ser interpolados sem risco.
   const [rows] = await pool.query(
     `SELECT ${PRODUCT_COLUMNS}
      ${FROM_PRODUCT}
@@ -92,15 +81,6 @@ export async function findProducts(filters) {
   return rows.map(toProductRow);
 }
 
-// LEFT JOIN, e nao INNER JOIN: produto sem categoria TEM que aparecer
-// no relatorio de produtos. Veja a Aula 37.
-const FROM_PRODUCT = `
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-`;
-
-// Conta o total SEM paginar: e o que permite ao front dizer
-// "pagina 2 de 7".
 export async function countProducts(filters) {
   const { where, params } = buildProductWhere(filters);
 
@@ -124,9 +104,9 @@ export async function getStockSummary() {
             COALESCE(AVG(p.cost_price), 0)            AS averageCostPrice,
             COALESCE(MIN(p.sale_price), 0)            AS minSalePrice,
             COALESCE(MAX(p.sale_price), 0)            AS maxSalePrice,
-            COALESCE(SUM(CASE WHEN p.quantity = 0 THEN 1 ELSE 0 END), 0) AS outOfStockCount,
-            COALESCE(SUM(CASE WHEN p.quantity > 0 AND p.quantity <= p.minimum_stock
-                     THEN 1 ELSE 0 END), 0) AS lowStockCount
+            SUM(CASE WHEN p.quantity = 0 THEN 1 ELSE 0 END)                        AS outOfStockCount,
+            SUM(CASE WHEN p.quantity > 0 AND p.quantity <= p.minimum_stock
+                     THEN 1 ELSE 0 END)                                            AS lowStockCount
        FROM products p
       WHERE p.active = TRUE`
   );
@@ -134,7 +114,6 @@ export async function getStockSummary() {
   return rows[0];
 }
 
-// Totais da selecao inteira, nao so da pagina atual.
 export async function sumProducts(filters) {
   const { where, params } = buildProductWhere(filters);
 
@@ -150,27 +129,6 @@ export async function sumProducts(filters) {
   return rows[0];
 }
 
-// O MySQL devolve BOOLEAN como 0/1 e DECIMAL ja chega como numero
-// (decimalNumbers: true no config/database.js). Normalizamos o resto.
-function toProductRow(row) {
-  return {
-    ...row,
-    active: Boolean(row.active),
-    quantity: Number(row.quantity),
-    minimumStock: Number(row.minimumStock),
-    stockCostValue: Number(row.stockCostValue),
-    stockSaleValue: Number(row.stockSaleValue),
-  };
-}
-
-// Duas consultas coladas por UNION ALL, e cada metade existe por um motivo:
-//
-//   parte 1: categorias -> produtos, com LEFT JOIN
-//            mostra ate as categorias que nao tem nenhum produto (zeros).
-//   parte 2: os produtos orfaos (category_id IS NULL)
-//            que a parte 1 nunca alcanca, porque nao ha categoria de onde partir.
-//
-// Veja na Aula 37 por que uma coisa nao substitui a outra.
 export async function getStockByCategory() {
   const [rows] = await pool.query(
     `SELECT c.id                                        AS categoryId,
@@ -202,8 +160,17 @@ export async function getStockByCategory() {
   return rows;
 }
 
-// LEFT JOIN + IS NULL: o jeito classico de perguntar
-// "quem NAO tem correspondencia do outro lado?"
+function toProductRow(row) {
+  return {
+    ...row,
+    active: Boolean(row.active),
+    quantity: Number(row.quantity),
+    minimumStock: Number(row.minimumStock),
+    stockCostValue: Number(row.stockCostValue),
+    stockSaleValue: Number(row.stockSaleValue),
+  };
+}
+
 export async function findProductsWithoutMovement() {
   const [rows] = await pool.query(
     `SELECT p.id,
@@ -223,10 +190,6 @@ export async function findProductsWithoutMovement() {
   return rows;
 }
 
-// Curva ABC: classifica os produtos pela participacao no valor do
-// estoque. A subquery existe porque precisamos do valor de CADA
-// produto e do TOTAL geral na mesma linha - e um nao cabe dentro
-// do outro sem um nivel a mais de consulta.
 export async function getAbcCurve() {
   const [rows] = await pool.query(
     `SELECT base.id,
