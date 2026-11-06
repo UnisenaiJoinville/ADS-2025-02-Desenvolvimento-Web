@@ -4,3 +4,9 @@ npm-debug.log
 .git
 .gitignore
 apostilas
+
+.validation
+test-results
+playwright-report
+
+*.log

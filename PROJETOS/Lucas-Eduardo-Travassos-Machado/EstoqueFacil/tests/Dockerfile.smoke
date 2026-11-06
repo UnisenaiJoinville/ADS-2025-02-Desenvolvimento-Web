@@ -1,0 +1,4 @@
+ARG RUNTIME_IMAGE=estoque-parte9-prod-local
+FROM ${RUNTIME_IMAGE}
+COPY tests/runtime-smoke.mjs /tmp/runtime-smoke.mjs
+RUN --mount=type=secret,id=validation_env,mode=0444 node --env-file=/run/secrets/validation_env /tmp/runtime-smoke.mjs

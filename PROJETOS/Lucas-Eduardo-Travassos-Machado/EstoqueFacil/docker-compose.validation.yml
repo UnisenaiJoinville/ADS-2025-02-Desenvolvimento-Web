@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: local-validation-root
+      MYSQL_DATABASE: estoque_browser_validation
+      MYSQL_USER: estoque
+      MYSQL_PASSWORD: local-validation-only
+    volumes:
+      - validation-db:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+  api:
+    build: .
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: estoque
+      DB_PASSWORD: local-validation-only
+      DB_NAME: estoque_browser_validation
+      JWT_SECRET: local-validation-secret-at-least-32-characters
+      TRUST_PROXY: "false"
+    ports:
+      - "127.0.0.1:3019:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./tests:/app/tests
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  validation-db:

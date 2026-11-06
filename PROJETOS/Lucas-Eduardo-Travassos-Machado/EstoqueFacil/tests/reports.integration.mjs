@@ -134,8 +134,12 @@ try {
   check(failedStock.error.includes("insuficiente"), "Saida sem saldo e recusada");
   const currentProduct = await request(`/products/${fixtureProduct.id}`);
   check(currentProduct.quantity === 3, "Transacao preserva saldo apos erro");
+  const movementFixtures = Array.from({ length: 205 }, () => [fixtureProduct.id, "IN", 1, "Lote CSV"]);
+  await pool.query("INSERT INTO stock_movements(product_id,type,quantity,note) VALUES ?", [movementFixtures]);
   const movementCsv = await request(`/reports/movements?productId=${fixtureProduct.id}&format=csv`);
-  check((await movementCsv.text()).includes('"Validacao; ""responsavel"""'), "CSV de movimentos escapa observacao");
+  const movementText = await movementCsv.text();
+  check(movementText.includes('"Validacao; ""responsavel"""'), "CSV de movimentos escapa observacao");
+  check(movementText.split("\r\n").length === 207, "CSV de movimentos exporta as 206 linhas alem de um lote");
 
   // Sem dados ativos: agregacoes e ABC precisam continuar validos.
   await pool.query("UPDATE products SET active = FALSE");
