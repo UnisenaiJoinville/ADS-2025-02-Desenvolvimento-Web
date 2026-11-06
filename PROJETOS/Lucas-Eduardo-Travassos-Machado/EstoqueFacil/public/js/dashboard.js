@@ -1,9 +1,25 @@
 import { requireAuth } from "./auth.js";
-import { api } from "./api.js";
-import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+import { api, isCanceled } from "./api.js";
+import {
+  currency,
+  escapeHtml,
+  formatDateTime,
+  mountLayout,
+  toast,
+} from "./layout.js";
 
 mountLayout("/index.html");
 
+// Grafico de entradas e saidas por dia (Aula 68)
+const chartCanvas = document.querySelector("[data-chart]");
+const chartSummary = document.querySelector("[data-chart-summary]");
+const daysButtons = document.querySelectorAll("[data-days]");
+
+let chart = null; // a instancia do Chart.js (criada uma vez so)
+let chartDays = 30; // o periodo escolhido
+
+let chartController,
+  chartVersion = 0;
 const cardsContainer = document.querySelector("[data-cards]");
 const monthContainer = document.querySelector("[data-month]");
 const byCategoryContainer = document.querySelector("[data-by-category]");
@@ -129,7 +145,7 @@ function renderLowStock(rows) {
             <p class="text-xs text-slate-500">minimo ${row.minimumStock}</p>
           </div>
         </div>
-      `
+      `,
     )
     .join("");
 }
@@ -155,7 +171,9 @@ function renderRecent(rows) {
           </td>
           <td class="py-3 pr-4">
             <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${
-              isIn ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+              isIn
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-rose-100 text-rose-700"
             }">${isIn ? "Entrada" : "Saida"}</span>
           </td>
           <td class="py-3 pr-4 text-right font-semibold ${
@@ -167,6 +185,136 @@ function renderRecent(rows) {
     })
     .join("");
 }
+
+// ------------------------------------------------------------
+// Grafico (Aula 68)
+// ------------------------------------------------------------
+
+// "2026-10-14" -> "14/10". Cortar o texto evita o new Date() e,
+// com ele, qualquer chance de o fuso horario trocar o dia.
+function formatDay(isoDay) {
+  const [, month, day] = isoDay.split("-");
+
+  return `${day}/${month}`;
+}
+
+function highlightDaysButtons() {
+  daysButtons.forEach((button) => {
+    const isActive = Number(button.dataset.days) === chartDays;
+
+    button.setAttribute("aria-pressed", String(isActive));
+    button.className = isActive
+      ? "rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm"
+      : "rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800";
+  });
+}
+
+function renderChart(rows) {
+  // CDN fora do ar: o resto do dashboard continua funcionando.
+  if (!window.Chart) {
+    chartSummary.classList.remove("sr-only");
+    const totalIn = rows.reduce((s, r) => s + r.unitsIn, 0),
+      totalOut = rows.reduce((s, r) => s + r.unitsOut, 0);
+    chartSummary.textContent = `Nao foi possivel carregar o grafico. Nos ultimos ${rows.length} dias entraram ${totalIn} unidades e sairam ${totalOut}.`;
+    return;
+  }
+
+  const labels = rows.map((row) => formatDay(row.day));
+  const unitsIn = rows.map((row) => row.unitsIn);
+  const unitsOut = rows.map((row) => row.unitsOut);
+
+  if (chart) {
+    // O grafico ja existe: so troca os dados e manda redesenhar.
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = unitsIn;
+    chart.data.datasets[1].data = unitsOut;
+    chart.update();
+  } else {
+    chart = new Chart(chartCanvas, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          // As mesmas cores dos cards de entrada (emerald) e saida (rose).
+          {
+            label: "Entradas",
+            data: unitsIn,
+            backgroundColor: "#10b981",
+            borderRadius: 4,
+          },
+          {
+            label: "Saidas",
+            data: unitsOut,
+            backgroundColor: "#f43f5e",
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        // Obedece a altura do <div class="h-72">, em vez de inventar uma.
+        maintainAspectRatio: false,
+        // Passar o mouse num dia mostra entradas E saidas daquele dia.
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "bottom" },
+          tooltip: {
+            callbacks: {
+              label: (context) =>
+                `${context.dataset.label}: ${context.parsed.y} un.`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            // Com 90 dias nao cabem 90 rotulos: o Chart.js pula alguns.
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
+          },
+          y: {
+            beginAtZero: true,
+            // Unidades sao inteiras: nada de "2,5" no eixo.
+            ticks: { precision: 0 },
+          },
+        },
+      },
+    });
+  }
+
+  const totalIn = unitsIn.reduce((sum, value) => sum + value, 0);
+  const totalOut = unitsOut.reduce((sum, value) => sum + value, 0);
+
+  chartSummary.textContent = `Nos ultimos ${rows.length} dias entraram ${totalIn} unidades e sairam ${totalOut}.`;
+}
+
+async function loadChart() {
+  chartController?.abort();
+  const controller = (chartController = new AbortController());
+  const version = ++chartVersion;
+  chartCanvas.setAttribute("aria-busy", "true");
+  try {
+    const rows = await api.getDailyMovements(chartDays, {
+      signal: controller.signal,
+    });
+    if (version !== chartVersion) return;
+    renderChart(rows);
+  } catch (error) {
+    if (isCanceled(error) || version !== chartVersion) return;
+    chartSummary.classList.remove("sr-only");
+    chartSummary.textContent =
+      "Nao foi possivel carregar o grafico. " + error.message;
+  } finally {
+    if (version === chartVersion) chartCanvas.removeAttribute("aria-busy");
+  }
+}
+
+daysButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    chartDays = Number(button.dataset.days);
+    highlightDaysButtons();
+    loadChart();
+  });
+});
 
 async function loadDashboard() {
   try {
@@ -184,9 +332,12 @@ async function loadDashboard() {
 
 document.querySelector("[data-reload]").addEventListener("click", () => {
   loadDashboard();
+  loadChart();
   toast("Dashboard atualizado", "info");
 });
 
 if (requireAuth()) {
+  highlightDaysButtons();
+  loadChart();
   loadDashboard();
 }
