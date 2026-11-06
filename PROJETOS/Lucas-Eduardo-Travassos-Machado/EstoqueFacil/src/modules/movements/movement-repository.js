@@ -50,7 +50,7 @@ export async function createWithStockUpdate({ productId, userId, type, quantity,
     await connection.beginTransaction();
 
     const [productRows] = await connection.query(
-      "SELECT id, name, quantity FROM products WHERE id = ? FOR UPDATE",
+      "SELECT id, name, quantity, active FROM products WHERE id = ? FOR UPDATE",
       [productId]
     );
 
@@ -59,6 +59,11 @@ export async function createWithStockUpdate({ productId, userId, type, quantity,
     if (!product) {
       await connection.rollback();
       return { status: "PRODUCT_NOT_FOUND" };
+    }
+
+    if (!product.active) {
+      await connection.rollback();
+      return { status: "PRODUCT_INACTIVE" };
     }
 
     const delta = type === "IN" ? quantity : -quantity;
@@ -95,4 +100,9 @@ export async function createWithStockUpdate({ productId, userId, type, quantity,
   } finally {
     connection.release();
   }
+}
+
+export async function countByProduct(id) {
+  const [rows] = await pool.query("SELECT COUNT(*) AS total FROM stock_movements WHERE product_id = ?", [id]);
+  return Number(rows[0].total);
 }

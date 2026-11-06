@@ -1,4 +1,10 @@
-import { AppError, ConflictError, NotFoundError } from "../../shared/errors/app-error.js";
+import {
+  AppError,
+  ConflictError,
+  NotFoundError,
+} from "../../shared/errors/app-error.js";
+import { buildPagination } from "../../shared/http/pagination.js";
+import * as movementRepository from "../movements/movement-repository.js";
 import * as categoryRepository from "../categories/category-repository.js";
 
 import * as repository from "./product-repository.js";
@@ -17,7 +23,11 @@ async function ensureCategoryExists(categoryId) {
 }
 
 export async function listProducts(filters) {
-  return repository.findAll(filters);
+  const [rows, total] = await Promise.all([
+    repository.findAll(filters),
+    repository.countAll(filters),
+  ]);
+  return { rows, pagination: buildPagination(filters, total) };
 }
 
 export async function getProduct(id) {
@@ -45,9 +55,9 @@ export async function createProduct(input) {
 }
 
 export async function updateProduct(id, input) {
-  await getProduct(id);
-
-  const data = validateProductInput(input);
+  const current = await getProduct(id);
+  // O saldo so muda por transacoes de movimentacao.
+  const data = validateProductInput({ ...input, quantity: current.quantity });
 
   const existing = await repository.findBySku(data.sku);
 
@@ -63,5 +73,21 @@ export async function updateProduct(id, input) {
 export async function deleteProduct(id) {
   await getProduct(id);
 
-  await repository.remove(id);
+  const count = await movementRepository.countByProduct(id);
+  if (count)
+    throw new ConflictError(
+      `Este produto tem ${count} movimentacao(oes) no historico e nao pode ser excluido.`,
+    );
+  try {
+    await repository.remove(id);
+  } catch (error) {
+    // Outra transacao pode ter criado historico depois da contagem.
+    if (error.code === "ER_ROW_IS_REFERENCED_2")
+      throw new ConflictError(
+        "Este produto tem historico e nao pode ser excluido.",
+      );
+    throw error;
+  }
 }
+
+export const searchProducts = (filters) => repository.search(filters);

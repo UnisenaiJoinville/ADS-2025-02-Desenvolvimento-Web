@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatorios | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
       [v-cloak] {
@@ -112,7 +113,7 @@
                 Limpar filtros
               </button>
               <button
-                :disabled="loading.products || productReport.rows.length === 0"
+                :disabled="exporting.products || loading.products || productReport.rows.length === 0"
                 class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                 @click="exportProducts"
               >
@@ -269,7 +270,7 @@
                 Limpar
               </button>
               <button
-                :disabled="loading.movements || movementReport.rows.length === 0"
+                :disabled="exporting.movements || loading.movements || movementReport.rows.length === 0"
                 class="flex-1 rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                 @click="exportMovements"
               >
