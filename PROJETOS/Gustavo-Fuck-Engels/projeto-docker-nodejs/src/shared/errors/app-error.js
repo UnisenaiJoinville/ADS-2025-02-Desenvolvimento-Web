@@ -1,5 +1,3 @@
-// Erro de NEGOCIO: sabemos o que aconteceu e qual status HTTP devolver.
-// Qualquer outro erro sera tratado como 500 (falha inesperada).
 export class AppError extends Error {
   constructor(message, statusCode = 400) {
     super(message);
@@ -22,7 +20,6 @@ export class ConflictError extends AppError {
   }
 }
 
-// 401: "eu nao sei quem voce e" - falta token, token invalido ou senha errada.
 export class UnauthorizedError extends AppError {
   constructor(message = "Nao autenticado") {
     super(message, 401);
@@ -30,18 +27,9 @@ export class UnauthorizedError extends AppError {
   }
 }
 
-// 403: "eu sei quem voce e, mas voce nao pode fazer isso".
 export class ForbiddenError extends AppError {
   constructor(message = "Acesso negado") {
     super(message, 403);
     this.name = "ForbiddenError";
-  }
-}
-
-// 429: "voce fez tentativas demais; espere um pouco".
-export class TooManyRequestsError extends AppError {
-  constructor(message = "Muitas tentativas. Tente novamente mais tarde") {
-    super(message, 429);
-    this.name = "TooManyRequestsError";
   }
 }

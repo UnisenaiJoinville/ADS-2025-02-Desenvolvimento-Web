@@ -1,7 +1,5 @@
 import { AppError } from "../errors/app-error.js";
 
-// Parametros de rota chegam SEMPRE como string.
-// Convertemos e validamos antes de usar.
 export function parseId(value, label = "id") {
   const id = Number(value);
 
