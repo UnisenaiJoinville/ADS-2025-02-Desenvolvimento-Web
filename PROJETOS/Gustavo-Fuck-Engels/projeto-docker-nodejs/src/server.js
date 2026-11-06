@@ -9,7 +9,6 @@ async function start() {
     console.log(`Servidor rodando em http://localhost:${env.port}`);
   });
 
-  // Encerramento gracioso: fecha o servidor e o pool de conexoes.
   const shutdown = async (signal) => {
     console.log(`\nRecebido ${signal}. Encerrando...`);
 
