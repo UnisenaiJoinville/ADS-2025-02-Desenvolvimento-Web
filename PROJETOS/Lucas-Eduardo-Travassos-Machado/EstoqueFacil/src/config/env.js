@@ -29,6 +29,7 @@ if (jwtSecret.length < 32) {
 }
 
 export const env = {
+  trustProxy: process.env.TRUST_PROXY === "true",
   port: requirePort("PORT", 3000),
   database: {
     host: requireEnv("DB_HOST"),

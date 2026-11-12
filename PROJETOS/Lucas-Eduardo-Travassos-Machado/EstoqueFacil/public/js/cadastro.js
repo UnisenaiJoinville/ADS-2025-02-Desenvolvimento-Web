@@ -1,3 +1,4 @@
+import { renderIcons } from "./icons.js";
 import { api } from "./api.js";
 import { LOGIN_PAGE, redirectIfAuthenticated } from "./auth.js";
 
@@ -8,6 +9,7 @@ const { createApp } = Vue;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 redirectIfAuthenticated();
+renderIcons();
 
 createApp({
   data() {
@@ -115,6 +117,7 @@ createApp({
     },
 
     async handleSubmit() {
+      if (this.loading) return;
       this.markAllTouched();
       this.errorMessage = "";
 

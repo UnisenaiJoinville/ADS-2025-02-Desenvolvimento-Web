@@ -17,13 +17,21 @@ const SELECT_PRODUCT = `
     LEFT JOIN categories c ON c.id = p.category_id
 `;
 
-export async function findAll({ search = "", categoryId = null, onlyLowStock = false } = {}) {
+function escapeLike(text) {
+  return text.replace(/[!%_]/g, (character) => "!" + character);
+}
+
+function buildListFilters({
+  search = "",
+  categoryId = null,
+  onlyLowStock = false,
+} = {}) {
   const conditions = [];
   const params = [];
 
   if (search) {
-    conditions.push("(p.name LIKE ? OR p.sku LIKE ?)");
-    params.push(`%${search}%`, `%${search}%`);
+    conditions.push("(p.name LIKE ? ESCAPE '!' OR p.sku LIKE ? ESCAPE '!')");
+    params.push(`%${escapeLike(search)}%`, `%${escapeLike(search)}%`);
   }
 
   if (categoryId) {
@@ -37,9 +45,23 @@ export async function findAll({ search = "", categoryId = null, onlyLowStock = f
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
+  return { where, params };
+}
+
+export async function countAll(filters) {
+  const { where, params } = buildListFilters(filters);
   const [rows] = await pool.query(
-    `${SELECT_PRODUCT} ${where} ORDER BY p.name`,
-    params
+    `SELECT COUNT(*) AS total FROM products p ${where}`,
+    params,
+  );
+  return Number(rows[0].total);
+}
+
+export async function findAll(filters) {
+  const { where, params } = buildListFilters(filters);
+  const [rows] = await pool.query(
+    `${SELECT_PRODUCT} ${where} ORDER BY p.name, p.id LIMIT ? OFFSET ?`,
+    [...params, filters.pageSize, filters.offset],
   );
 
   return rows.map(toProduct);
@@ -54,7 +76,7 @@ export async function findById(id) {
 export async function findBySku(sku) {
   const [rows] = await pool.query(
     "SELECT id, sku FROM products WHERE sku = ?",
-    [sku]
+    [sku],
   );
 
   return rows[0];
@@ -74,7 +96,7 @@ export async function create(data) {
       data.quantity,
       data.minimumStock,
       data.active,
-    ]
+    ],
   );
 
   return findById(result.insertId);
@@ -88,7 +110,6 @@ export async function update(id, data) {
             category_id = ?,
             cost_price = ?,
             sale_price = ?,
-            quantity = ?,
             minimum_stock = ?,
             active = ?
       WHERE id = ?`,
@@ -98,11 +119,10 @@ export async function update(id, data) {
       data.categoryId,
       data.costPrice,
       data.salePrice,
-      data.quantity,
       data.minimumStock,
       data.active,
       id,
-    ]
+    ],
   );
 
   return findById(id);
@@ -120,4 +140,15 @@ function toProduct(row) {
     active: Boolean(row.active),
     lowStock: row.quantity <= row.minimumStock,
   };
+}
+
+export async function search({ term, limit }) {
+  const escaped = escapeLike(term);
+  const [rows] = await pool.query(
+    `${SELECT_PRODUCT} WHERE p.active = TRUE
+       AND (p.name LIKE ? ESCAPE '!' OR p.sku LIKE ? ESCAPE '!')
+     ORDER BY (p.sku = ?) DESC, (p.name LIKE ? ESCAPE '!') DESC, p.name, p.id LIMIT ?`,
+    [`%${escaped}%`, `%${escaped}%`, term, `${escaped}%`, limit],
+  );
+  return rows.map(toProduct);
 }
