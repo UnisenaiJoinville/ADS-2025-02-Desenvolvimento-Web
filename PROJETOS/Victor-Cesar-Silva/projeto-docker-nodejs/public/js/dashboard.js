@@ -1,17 +1,23 @@
 import { api } from "./api.js";
-import { requireAuth } from "./auth.js";
 import { currency, escapeHtml, formatDateTime, mountLayout, toast } from "./layout.js";
+import { requireAuth } from "./auth.js";
 
 mountLayout("/index.html");
 
-// Guardamos as referencias uma vez, no topo
 const cardsContainer = document.querySelector("[data-cards]");
 const monthContainer = document.querySelector("[data-month]");
 const byCategoryContainer = document.querySelector("[data-by-category]");
 const lowStockContainer = document.querySelector("[data-low-stock]");
 const recentContainer = document.querySelector("[data-recent]");
 
-// Componente: recebe dados, devolve HTML
+// Grafico de entradas e saidas por dia (Aula 68)
+const chartCanvas = document.querySelector("[data-chart]");
+const chartSummary = document.querySelector("[data-chart-summary]");
+const daysButtons = document.querySelectorAll("[data-days]");
+
+let chart = null;     // a instancia do Chart.js (criada uma vez so)
+let chartDays = 30;   // o periodo escolhido
+
 function card({ label, value, hint, accent }) {
   return `
     <article class="rounded-2xl border border-slate-200 bg-white p-5">
@@ -49,7 +55,6 @@ function renderCards(totals) {
       label: "Estoque baixo",
       value: totals.lowStockCount,
       hint: `${totals.outOfStockCount} produto(s) zerado(s)`,
-      // A bolinha fica vermelha so quando ha produtos em falta
       accent: totals.lowStockCount > 0 ? "bg-rose-500" : "bg-emerald-500",
     }),
   ].join("");
@@ -85,7 +90,6 @@ function renderByCategory(rows) {
     return;
   }
 
-  // O ", 1" evita divisao por zero se todos os valores forem zero
   const maxValue = Math.max(...rows.map((row) => row.costValue), 1);
 
   byCategoryContainer.innerHTML = rows
@@ -145,7 +149,6 @@ function renderRecent(rows) {
 
   recentContainer.innerHTML = rows
     .map((row) => {
-      // Uma variavel controla cor, texto e sinal
       const isIn = row.type === "IN";
 
       return `
@@ -169,10 +172,115 @@ function renderRecent(rows) {
     .join("");
 }
 
-// Area em branco parece bug; mensagem explicita informa o usuario
 function emptyState(message) {
   return `<p class="rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">${message}</p>`;
 }
+
+// ------------------------------------------------------------
+// Grafico (Aula 68)
+// ------------------------------------------------------------
+
+// "2026-10-14" -> "14/10". Cortar o texto evita o new Date() e,
+// com ele, qualquer chance de o fuso horario trocar o dia.
+function formatDay(isoDay) {
+  const [, month, day] = isoDay.split("-");
+
+  return `${day}/${month}`;
+}
+
+function highlightDaysButtons() {
+  daysButtons.forEach((button) => {
+    const isActive = Number(button.dataset.days) === chartDays;
+
+    button.setAttribute("aria-pressed", String(isActive));
+    button.className = isActive
+      ? "rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm"
+      : "rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800";
+  });
+}
+
+function renderChart(rows) {
+  // CDN fora do ar: o resto do dashboard continua funcionando.
+  if (!window.Chart) {
+    chartSummary.classList.remove("sr-only");
+    chartSummary.textContent = "Nao foi possivel carregar o grafico.";
+    return;
+  }
+
+  const labels = rows.map((row) => formatDay(row.day));
+  const unitsIn = rows.map((row) => row.unitsIn);
+  const unitsOut = rows.map((row) => row.unitsOut);
+
+  if (chart) {
+    // O grafico ja existe: so troca os dados e manda redesenhar.
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = unitsIn;
+    chart.data.datasets[1].data = unitsOut;
+    chart.update();
+  } else {
+    chart = new Chart(chartCanvas, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          // As mesmas cores dos cards de entrada (emerald) e saida (rose).
+          { label: "Entradas", data: unitsIn, backgroundColor: "#10b981", borderRadius: 4 },
+          { label: "Saidas", data: unitsOut, backgroundColor: "#f43f5e", borderRadius: 4 },
+        ],
+      },
+      options: {
+        responsive: true,
+        // Obedece a altura do <div class="h-72">, em vez de inventar uma.
+        maintainAspectRatio: false,
+        // Passar o mouse num dia mostra entradas E saidas daquele dia.
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "bottom" },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.dataset.label}: ${context.parsed.y} un.`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            // Com 90 dias nao cabem 90 rotulos: o Chart.js pula alguns.
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
+          },
+          y: {
+            beginAtZero: true,
+            // Unidades sao inteiras: nada de "2,5" no eixo.
+            ticks: { precision: 0 },
+          },
+        },
+      },
+    });
+  }
+
+  const totalIn = unitsIn.reduce((sum, value) => sum + value, 0);
+  const totalOut = unitsOut.reduce((sum, value) => sum + value, 0);
+
+  chartSummary.textContent =
+    `Nos ultimos ${rows.length} dias entraram ${totalIn} unidades e sairam ${totalOut}.`;
+}
+
+async function loadChart() {
+  try {
+    const rows = await api.getDailyMovements(chartDays);
+    renderChart(rows);
+  } catch (error) {
+    toast(error.message, "error");
+  }
+}
+
+daysButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    chartDays = Number(button.dataset.days);
+    highlightDaysButtons();
+    loadChart();
+  });
+});
 
 async function loadDashboard() {
   try {
@@ -190,11 +298,14 @@ async function loadDashboard() {
 
 document.querySelector("[data-reload]").addEventListener("click", () => {
   loadDashboard();
+  loadChart();
   toast("Dashboard atualizado", "info");
 });
 
 // Porteiro da tela: requireAuth() manda para o login quando nao ha
 // sessao e devolve false, entao nada aqui chega a ser carregado.
 if (requireAuth()) {
+  highlightDaysButtons();
   loadDashboard();
+  loadChart();
 }

@@ -10,7 +10,6 @@ export async function getDashboard() {
     repository.getRecentMovements(8),
   ]);
 
-  // Number() garante que o front receba numero, e nao string concatenavel
   const unitsIn = Number(month.unitsIn);
   const unitsOut = Number(month.unitsOut);
 
@@ -29,7 +28,6 @@ export async function getDashboard() {
     month: {
       unitsIn,
       unitsOut,
-      // Campo calculado: o mes cresceu ou encolheu?
       balance: unitsIn - unitsOut,
     },
     byCategory: byCategory.map((row) => ({
@@ -41,4 +39,15 @@ export async function getDashboard() {
     lowStock,
     recentMovements,
   };
+}
+
+export async function getDailyMovements(days) {
+  const rows = await repository.getDailyMovements(days);
+
+  // SUM devolve DECIMAL, que o mysql2 entrega como texto: "12".
+  return rows.map((row) => ({
+    day: row.day,
+    unitsIn: Number(row.unitsIn),
+    unitsOut: Number(row.unitsOut),
+  }));
 }

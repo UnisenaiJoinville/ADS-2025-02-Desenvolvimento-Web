@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS stock_movements (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_movements_product
     FOREIGN KEY (product_id) REFERENCES products (id)
-    ON DELETE CASCADE
+    -- RESTRICT: produto com historico nao pode ser apagado (Aula 65)
+    ON DELETE RESTRICT
 );
 
 -- Indices nas colunas usadas em filtros e juncoes

@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { renderIcons } from "./icons.js";
 import { LOGIN_PAGE, redirectIfAuthenticated } from "./auth.js";
 
 const { createApp } = Vue;
@@ -8,6 +9,9 @@ const { createApp } = Vue;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 redirectIfAuthenticated();
+
+// Icones prontos antes de o Vue ler o HTML (veja a Aula 60).
+renderIcons();
 
 createApp({
   data() {
@@ -66,7 +70,6 @@ createApp({
     },
 
     // Os erros que a tela pode EXIBIR agora: so dos campos ja visitados.
-    // errors decide "posso enviar?"; visibleErrors decide "o que mostro?".
     visibleErrors() {
       const visible = {};
 
@@ -79,7 +82,6 @@ createApp({
       return visible;
     },
 
-    // Estimativa grosseira: incentivo visual, nao garantia.
     strength() {
       const { password } = this.form;
 
@@ -117,7 +119,6 @@ createApp({
     },
 
     async handleSubmit() {
-      // Se a pessoa apertar Enter direto, todos os erros aparecem de uma vez.
       this.markAllTouched();
       this.errorMessage = "";
 
@@ -136,14 +137,12 @@ createApp({
         });
 
         // Manda para o login com um recado e o e-mail ja preenchido.
-        // encodeURIComponent: um "+" no e-mail viraria espaco na URL.
         const email = encodeURIComponent(this.form.email);
 
         window.location.replace(`${LOGIN_PAGE}?cadastro=ok&email=${email}`);
       } catch (error) {
         this.errorMessage = error.message;
       } finally {
-        // Sem o finally, um erro deixaria o botao travado para sempre.
         this.loading = false;
       }
     },

@@ -14,9 +14,12 @@ export async function createMovement(input, userId = null) {
 
   const result = await repository.createWithStockUpdate({ ...data, userId });
 
-  // O status tecnico do repository vira mensagem para o usuario
   if (result.status === "PRODUCT_NOT_FOUND") {
     throw new NotFoundError("Produto nao encontrado");
+  }
+
+  if (result.status === "PRODUCT_INACTIVE") {
+    throw new AppError("Produto inativo nao pode receber movimentacoes. Reative-o antes");
   }
 
   if (result.status === "INSUFFICIENT_STOCK") {
