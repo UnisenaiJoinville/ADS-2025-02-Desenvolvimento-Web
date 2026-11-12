@@ -1,79 +1,172 @@
 // Camada unica de acesso a API.
-// Centralizar o fetch evita repetir tratamento de erro em cada tela.
+// Desde a Aula 61 quem faz as requisicoes e o axios. As telas nao
+// perceberam a troca: elas so conhecem o objeto "api" la embaixo.
+
+import axios from "https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/esm/axios.min.js";
 
 import { clearSession, getToken, LOGIN_PAGE } from "./auth.js";
 
-const BASE_URL = "/api";
+// Uma "instancia" do axios ja configurada para a nossa API.
+// Tudo que for comum a todas as requisicoes fica aqui, uma vez so.
+const http = axios.create({
+  baseURL: "/api",
+  // Sem resposta em 15 segundos, desiste e avisa o usuario.
+  timeout: 15000,
+});
 
-async function request(path, options = {}) {
+// ------------------------------------------------------------
+// Interceptor de REQUISICAO: roda antes de TODO pedido sair.
+// ------------------------------------------------------------
+http.interceptors.request.use((config) => {
   const token = getToken();
-
-  const headers = { "Content-Type": "application/json", ...options.headers };
 
   // Se ha sessao, todo pedido leva o cracha junto.
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  return config;
+});
 
-  // 401 COM token = a sessao venceu. Limpamos e voltamos para o login.
-  // 401 SEM token = e a propria tela de login dizendo "senha errada",
-  // e nela nao pode haver redirecionamento nenhum.
-  if (response.status === 401 && token) {
-    clearSession();
-    window.location.replace(LOGIN_PAGE);
+// ------------------------------------------------------------
+// Interceptor de RESPOSTA: roda quando TODA resposta chega.
+// ------------------------------------------------------------
+http.interceptors.response.use(
+  // Deu certo (2xx): as telas so querem o corpo da resposta.
+  // O 204 do DELETE chega com corpo vazio (""): devolvemos null.
+  (response) => (response.data === "" ? null : response.data),
 
-    throw new Error("Sessao expirada. Faca login novamente");
-  }
-
-  if (response.status === 204) {
-    return null;
-  }
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.error ?? "Erro ao comunicar com o servidor");
-  }
-
-  return data;
-}
-
-// Monta a query string a partir de um objeto, ignorando o que esta
-// vazio. Sem isso, "?search=&categoryId=" chegaria ao servidor cheio
-// de filtros em branco.
-function buildQuery(filters = {}) {
-  const params = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(filters)) {
-    if (value === undefined || value === null || value === "" || value === false) {
-      continue;
+  (error) => {
+    // Requisicao cancelada DE PROPOSITO (uma busca que ficou velha).
+    // Nao e um erro de verdade: devolvemos como veio, e a tela ignora.
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
     }
 
-    params.set(key, String(value));
+    // 401 COM token = a sessao venceu. Limpamos e voltamos para o login.
+    // 401 SEM token = e a propria tela de login dizendo "senha errada",
+    // e nela nao pode haver redirecionamento nenhum.
+    if (error.response?.status === 401 && error.config?.headers?.Authorization) {
+      clearSession();
+      window.location.replace(LOGIN_PAGE);
+
+      return Promise.reject(toAppError(error, "Sessao expirada. Faca login novamente"));
+    }
+
+    return Promise.reject(toAppError(error));
+  }
+);
+
+// Transforma o erro do axios em um Error simples, com a mensagem que
+// o NOSSO back-end mandou ({ "error": "..." }) e o status HTTP.
+function toAppError(error, fallbackMessage) {
+  let message = fallbackMessage ?? error.response?.data?.error;
+
+  if (!message && error.code === "ECONNABORTED") {
+    message = "O servidor demorou demais para responder. Tente de novo";
   }
 
-  const query = params.toString();
+  if (!message && !error.response) {
+    message = "Sem conexao com o servidor";
+  }
 
-  return query ? `?${query}` : "";
+  const appError = new Error(message ?? "Erro ao comunicar com o servidor");
+
+  // O status deixa a tela decidir pelo TIPO do erro (409, 404...),
+  // e nao comparando o texto da mensagem. Vamos usar na Aula 65.
+  appError.status = error.response?.status ?? 0;
+
+  return appError;
 }
 
-// Baixar um arquivo e diferente de buscar JSON: a resposta nao e
-// convertida, vira um Blob e o navegador salva em disco.
-// Mesmo assim o token precisa ir junto - por isso isto mora aqui.
+// A tela usa isto para ignorar buscas canceladas (Aula 63).
+export function isCanceled(error) {
+  return axios.isCancel(error);
+}
+
+// Tira do objeto o que esta vazio. Sem isso, "?search=&categoryId="
+// chegaria ao servidor cheio de filtros em branco.
+// (Antes o buildQuery montava a string inteira; agora o axios monta,
+// e nos so escolhemos o que entra.)
+function cleanParams(filters = {}) {
+  return Object.fromEntries(
+    Object.entries(filters).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "" && value !== false
+    )
+  );
+}
+
+export const api = {
+  // --- Autenticacao ---
+  register: (payload) => http.post("/auth/register", payload),
+  login: (payload) => http.post("/auth/login", payload),
+  me: () => http.get("/auth/me"),
+
+  // --- Dashboard ---
+  getDashboard: () => http.get("/dashboard"),
+  getDailyMovements: (days = 30) =>
+    http.get("/dashboard/movements-by-day", { params: { days } }),
+
+  // --- Categorias ---
+  listCategories: () => http.get("/categories"),
+  createCategory: (payload) => http.post("/categories", payload),
+  updateCategory: (id, payload) => http.put(`/categories/${id}`, payload),
+  deleteCategory: (id) => http.delete(`/categories/${id}`),
+
+  // --- Produtos ---
+  // options.signal permite cancelar a busca (veja a secao 6).
+  listProducts: (filters = {}, options = {}) =>
+    http.get("/products", { params: cleanParams(filters), signal: options.signal }),
+  // Busca rapida para o autocomplete (Aula 62).
+  searchProducts: (term, options = {}) =>
+    http.get("/products/search", {
+      params: { q: term, limit: options.limit ?? 8 },
+      signal: options.signal,
+    }),
+  getProduct: (id) => http.get(`/products/${id}`),
+  createProduct: (payload) => http.post("/products", payload),
+  updateProduct: (id, payload) => http.put(`/products/${id}`, payload),
+  deleteProduct: (id) => http.delete(`/products/${id}`),
+
+  // --- Movimentacoes ---
+  listMovements: (filters = {}) => http.get("/movements", { params: cleanParams(filters) }),
+  createMovement: (payload) => http.post("/movements", payload),
+
+  // --- Relatorios ---
+  reportProducts: (filters) => http.get("/reports/products", { params: cleanParams(filters) }),
+  reportStockSummary: () => http.get("/reports/stock-summary"),
+  reportStockByCategory: () => http.get("/reports/stock-by-category"),
+  reportProductsWithoutMovement: () => http.get("/reports/products-without-movement"),
+  reportAbcCurve: () => http.get("/reports/abc-curve"),
+  reportMovements: (filters) => http.get("/reports/movements", { params: cleanParams(filters) }),
+  reportMovementsByUser: (filters) =>
+    http.get("/reports/movements-by-user", { params: cleanParams(filters) }),
+  reportMovementsByMonth: (filters) =>
+    http.get("/reports/movements-by-month", { params: cleanParams(filters) }),
+  reportTopProducts: (filters) =>
+    http.get("/reports/top-products", { params: cleanParams(filters) }),
+};
+
+// Baixar um arquivo e diferente de buscar JSON: com responseType "blob"
+// a resposta nao e convertida, vira um arquivo e o navegador salva.
+// O interceptor continua colocando o token - era o motivo de o
+// download morar aqui desde a Aula 44.
 export async function downloadReport(path, filters, fileName) {
-  const token = getToken();
+  let blob;
 
-  const response = await fetch(`${BASE_URL}${path}${buildQuery({ ...filters, format: "csv" })}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  try {
+    blob = await http.get(path, {
+      params: cleanParams({ ...filters, format: "csv" }),
+      responseType: "blob",
+    });
+  } catch (error) {
+    // Com responseType "blob", ate a mensagem de erro chega como
+    // arquivo, e nao como JSON. Por isso uma mensagem propria.
+    if (error.status === 401) throw error;
 
-  if (!response.ok) {
     throw new Error("Nao foi possivel gerar o arquivo");
   }
 
-  const blob = await response.blob();
   const url = URL.createObjectURL(blob);
 
   // Truque padrao: cria um link invisivel, clica nele e descarta.
@@ -87,62 +180,3 @@ export async function downloadReport(path, filters, fileName) {
   // Libera a memoria que o Blob ocupava.
   URL.revokeObjectURL(url);
 }
-
-export const api = {
-  register: (payload) =>
-    request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
-  login: (payload) =>
-    request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
-  me: () => request("/auth/me"),
-
-  getDashboard: () => request("/dashboard"),
-
-  listCategories: () => request("/categories"),
-  createCategory: (payload) =>
-    request("/categories", { method: "POST", body: JSON.stringify(payload) }),
-  updateCategory: (id, payload) =>
-    request(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteCategory: (id) => request(`/categories/${id}`, { method: "DELETE" }),
-
-  listProducts: (filters = {}) => {
-    const params = new URLSearchParams();
-
-    if (filters.search) params.set("search", filters.search);
-    if (filters.categoryId) params.set("categoryId", filters.categoryId);
-    if (filters.lowStock) params.set("lowStock", "true");
-
-    const query = params.toString();
-
-    return request(query ? `/products?${query}` : "/products");
-  },
-  getProduct: (id) => request(`/products/${id}`),
-  createProduct: (payload) =>
-    request("/products", { method: "POST", body: JSON.stringify(payload) }),
-  updateProduct: (id, payload) =>
-    request(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-  deleteProduct: (id) => request(`/products/${id}`, { method: "DELETE" }),
-
-  listMovements: (filters = {}) => {
-    const params = new URLSearchParams();
-
-    if (filters.productId) params.set("productId", filters.productId);
-    if (filters.type) params.set("type", filters.type);
-
-    const query = params.toString();
-
-    return request(query ? `/movements?${query}` : "/movements");
-  },
-  createMovement: (payload) =>
-    request("/movements", { method: "POST", body: JSON.stringify(payload) }),
-
-  // --- Relatorios ---
-  reportProducts: (filters) => request(`/reports/products${buildQuery(filters)}`),
-  reportStockSummary: () => request("/reports/stock-summary"),
-  reportStockByCategory: () => request("/reports/stock-by-category"),
-  reportProductsWithoutMovement: () => request("/reports/products-without-movement"),
-  reportAbcCurve: () => request("/reports/abc-curve"),
-  reportMovements: (filters) => request(`/reports/movements${buildQuery(filters)}`),
-  reportMovementsByUser: (filters) => request(`/reports/movements-by-user${buildQuery(filters)}`),
-  reportMovementsByMonth: (filters) => request(`/reports/movements-by-month${buildQuery(filters)}`),
-  reportTopProducts: (filters) => request(`/reports/top-products${buildQuery(filters)}`),
-};

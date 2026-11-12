@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Entrar | Estoque Facil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSS gerado pelo Tailwind CLI (Aula 69): npm run css:build -->
+    <link rel="stylesheet" href="/css/app.css" />
+    <!-- Icones (Aula 60). Versao fixa: o site nao muda sozinho amanha. -->
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <!-- Vue 3 pelo CDN: nenhuma instalacao, nenhum build -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
@@ -68,16 +71,34 @@
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 placeholder="Sua senha"
-                class="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-20 text-sm outline-none transition focus:border-slate-900"
+                class="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm outline-none transition focus:border-slate-900"
+                @keydown="checkCapsLock"
+                @keyup="checkCapsLock"
+                @blur="capsLockOn = false"
               />
+              <!-- Botao do olho: o icone muda, o rotulo para leitor de tela tambem -->
               <button
                 type="button"
-                class="absolute inset-y-0 right-0 px-4 text-xs font-semibold text-slate-500 transition hover:text-slate-900"
+                class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-slate-400 transition hover:text-slate-900 focus-visible:text-slate-900"
+                :aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+                :title="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+                :aria-pressed="showPassword"
                 @click="showPassword = !showPassword"
               >
-                {{ showPassword ? "Ocultar" : "Mostrar" }}
+                <!-- As diretivas ficam no <span>, NUNCA no <i> (veja a secao 2) -->
+                <span v-if="showPassword"><i data-lucide="eye-off" class="h-5 w-5"></i></span>
+                <span v-else><i data-lucide="eye" class="h-5 w-5"></i></span>
               </button>
             </div>
+
+            <!-- Aviso de Caps Lock: so aparece enquanto a tecla estiver ligada -->
+            <span
+              v-if="capsLockOn"
+              class="mt-1 flex items-center gap-1 text-xs font-medium text-amber-700"
+            >
+              <span><i data-lucide="triangle-alert" class="h-3.5 w-3.5"></i></span>
+              Caps Lock ativado
+            </span>
           </label>
 
           <button
@@ -115,4 +136,4 @@
 
     <script type="module" src="/js/login.js"></script>
   </body>
-</html>
+</html>
