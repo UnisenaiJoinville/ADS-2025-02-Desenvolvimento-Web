@@ -66,3 +66,94 @@ function montarEmailConfirmacaoReserva(array $reserva): string
     </div>
     HTML;
 }
+
+
+// Moldura comum dos e-mails (cabeçalho escuro com o nome do restaurante).
+function moldurEmail(string $titulo, string $conteudoHtml): string
+{
+    $restauranteNome = RESTAURANTE_NOME;
+    $titulo = htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8');
+    return <<<HTML
+    <div style="font-family: Arial, Helvetica, sans-serif; max-width: 560px; margin: 0 auto; color:#333;">
+        <div style="background:#1a1a1a; padding: 22px 28px; border-radius: 10px 10px 0 0;">
+            <h1 style="color:#f2c200; margin:0; font-size:22px;">{$restauranteNome}</h1>
+        </div>
+        <div style="border:1px solid #eee; border-top:none; padding: 28px; border-radius: 0 0 10px 10px;">
+            <h2 style="margin-top:0; color:#1a1a1a;">{$titulo}</h2>
+            {$conteudoHtml}
+        </div>
+    </div>
+    HTML;
+}
+
+/**
+ * E-mail de RECEBIMENTO da reserva (enviado assim que o cliente reserva,
+ * ainda como "pendente"). Diferente do e-mail de CONFIRMAÇÃO, que só sai
+ * quando o administrador confirma.
+ */
+function montarEmailReservaRecebida(array $reserva): string
+{
+    $nome = htmlspecialchars($reserva['nome'], ENT_QUOTES, 'UTF-8');
+    $pessoas = (int) $reserva['quantidade_pessoas'];
+    $data = (new DateTime($reserva['data_reserva']))->format('d/m/Y \à\s H:i');
+    $tel = RESTAURANTE_TELEFONE;
+
+    return moldurEmail('Recebemos o seu pedido de reserva', <<<HTML
+        <p>Olá, <strong>{$nome}</strong>!</p>
+        <p>Recebemos o seu pedido de reserva para <strong>{$pessoas} pessoa(s)</strong> em
+        <strong>{$data}</strong>. Ela está <strong>pendente</strong>: você receberá outro
+        e-mail quando a nossa equipe confirmar.</p>
+        <p>Dúvidas? Ligue para {$tel}.</p>
+    HTML);
+}
+
+/** E-mail de recuperação de senha, com o link de uso único (vale 1 hora). */
+function montarEmailRecuperarSenha(string $nome, string $link): string
+{
+    $nome = htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');
+    $link = htmlspecialchars($link, ENT_QUOTES, 'UTF-8');
+
+    return moldurEmail('Redefinir sua senha', <<<HTML
+        <p>Olá, <strong>{$nome}</strong>!</p>
+        <p>Recebemos um pedido para redefinir a senha da sua conta. Clique no botão abaixo
+        para criar uma nova senha. O link vale por <strong>1 hora</strong> e só pode ser usado uma vez.</p>
+        <p style="text-align:center; margin: 26px 0;">
+            <a href="{$link}" style="background:#f2c200; color:#1a1a1a; padding:12px 26px; border-radius:6px; text-decoration:none; font-weight:bold;">Criar nova senha</a>
+        </p>
+        <p style="font-size:13px; color:#777;">Se você não pediu isso, ignore este e-mail: a sua senha continua a mesma.</p>
+    HTML);
+}
+
+/** E-mail enviado quando o pagamento é confirmado, com o código do cartão presente. */
+function montarEmailPedidoPago(array $pedido, array $itens, ?array $cartao = null): string
+{
+    $nome = htmlspecialchars($pedido['nome_comprador'], ENT_QUOTES, 'UTF-8');
+    $codigo = htmlspecialchars($pedido['codigo_cartao'], ENT_QUOTES, 'UTF-8');
+    $total = number_format((float) $pedido['valor_total'], 2, ',', '.');
+    $linhas = '';
+    foreach ($itens as $i) {
+        $produto = htmlspecialchars($i['produto_nome'], ENT_QUOTES, 'UTF-8');
+        $sub = number_format((float) $i['subtotal'], 2, ',', '.');
+        $linhas .= "<tr><td style=\"padding:6px 0;\">{$i['quantidade']}x {$produto}</td>"
+                 . "<td style=\"padding:6px 0; text-align:right;\">R$ {$sub}</td></tr>";
+    }
+    $id = (int) $pedido['id'];
+    $validadeHtml = '';
+    if ($cartao) {
+        $validade = (new DateTime($cartao['validade']))->format('d/m/Y');
+        $saldo = number_format((float) $cartao['saldo'], 2, ',', '.');
+        $validadeHtml = "<p>Saldo: <strong>R$ {$saldo}</strong> &middot; Válido até <strong>{$validade}</strong>.</p>";
+    }
+
+    return moldurEmail('Pagamento confirmado!', <<<HTML
+        <p>Olá, <strong>{$nome}</strong>! O pagamento do pedido <strong>#{$id}</strong> foi confirmado.</p>
+        <table style="width:100%; border-collapse: collapse; margin: 14px 0;">{$linhas}
+            <tr style="border-top:1px solid #eee;"><td style="padding:8px 0;"><strong>Total</strong></td>
+            <td style="padding:8px 0; text-align:right;"><strong>R$ {$total}</strong></td></tr>
+        </table>
+        <p>O código do seu cartão presente é:</p>
+        <p style="font-size:24px; letter-spacing:2px; text-align:center; background:#fff8e1; border-left:4px solid #f2c200; padding:14px;"><strong>{$codigo}</strong></p>
+        {$validadeHtml}
+        <p>Apresente este código no restaurante para utilizar o valor. O saldo pode ser usado em mais de uma visita, até a data de validade. Guarde este e-mail.</p>
+    HTML);
+}

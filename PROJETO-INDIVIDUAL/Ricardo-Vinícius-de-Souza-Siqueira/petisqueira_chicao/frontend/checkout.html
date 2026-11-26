@@ -31,7 +31,7 @@
                     <i class="bi bi-person"></i>
                 </a>
 
-                <a href="loja.html" aria-label="Ver carrinho / loja"><i class="bi bi-bag"></i></a>
+                <a href="carrinho.html" id="link-carrinho" class="link-carrinho" aria-label="Ver carrinho"><i class="bi bi-bag"></i><span class="carrinho-badge" id="carrinho-badge" style="display:none;"></span></a>
             </div>
 
         </div>
@@ -65,15 +65,7 @@
         <div class="checkout-resumo">
             <h3>Resumo do pedido</h3>
 
-            <div class="checkout-resumo-linha">
-                <span>Produto</span>
-                <span id="resumo-produto">—</span>
-            </div>
-
-            <div class="checkout-resumo-linha">
-                <span>Quantidade</span>
-                <span id="resumo-quantidade">—</span>
-            </div>
+            <div class="checkout-itens" id="resumo-itens"></div>
 
             <div class="checkout-resumo-total">
                 <span>Total</span>
@@ -88,7 +80,8 @@
 
             <div class="aviso-simulacao">
                 ⚠️ Pagamento simulado — nenhuma cobrança real será feita. Isso é uma
-                demonstração do fluxo de compra.
+                demonstração do fluxo de compra. Os dados do cartão digitados abaixo
+                <strong>não são enviados nem guardados</strong>.
             </div>
 
             <div class="metodo-pagamento">
@@ -143,7 +136,11 @@
         <div class="icone-sucesso"><i class="bi bi-check-circle-fill"></i></div>
         <h3>Pagamento confirmado!</h3>
         <p>Seu pedido #<span id="confirmado-pedido-id"></span> foi pago com sucesso.</p>
-        <p class="text-muted">Você pode acompanhar seus pedidos na <a href="minhaconta.html">sua conta</a>.</p>
+        <p>O código do seu cartão presente é:</p>
+        <div class="codigo-cartao-box" id="confirmado-codigo">—</div>
+        <p id="confirmado-validade" class="text-muted"></p>
+        <p class="text-muted">Guarde este código e apresente-o no restaurante. Se você estiver logado,
+        ele também fica na página <a href="minhaconta.html">Minha conta</a>.</p>
         <a href="loja.html" class="btn-comprar-pag">Voltar para a loja</a>
     </div>
 
@@ -155,7 +152,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/api.js?v=3"></script>
+<script src="js/api.js?v=4"></script>
 
 <script>
 
@@ -170,8 +167,10 @@ const tokenLogin = localStorage.getItem("token");
 const cabecalhoAuth = tokenLogin ? { "Authorization": "Bearer " + tokenLogin } : {};
 
 let pedidoAtual = null;
+let metodoAtual = "pix";
 
 function selecionarMetodo(metodo) {
+    metodoAtual = metodo;
     document.getElementById("btn-metodo-pix").classList.toggle("ativo", metodo === "pix");
     document.getElementById("btn-metodo-cartao").classList.toggle("ativo", metodo === "cartao");
     document.getElementById("painel-pix").style.display = metodo === "pix" ? "block" : "none";
@@ -198,8 +197,23 @@ async function carregarPedido() {
         const pedido = await resposta.json();
         pedidoAtual = pedido;
 
-        document.getElementById("resumo-produto").textContent = pedido.produto_nome;
-        document.getElementById("resumo-quantidade").textContent = pedido.quantidade;
+        if (pedido.status === "cancelado") {
+            mostrarErro("Este pedido foi cancelado e não pode mais ser pago.");
+            return;
+        }
+
+        const caixaItens = document.getElementById("resumo-itens");
+        caixaItens.textContent = "";
+        pedido.itens.forEach(i => {
+            const linha = document.createElement("div");
+            linha.className = "checkout-item-linha";
+            const nome = document.createElement("span");
+            nome.textContent = `${i.quantidade}× ${i.produto_nome}`;
+            const sub = document.createElement("span");
+            sub.textContent = `R$ ${formatarPreco(i.subtotal)}`;
+            linha.append(nome, sub);
+            caixaItens.appendChild(linha);
+        });
         document.getElementById("resumo-total").textContent = `R$ ${formatarPreco(pedido.valor_total)}`;
 
         const statusEl = document.getElementById("resumo-status");
@@ -209,7 +223,7 @@ async function carregarPedido() {
         document.getElementById("checkout-carregando").style.display = "none";
 
         if (pedido.status === "pago") {
-            mostrarConfirmado(pedido.id);
+            mostrarConfirmado(pedido.id, pedido.codigo_cartao, pedido.cartao);
         } else {
             document.getElementById("checkout-conteudo").style.display = "flex";
         }
@@ -225,9 +239,16 @@ function mostrarErro(mensagem) {
     document.getElementById("checkout-erro").style.display = "block";
 }
 
-function mostrarConfirmado(id) {
+function mostrarConfirmado(id, codigoCartao, cartao) {
     document.getElementById("checkout-conteudo").style.display = "none";
     document.getElementById("confirmado-pedido-id").textContent = id;
+    document.getElementById("confirmado-codigo").textContent = codigoCartao || "—";
+    if (cartao) {
+        const [ano, mes, dia] = cartao.validade.substring(0, 10).split("-");
+        document.getElementById("confirmado-validade").textContent =
+            `Saldo: R$ ${formatarPreco(cartao.saldo)} · Válido até ${dia}/${mes}/${ano}. ` +
+            "O saldo pode ser usado em mais de uma visita.";
+    }
     document.getElementById("checkout-confirmado").style.display = "block";
 }
 
@@ -241,7 +262,7 @@ async function confirmarPagamento() {
         const resposta = await fetch(`${API_URL}/pedidos/pagar.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...cabecalhoAuth },
-            body: JSON.stringify({ id: pedidoId, codigo: codigoAcesso })
+            body: JSON.stringify({ id: pedidoId, codigo: codigoAcesso, forma_pagamento: metodoAtual })
         });
 
         const dados = await resposta.json();
@@ -251,7 +272,7 @@ async function confirmarPagamento() {
             return;
         }
 
-        mostrarConfirmado(pedidoId);
+        mostrarConfirmado(pedidoId, dados.codigo_cartao, dados.cartao);
     } catch (erro) {
         console.error(erro);
         alert("Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.");

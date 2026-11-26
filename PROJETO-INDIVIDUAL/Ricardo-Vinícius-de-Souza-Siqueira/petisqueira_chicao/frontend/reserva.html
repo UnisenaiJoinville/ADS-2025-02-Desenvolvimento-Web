@@ -211,6 +211,12 @@
                 >
 
 
+                <label class="consentimento" style="color:#ddd;">
+                    <input type="checkbox" id="res-consentimento" required style="width:auto;">
+                    <span>Concordo com o uso dos meus dados para gerenciar esta reserva
+                    (<a href="privacidade.html" target="_blank" rel="noopener" style="color:#f2c200;">Política de Privacidade</a>).</span>
+                </label>
+
                 <!-- BOTÃO -->
 
                 <button
@@ -221,6 +227,8 @@
                 </button>
 
             </form>
+
+            <div id="reserva-feedback" class="reserva-feedback" role="status" aria-live="polite" hidden></div>
 
         </div>
 
@@ -314,333 +322,106 @@
 
     <!-- API -->
 
-    <script src="js/api.js?v=3"></script>
+    <script src="js/api.js?v=4"></script>
 
 
     <!-- JAVASCRIPT DA RESERVA -->
 
     <script>
 
-        async function valida(event) {
-
-            event.preventDefault();
-
-
-            // =========================
-            // VALIDAÇÃO DO NOME
-            // =========================
-
-            let nome = document.frmreserva.txtnome.value.trim();
-
-            let expRegNome =
-                /^[A-Za-zÀ-ÿ]{3,}( [A-Za-zÀ-ÿ]{2,})+$/;
-
-            if (!expRegNome.test(nome)) {
-
-                alert("Digite seu nome e sobrenome.");
-
-                document.frmreserva.txtnome.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // QUANTIDADE DE PESSOAS
-            // =========================
-
-            let numero =
-                document.frmreserva.txtnumber.value;
-
-            if (numero <= 0 || numero == "") {
-
-                alert(
-                    "Informe uma quantidade válida de pessoas."
-                );
-
-                document.frmreserva.txtnumber.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // DATA DA RESERVA
-            // =========================
-
-            let data =
-                document.frmreserva.txtdata.value;
-
-            if (!data) {
-
-                alert(
-                    "Escolha a data em que deseja reservar a mesa."
-                );
-
-                document.frmreserva.txtdata.focus();
-
-                return false;
-
-            }
-
-
-            // Data atual no formato AAAA-MM-DD
-
-            let hojeStr =
-                new Date().toLocaleDateString("sv-SE");
-
-
-            // Não permite data passada
-
-            if (data < hojeStr) {
-
-                alert(
-                    "A data da reserva não pode ser no passado. Escolha hoje ou uma data futura."
-                );
-
-                document.frmreserva.txtdata.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // HORÁRIO
-            // =========================
-
-            let hora =
-                document.frmreserva.txthora.value;
-
-            if (!hora) {
-
-                alert(
-                    "Escolha o horário em que deseja reservar a mesa."
-                );
-
-                document.frmreserva.txthora.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // VERIFICA HORÁRIO DE HOJE
-            // =========================
-
-            if (data === hojeStr) {
-
-                let agoraStr =
-                    new Date().toLocaleTimeString(
-                        "pt-BR",
-                        {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false
-                        }
-                    );
-
-
-                if (hora < agoraStr) {
-
-                    alert(
-                        "Esse horário já passou. Escolha um horário mais adiante para hoje."
-                    );
-
-                    document.frmreserva.txthora.focus();
-
-                    return false;
-
-                }
-
-            }
-
-
-            // Funcionamento: terça a sábado (getDay: 2 a 6)
-            const diaSemana = new Date(data + "T12:00:00").getDay();
-
-            if (diaSemana < 2 || diaSemana > 6) {
-
-                alert("Atendemos de terça a sábado. Escolha outra data.");
-
-                document.frmreserva.txtdata.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // DATA + HORA
-            // =========================
-
-            let dataReserva =
-                `${data} ${hora}:00`;
-
-
-            // =========================
-            // TELEFONE
-            // =========================
-
-            let telefone =
-                document.frmreserva.txtfone.value.trim();
-
-
-            // Aceita:
-            // (47)99999-9999
-            // (47) 99999-9999
-
-            let expRegFone =
-                /^\([1-9]{2}\)\s?[0-9]{4,5}-[0-9]{4}$/;
-
-
-            if (!expRegFone.test(telefone)) {
-
-                alert(
-                    "Preencha o telefone corretamente.\nExemplo: (47)99999-9999"
-                );
-
-                document.frmreserva.txtfone.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // EMAIL
-            // =========================
-
-            let email =
-                document.frmreserva.txtemail.value.trim();
-
-
-            let expRegEmail =
-                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-            if (!expRegEmail.test(email)) {
-
-                alert(
-                    "Preencha o campo Email corretamente."
-                );
-
-                document.frmreserva.txtemail.focus();
-
-                return false;
-
-            }
-
-
-            // =========================
-            // BOTÃO
-            // =========================
-
-            const botao =
-                document.querySelector(".res");
-
-            const textoOriginal =
-                botao.textContent;
-
-
-            botao.disabled = true;
-
-            botao.textContent = "Enviando...";
-
-
-            // =========================
-            // ENVIO PARA API
-            // =========================
-
-            try {
-
-                const resposta = await fetch(
-                    `${API_URL}/reservas/criar.php`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json",
-                            // Se o cliente estiver logado, envia o token para a
-                            // reserva aparecer em "Minha conta". Sem login, segue normal.
-                            ...(localStorage.getItem("token")
-                                ? { "Authorization": "Bearer " + localStorage.getItem("token") }
-                                : {})
-                        },
-
-                        body: JSON.stringify({
-
-                            nome: nome,
-
-                            telefone: telefone,
-
-                            email: email,
-
-                            quantidade_pessoas:
-                                Number(numero),
-
-                            data_reserva:
-                                dataReserva
-
-                        })
-
-                    }
-                );
-
-
-                const dados =
-                    await resposta.json();
-
-
-                if (!resposta.ok) {
-
-                    alert(
-                        dados.erro ||
-                        "Não foi possível registrar a reserva."
-                    );
-
-                    return false;
-
-                }
-
-
-                alert(
-                    dados.mensagem ||
-                    "Reserva realizada com sucesso! Em breve entraremos em contato para confirmar."
-                );
-
-
-                // Limpa o formulário
-
-                document.frmreserva.reset();
-
-
-            } catch (erro) {
-
-                console.error(erro);
-
-                alert(
-                    "Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente."
-                );
-
-
-            } finally {
-
-                botao.disabled = false;
-
-                botao.textContent =
-                    textoOriginal;
-
-            }
-
-
-            return false;
-
+        function mostrarFeedbackReserva(mensagem, tipo = "erro") {
+            const feedback = document.getElementById("reserva-feedback");
+            feedback.textContent = mensagem;
+            feedback.className = `reserva-feedback ${tipo}`;
+            feedback.hidden = false;
+            feedback.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
 
+        function limparFeedbackReserva() {
+            const feedback = document.getElementById("reserva-feedback");
+            feedback.hidden = true;
+            feedback.textContent = "";
+        }
+
+        function formatarTelefone(valor) {
+            const numeros = valor.replace(/\D/g, "").slice(0, 11);
+            if (numeros.length <= 2) return numeros ? `(${numeros}` : "";
+            if (numeros.length <= 10) {
+                return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
+            }
+            return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+        }
+
+        async function valida(event) {
+            event.preventDefault();
+            limparFeedbackReserva();
+
+            const formulario = document.frmreserva;
+            const nome = formulario.txtnome.value.trim();
+            const numero = Number(formulario.txtnumber.value);
+            const data = formulario.txtdata.value;
+            const hora = formulario.txthora.value;
+            const telefone = formulario.txtfone.value.trim();
+            const email = formulario.txtemail.value.trim();
+            const hojeStr = new Date().toLocaleDateString("sv-SE");
+            const expRegNome = /^[A-Za-zÀ-ÿ]{3,}( [A-Za-zÀ-ÿ]{2,})+$/;
+            const numerosTelefone = telefone.replace(/\D/g, "");
+
+            const falhar = (mensagem, campo) => {
+                mostrarFeedbackReserva(mensagem, "erro");
+                campo?.focus();
+                return false;
+            };
+
+            if (!expRegNome.test(nome)) return falhar("Digite seu nome e sobrenome para continuarmos.", formulario.txtnome);
+            if (!Number.isInteger(numero) || numero < 1 || numero > 20) return falhar("Informe uma quantidade de 1 a 20 pessoas.", formulario.txtnumber);
+            if (!data) return falhar("Escolha a data da reserva.", formulario.txtdata);
+            if (data < hojeStr) return falhar("A data não pode estar no passado. Escolha hoje ou uma data futura.", formulario.txtdata);
+            if (!hora) return falhar("Escolha o horário da sua mesa.", formulario.txthora);
+            if (data === hojeStr) {
+                const agoraStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", hour12: false });
+                if (hora < agoraStr) return falhar("Esse horário já passou. Escolha um horário mais adiante.", formulario.txthora);
+            }
+            const diaSemana = new Date(`${data}T12:00:00`).getDay();
+            if (diaSemana < 2 || diaSemana > 6) return falhar("Atendemos de terça a sábado. Escolha outra data.", formulario.txtdata);
+            if (!/^[1-9][0-9]{10}$|^[1-9][0-9]{9}$/.test(numerosTelefone)) return falhar("Informe um telefone com DDD. Exemplo: (47) 99999-9999.", formulario.txtfone);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return falhar("Confira o formato do seu e-mail.", formulario.txtemail);
+
+            const botao = document.querySelector(".res");
+            const textoOriginal = botao.textContent;
+            botao.disabled = true;
+            botao.textContent = "Enviando...";
+
+            try {
+                const resposta = await fetch(`${API_URL}/reservas/criar.php`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(localStorage.getItem("token") ? { "Authorization": "Bearer " + localStorage.getItem("token") } : {})
+                    },
+                    body: JSON.stringify({ nome, telefone, email, quantidade_pessoas: numero, data_reserva: `${data} ${hora}:00` })
+                });
+                const dados = await resposta.json();
+                if (!resposta.ok) {
+                    mostrarFeedbackReserva(dados.erro || "Não foi possível registrar a reserva. Revise os dados e tente novamente.", "erro");
+                    return false;
+                }
+                mostrarFeedbackReserva(dados.mensagem || "Reserva enviada. Em breve a equipe entrará em contato para confirmar.", "sucesso");
+                formulario.reset();
+            } catch (erro) {
+                console.error(erro);
+                mostrarFeedbackReserva("Não foi possível conectar ao servidor. Tente novamente em instantes.", "erro");
+            } finally {
+                botao.disabled = false;
+                botao.textContent = textoOriginal;
+            }
+            return false;
+        }
+
+        const campoTelefone = document.getElementById("fone");
+        campoTelefone.addEventListener("input", (event) => {
+            event.target.value = formatarTelefone(event.target.value);
+        });
 
         // =========================
         // DATA MÍNIMA

@@ -27,6 +27,7 @@ body.body-pag{ background:var(--fundo); }
 .admin-tabela{ background:#fff; border-radius:10px; overflow:hidden; }
 .admin-tabela thead th{ background:var(--vinho) !important; color:#fff !important; border:0 !important; }
 .admin-tabela tbody tr:nth-child(even){ background:#fbf3f0; }
+.admin-badge.utilizado{ background:#e2e3e5; color:#41464b; }
 .adm-sub{ display:block; font-size:12px; color:#8a6a6f; }
 .adm-status{ border:0; border-radius:14px; padding:4px 12px; font-size:13px; font-weight:600; color:#fff; background:var(--ouro); }
 .adm-status.pendente{ background:var(--ouro); } .adm-status.confirmada{ background:#2e8b47; } .adm-status.cancelada{ background:#d32f2f; }
@@ -89,3 +90,52 @@ body.body-pag{ background:var(--fundo); }
   .adm-topo .adm-sair{ padding:8px 18px; }
   .adm-kpi{ padding:14px 16px; }
 }
+
+
+/* Login administrativo — visual leve, humano e sem aparência de template genérico. */
+.admin-auth-wrap{
+  min-height:100vh;
+  display:flex;
+  background:#f7f4ee;
+}
+.admin-auth-brand{
+  flex:0 1 38%;
+  min-height:100vh;
+  background:#4c342d;
+  color:#fff;
+  padding:clamp(28px,6vw,72px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+.admin-auth-brand::before{ display:none; }
+.admin-auth-brand-inner{ max-width:360px; }
+.admin-auth-logo{ color:#f1c982; font-size:14px; letter-spacing:1.2px; margin-bottom:34px; }
+.admin-auth-brand-inner h1{ font-family:Georgia,serif; font-size:clamp(28px,3.2vw,42px); line-height:1.12; font-weight:400; }
+.admin-auth-brand-inner p{ color:#eadfd7; font-size:14px; line-height:1.65; }
+.admin-auth-features{ gap:10px; }
+.admin-auth-features li{ color:#f6eee8; font-size:13px; }
+.admin-auth-features li i{ width:30px; height:30px; flex-basis:30px; background:#62453b; border:0; color:#f1c982; border-radius:50%; }
+.admin-auth-footer{ left:clamp(28px,6vw,72px); bottom:28px; color:#d7c4b8; }
+.admin-auth-form-side{ flex:1; background:#f7f4ee; padding:32px 24px; }
+.admin-login-box{ max-width:410px; padding:42px 40px; border-radius:18px; border:1px solid #e7ded5; box-shadow:0 18px 50px rgba(76,52,45,.10); }
+.admin-login-box .admin-auth-badge{ width:44px; height:44px; border-radius:50%; background:#f4e8d4; color:#9a6a35; margin-bottom:22px; }
+.admin-login-box h2{ font-family:Georgia,serif; font-size:29px; font-weight:400; color:#332825; }
+.admin-login-box .admin-auth-sub{ color:#806f68; line-height:1.55; }
+.admin-field label{ color:#5c4942; font-weight:600; }
+.admin-login-box input{ border:1px solid #dfd4cb; background:#fcfbf8; border-radius:10px; padding:12px 14px; }
+.admin-login-box input:focus{ border-color:#b48755; box-shadow:0 0 0 3px rgba(180,135,85,.13); }
+.admin-login-box .admin-btn.salvar{ background:#8b5e3c; border-radius:10px; padding:13px; }
+.admin-login-box .admin-btn.salvar:hover{ background:#70472e; }
+.admin-login-box .admin-auth-note{ background:#faf7f2; border:1px solid #eee3d9; color:#806f68; }
+#admin-login-erro{ background:#fff4f1; border-color:#efcfc6; color:#8b4237; }
+@media (max-width:900px){
+  .admin-auth-brand{ display:flex; min-height:auto; padding:28px 24px; }
+  .admin-auth-brand-inner{ max-width:520px; }
+  .admin-auth-brand-inner p,.admin-auth-features,.admin-auth-footer{ display:none; }
+  .admin-auth-brand-inner h1{ font-size:25px; margin:0; }
+  .admin-auth-logo{ margin-bottom:12px; }
+  .admin-auth-form-side{ min-height:auto; }
+}
+@media (max-width:520px){ .admin-login-box{ padding:32px 24px; } }

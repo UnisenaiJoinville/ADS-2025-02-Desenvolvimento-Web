@@ -2578,3 +2578,54 @@ table.dataTable > tbody > tr.child span.dtr-title{
     background: none; border: 0; color: #fff;
     font-size: 38px; line-height: 1; cursor: pointer;
 }
+
+
+/* ===== Sacola / carrinho ===== */
+.link-carrinho { position: relative; display: inline-block; }
+.carrinho-badge {
+    position: absolute; top: -8px; right: -10px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 9px; background: #f2c200; color: #1a1a1a;
+    font-size: 11px; font-weight: bold; line-height: 18px; text-align: center;
+}
+.carrinho-container { max-width: 900px; margin: 40px auto; padding: 0 16px; }
+.carrinho-titulo { margin-bottom: 24px; }
+.carrinho-vazio { text-align: center; padding: 50px 10px; }
+.carrinho-linha {
+    display: flex; align-items: center; gap: 16px; padding: 14px 0;
+    border-bottom: 1px solid #eee; flex-wrap: wrap;
+}
+.carrinho-linha img { width: 90px; border-radius: 6px; }
+.carrinho-linha .carrinho-nome { flex: 1 1 160px; font-weight: bold; }
+.carrinho-linha .carrinho-nome small { display: block; font-weight: normal; color: #777; }
+.carrinho-qtd { display: flex; align-items: center; gap: 6px; }
+.carrinho-qtd button { width: 32px; height: 32px; border: 1px solid #ccc; background: #fff; border-radius: 4px; }
+.carrinho-qtd input { width: 52px; text-align: center; height: 32px; border: 1px solid #ccc; border-radius: 4px; }
+.carrinho-subtotal { min-width: 100px; text-align: right; font-weight: bold; }
+.carrinho-remover { background: none; border: none; color: #b00020; cursor: pointer; font-size: 18px; }
+.carrinho-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; padding: 18px 0; }
+.carrinho-dados { display: grid; gap: 10px; margin: 10px 0 20px; }
+.carrinho-dados input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
+.consentimento { font-size: 13px; color: #555; display: flex; gap: 8px; align-items: flex-start; margin: 10px 0; text-align: left; }
+.consentimento input { width: auto; margin-top: 3px; }
+/* o link global é branco (menu/rodapé); no aviso de consentimento ele precisa ser legível */
+.consentimento a { color: #0b6fa4; text-decoration: underline; }
+.checkout-itens { margin: 6px 0 12px; }
+.checkout-item-linha { display: flex; justify-content: space-between; padding: 4px 0; font-size: 15px; }
+.codigo-cartao-box {
+    font-size: 26px; letter-spacing: 3px; background: #fff8e1; border-left: 4px solid #f2c200;
+    padding: 14px; margin: 14px auto; max-width: 340px; font-weight: bold;
+}
+@media (max-width: 576px) {
+    .carrinho-linha img { width: 64px; }
+    .carrinho-subtotal { min-width: 0; margin-left: auto; }
+}
+
+
+/* Feedback contextual da reserva: substitui alertas nativos do navegador. */
+.reserva-feedback{ margin-top:18px; padding:13px 15px; border-radius:10px; font-size:14px; line-height:1.5; }
+.reserva-feedback.erro{ background:#fff3f0; border:1px solid #efcfc7; color:#8b4237; }
+.reserva-feedback.sucesso{ background:#eef8f0; border:1px solid #c8e4cc; color:#28623a; }
+.reserva-feedback[hidden]{ display:none; }
+.campos-res:focus{ border-color:#b48755; box-shadow:0 0 0 3px rgba(180,135,85,.12); outline:none; }
+.res:disabled{ opacity:.65; cursor:wait; }

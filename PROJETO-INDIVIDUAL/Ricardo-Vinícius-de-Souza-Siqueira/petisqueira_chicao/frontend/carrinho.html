@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrinho - Petisqueira Chicão</title>
+
+<!-- Bootstrap 4.6 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet" href="css/estilo.css">
+
+</head>
+
+<body class="body-pag">
+
+<div class="topo-pag">
+
+    <div class="container-pag">
+
+        <div class="topo-conteudo">
+
+            <div class="logo-pag">
+                Petisqueira Chicão
+            </div>
+
+            <div class="icones-topo">
+                <a href="login.html" id="link-conta">
+                    <i class="bi bi-person"></i>
+                </a>
+
+                <a href="carrinho.html" id="link-carrinho" class="link-carrinho" aria-label="Ver carrinho"><i class="bi bi-bag"></i><span class="carrinho-badge" id="carrinho-badge" style="display:none;"></span></a>
+            </div>
+
+        </div>
+
+        <div class="menu text-center mt-3">
+            <a href="index.html">Início</a>
+            <a href="loja.html">Produtos</a>
+            <a href="contato.html">Contato</a>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="carrinho-container">
+
+    <h2 class="carrinho-titulo">Meu carrinho</h2>
+
+    <p id="carrinho-carregando" class="text-center">Carregando carrinho...</p>
+
+    <div id="carrinho-vazio" class="carrinho-vazio" style="display:none;">
+        <p>Seu carrinho está vazio.</p>
+        <a href="loja.html" class="btn-comprar-pag">Ver cartões presente</a>
+    </div>
+
+    <div id="carrinho-conteudo" style="display:none;">
+
+        <div id="carrinho-itens"></div>
+
+        <div class="carrinho-total">
+            <span>Total</span>
+            <span id="carrinho-total">R$ 0,00</span>
+        </div>
+
+        <!-- Visitante sem conta: precisamos do nome e e-mail para enviar o código do cartão -->
+        <div id="carrinho-dados" class="carrinho-dados" style="display:none;">
+            <p class="mb-1">Você não está logado. Informe seus dados para receber o código do cartão
+               (ou <a href="login.html">entre na sua conta</a>).</p>
+            <label for="cart-nome" class="sr-only">Seu nome</label>
+            <input type="text" id="cart-nome" placeholder="Seu nome" maxlength="150" autocomplete="name">
+            <label for="cart-email" class="sr-only">Seu e-mail</label>
+            <input type="email" id="cart-email" placeholder="Seu e-mail" maxlength="150" autocomplete="email">
+        </div>
+
+        <label class="consentimento">
+            <input type="checkbox" id="cart-consentimento">
+            <span>Li e concordo com o uso dos meus dados para processar este pedido,
+            conforme a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</span>
+        </label>
+
+        <div class="d-flex justify-content-between flex-wrap">
+            <a href="loja.html" class="btn-comprar-pag" style="background:#fff; color:#1a1a1a; border:2px solid #1a1a1a;">Continuar comprando</a>
+            <button type="button" id="btn-finalizar" class="btn-comprar-pag" onclick="finalizarPedido()">Finalizar pedido</button>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    PETISQUEIRA CHICÃO 2026 &copy; TODOS OS DIREITOS RESERVADOS
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js?v=4"></script>
+
+<script>
+// Catálogo vindo do servidor (nome, preço e imagem reais de cada produto)
+let catalogo = {};
+const logado = !!localStorage.getItem("token");
+
+function formatarPreco(valor) {
+    return Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function el(tag, classe, texto) {
+    const e = document.createElement(tag);
+    if (classe) e.className = classe;
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+}
+
+async function iniciar() {
+    try {
+        const resposta = await fetch(`${API_URL}/produtos/listar.php`);
+        const produtos = await resposta.json();
+        if (!resposta.ok) throw new Error();
+        produtos.forEach(p => { catalogo[p.id] = p; });
+    } catch (e) {
+        document.getElementById("carrinho-carregando").textContent =
+            "Não foi possível carregar os produtos. Verifique se o backend está rodando.";
+        return;
+    }
+    desenhar();
+}
+
+function desenhar() {
+    // Remove do carrinho produtos que não existem mais / foram desativados
+    const itens = Carrinho.ler().filter(i => catalogo[i.produto_id]);
+    if (itens.length !== Carrinho.ler().length) Carrinho.salvar(itens);
+
+    document.getElementById("carrinho-carregando").style.display = "none";
+
+    if (itens.length === 0) {
+        document.getElementById("carrinho-conteudo").style.display = "none";
+        document.getElementById("carrinho-vazio").style.display = "block";
+        return;
+    }
+
+    document.getElementById("carrinho-vazio").style.display = "none";
+    document.getElementById("carrinho-conteudo").style.display = "block";
+    document.getElementById("carrinho-dados").style.display = logado ? "none" : "grid";
+
+    const lista = document.getElementById("carrinho-itens");
+    lista.textContent = "";
+    let totalCentavos = 0;
+
+    itens.forEach(item => {
+        const produto = catalogo[item.produto_id];
+        const subtotal = Math.round(Number(produto.valor) * 100) * item.quantidade;
+        totalCentavos += subtotal;
+
+        const linha = el("div", "carrinho-linha");
+
+        const img = el("img");
+        img.src = produto.imagem || "imgs/cartao-presente-100.png";
+        img.alt = produto.nome;
+        linha.appendChild(img);
+
+        const nome = el("div", "carrinho-nome", produto.nome);
+        nome.appendChild(el("small", "", `R$ ${formatarPreco(produto.valor)} cada`));
+        linha.appendChild(nome);
+
+        const qtd = el("div", "carrinho-qtd");
+        const menos = el("button", "", "-"); menos.type = "button"; menos.setAttribute("aria-label", "Diminuir quantidade");
+        const campo = el("input"); campo.type = "number"; campo.min = 1; campo.max = 50; campo.value = item.quantidade;
+        campo.setAttribute("aria-label", "Quantidade");
+        const mais = el("button", "", "+"); mais.type = "button"; mais.setAttribute("aria-label", "Aumentar quantidade");
+        menos.onclick = () => { Carrinho.alterar(item.produto_id, item.quantidade - 1); desenhar(); };
+        mais.onclick = () => { Carrinho.alterar(item.produto_id, item.quantidade + 1); desenhar(); };
+        campo.onchange = () => {
+            const n = Math.floor(Number(campo.value));
+            Carrinho.alterar(item.produto_id, n >= 1 ? n : 1);
+            desenhar();
+        };
+        qtd.append(menos, campo, mais);
+        linha.appendChild(qtd);
+
+        linha.appendChild(el("div", "carrinho-subtotal", `R$ ${formatarPreco(subtotal / 100)}`));
+
+        const remover = el("button", "carrinho-remover");
+        remover.type = "button";
+        remover.setAttribute("aria-label", "Remover do carrinho");
+        remover.innerHTML = '<i class="bi bi-trash"></i>';
+        remover.onclick = () => { Carrinho.remover(item.produto_id); desenhar(); };
+        linha.appendChild(remover);
+
+        lista.appendChild(linha);
+    });
+
+    document.getElementById("carrinho-total").textContent = `R$ ${formatarPreco(totalCentavos / 100)}`;
+}
+
+async function finalizarPedido() {
+    const itens = Carrinho.ler();
+    if (itens.length === 0) return;
+
+    if (!document.getElementById("cart-consentimento").checked) {
+        alert("Para continuar, aceite o uso dos seus dados (Política de Privacidade).");
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+    const corpo = { itens };
+
+    if (!token) {
+        corpo.nome = document.getElementById("cart-nome").value.trim();
+        corpo.email = document.getElementById("cart-email").value.trim();
+        if (!corpo.nome || !corpo.email) {
+            alert("Informe seu nome e e-mail para receber o código do cartão.");
+            return;
+        }
+    }
+
+    const botao = document.getElementById("btn-finalizar");
+    const textoOriginal = botao.textContent;
+    botao.disabled = true; // evita pedido duplicado por clique duplo
+    botao.textContent = "Processando...";
+
+    try {
+        const resposta = await fetch(`${API_URL}/pedidos/criar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { "Authorization": "Bearer " + token } : {})
+            },
+            body: JSON.stringify(corpo)
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            // Token vencido: o servidor trata como visitante e pede nome/e-mail
+            if (token && resposta.status === 400 && /nome|e-mail/i.test(dados.erro || "")) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                alert("Sua sessão expirou. Informe seu nome e e-mail ou entre novamente.");
+                window.location.reload();
+                return;
+            }
+            alert(dados.erro || "Não foi possível registrar o pedido.");
+            botao.disabled = false;
+            botao.textContent = textoOriginal;
+            return;
+        }
+
+        Carrinho.limpar();
+        window.location.href = `checkout.html?pedido_id=${dados.pedido.id}&codigo=${dados.pedido.codigo_acesso}`;
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.");
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+    }
+}
+
+iniciar();
+</script>
+
+</body>
+</html>
