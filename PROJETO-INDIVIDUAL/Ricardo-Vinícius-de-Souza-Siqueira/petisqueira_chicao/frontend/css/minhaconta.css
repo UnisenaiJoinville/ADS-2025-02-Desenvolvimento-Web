@@ -214,7 +214,10 @@
 .conta-status.confirmada,
 .conta-status.pago{ background: #d4edda; color: #155724; }
 .conta-status.cancelada,
-.conta-status.cancelado{ background: #f8d7da; color: #721c24; }
+.conta-status.cancelado,
+.conta-status.expirado{ background: #f8d7da; color: #721c24; }
+.conta-status.ativo{ background: #d4edda; color: #155724; }
+.conta-status.utilizado{ background: #e2e3e5; color: #41464b; }
 
 /* ---------- Botões e links ---------- */
 .conta-botao{

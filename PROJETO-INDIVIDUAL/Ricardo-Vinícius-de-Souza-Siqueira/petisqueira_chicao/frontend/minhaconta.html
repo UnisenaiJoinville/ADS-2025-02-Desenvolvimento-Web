@@ -39,7 +39,7 @@
                     <i class="bi bi-person"></i>
                 </a>
 
-                <a href="loja.html" aria-label="Ver carrinho / loja"><i class="bi bi-bag"></i></a>
+                <a href="carrinho.html" id="link-carrinho" class="link-carrinho" aria-label="Ver carrinho"><i class="bi bi-bag"></i><span class="carrinho-badge" id="carrinho-badge" style="display:none;"></span></a>
             </div>
 
         </div>
@@ -142,7 +142,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/api.js?v=3"></script>
+<script src="js/api.js?v=4"></script>
 
 <script>
 // ==========================================================
@@ -155,6 +155,12 @@ const STATUS_RESERVA = {
     pendente: "Aguardando confirmação",
     confirmada: "Confirmada",
     cancelada: "Cancelada"
+};
+
+const STATUS_CARTAO = {
+    ativo: "Cartão ativo",
+    utilizado: "Cartão utilizado",
+    expirado: "Cartão expirado"
 };
 
 const STATUS_PEDIDO = {
@@ -200,7 +206,14 @@ function mostrarErro(mensagem) {
     document.getElementById("conta-erro").classList.remove("d-none");
 }
 
-function sairDaConta() {
+async function sairDaConta() {
+    // Invalida o token no servidor (se der erro de rede, sai do mesmo jeito)
+    try {
+        await fetch(`${API_URL}/auth/logout.php`, {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+        });
+    } catch (e) { /* segue com a saída local */ }
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     window.location.href = "login.html";
@@ -242,11 +255,46 @@ function montarReservas(reservas) {
         const direita = el("div", "conta-item-direita");
         direita.appendChild(el("span", `conta-status ${r.status}`, STATUS_RESERVA[r.status] || r.status));
 
+        // Cancelar: só reservas ativas e que ainda não aconteceram
+        const futura = r.data_reserva && new Date(r.data_reserva.replace(" ", "T")) > new Date();
+        if (r.status !== "cancelada" && futura) {
+            const cancelar = el("button", "conta-botao conta-botao-pequeno", "Cancelar reserva");
+            cancelar.type = "button";
+            cancelar.addEventListener("click", () => cancelarReserva(r.id, cancelar));
+            direita.appendChild(cancelar);
+        }
+
         item.appendChild(icone);
         item.appendChild(info);
         item.appendChild(direita);
         lista.appendChild(item);
     });
+}
+
+async function cancelarReserva(id, botao) {
+    if (!confirm("Deseja realmente cancelar esta reserva?")) return;
+    botao.disabled = true; // evita clique duplo
+    try {
+        const resposta = await fetch(`${API_URL}/reservas/cancelar.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify({ id })
+        });
+        const dados = await resposta.json();
+        if (!resposta.ok) {
+            alert(dados.erro || "Não foi possível cancelar a reserva.");
+            botao.disabled = false;
+            return;
+        }
+        window.location.reload();
+    } catch (erro) {
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor.");
+        botao.disabled = false;
+    }
 }
 
 function montarPedidos(pedidos) {
@@ -266,17 +314,35 @@ function montarPedidos(pedidos) {
         icone.appendChild(el("i", "bi bi-gift"));
 
         const info = el("div", "conta-item-info");
-        info.appendChild(el("div", "conta-item-titulo", `${p.produto_nome} × ${p.quantidade}`));
-        info.appendChild(el("div", "conta-item-sub", `Pedido #${p.id} • ${formatarData(p.criado_em)}`));
+        info.appendChild(el("div", "conta-item-titulo", `Pedido #${p.id}`));
+        // Um pedido tem vários itens (mestre-detalhe)
+        (p.itens || []).forEach((i) => {
+            info.appendChild(el("div", "conta-item-sub",
+                `${i.quantidade}× ${i.produto_nome} — R$ ${formatarPreco(i.subtotal)}`));
+        });
+        info.appendChild(el("div", "conta-item-sub", formatarData(p.criado_em)));
+        if (p.status === "pago" && p.codigo_cartao) {
+            info.appendChild(el("div", "conta-item-sub", `Código do cartão: ${p.codigo_cartao}`));
+        }
+        // Saldo e validade do cartão presente (só existe depois de pago)
+        if (p.status === "pago" && p.cartao) {
+            info.appendChild(el("div", "conta-item-sub",
+                `Saldo: R$ ${formatarPreco(p.cartao.saldo)} de R$ ${formatarPreco(p.cartao.valor_inicial)}`));
+            info.appendChild(el("div", "conta-item-sub", `Válido até ${formatarData(p.cartao.validade)}`));
+        }
 
         const direita = el("div", "conta-item-direita");
         direita.appendChild(el("span", "conta-preco", `R$ ${formatarPreco(p.valor_total)}`));
         direita.appendChild(el("span", `conta-status ${p.status}`, STATUS_PEDIDO[p.status] || p.status));
+        if (p.status === "pago" && p.cartao) {
+            direita.appendChild(el("span", `conta-status ${p.cartao.status}`,
+                STATUS_CARTAO[p.cartao.status] || p.cartao.status));
+        }
 
         // Pedido ainda não pago: leva de volta para finalizar o pagamento
         if (p.status === "pendente") {
             const link = el("a", "conta-botao conta-botao-pequeno", "Finalizar pagamento");
-            link.href = `checkout.html?pedido_id=${encodeURIComponent(p.id)}`;
+            link.href = `checkout.html?pedido_id=${encodeURIComponent(p.id)}&codigo=${encodeURIComponent(p.codigo_acesso || "")}`;
             direita.appendChild(link);
         }
 

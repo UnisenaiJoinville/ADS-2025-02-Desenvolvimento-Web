@@ -41,12 +41,9 @@ $corpo = montarEmailConfirmacaoReserva($reserva);
 $enviado = enviarEmail($reserva['email'], $reserva['nome'], 'Sua reserva foi confirmada! 🎉', $corpo);
 
 if ($enviado) {
-    $pdo->prepare('UPDATE reservas SET confirmacao_enviada_em = NOW() WHERE id = ?')->execute([$id]);
+    $pdo->prepare('UPDATE reservas SET confirmacao_enviada_em = ? WHERE id = ?')->execute([agora(), $id]);
     echo json_encode(['mensagem' => 'E-mail de confirmação reenviado com sucesso!']);
 } else {
     http_response_code(502);
-    echo json_encode([
-        'erro' => 'Não foi possível enviar o e-mail. Verifique a configuração de e-mail em ' .
-                  'php-backend/config/config.php e o log de erros do PHP.',
-    ]);
+    echo json_encode(['erro' => 'Não foi possível enviar o e-mail agora. Tente novamente mais tarde.']);
 }

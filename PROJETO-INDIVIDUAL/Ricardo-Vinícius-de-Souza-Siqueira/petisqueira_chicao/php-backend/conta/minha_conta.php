@@ -12,6 +12,7 @@ ini_set('display_errors', '0');
 
 require_once __DIR__ . '/../includes/cors.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/pedidos.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
@@ -43,23 +44,23 @@ try {
     $stmt->execute([$logado['id']]);
     $reservas = $stmt->fetchAll();
 
-    // 3. Pedidos deste usuário, já com o nome do produto
-    $stmt = $pdo->prepare(
-        'SELECT p.id, pr.nome AS produto_nome, p.quantidade, p.valor_total, p.status, p.criado_em
-         FROM pedidos p
-         JOIN produtos pr ON pr.id = p.produto_id
-         WHERE p.usuario_id = ?
-         ORDER BY p.criado_em DESC'
-    );
+    // 3. Pedidos deste usuário, cada um com seus itens
+    $stmt = $pdo->prepare('SELECT * FROM pedidos WHERE usuario_id = ? ORDER BY criado_em DESC, id DESC');
     $stmt->execute([$logado['id']]);
-    $pedidos = $stmt->fetchAll();
+    $linhasPedidos = $stmt->fetchAll();
+    $itens = carregarItensDosPedidos($pdo, array_column($linhasPedidos, 'id'));
+    $cartoes = carregarCartoesDosPedidos($pdo, array_map('intval', array_column($linhasPedidos, 'id')));
+    $pedidos = array_map(
+        fn($p) => formatarPedido($p, $itens[$p['id']] ?? [], $cartoes[(int) $p['id']] ?? null) + ['codigo_acesso' => $p['codigo_acesso']],
+        $linhasPedidos
+    );
 } catch (PDOException $erro) {
     // O detalhe técnico vai só para o log do servidor (não para o navegador).
     error_log('minha_conta.php: ' . $erro->getMessage());
     http_response_code(500);
     echo json_encode([
         'erro' => 'O banco de dados está desatualizado. No MySQL Workbench, execute o arquivo ' .
-                  'php-backend/database/migration_minha_conta.sql e tente de novo.',
+                  'php-backend/database/migration_v2.sql e tente de novo.',
     ]);
     exit;
 }

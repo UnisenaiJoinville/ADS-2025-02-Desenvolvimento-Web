@@ -11,7 +11,7 @@ if (!$id) {
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT * FROM produtos WHERE id = ?');
+$stmt = $pdo->prepare('SELECT * FROM produtos WHERE id = ? AND ativo = 1');
 $stmt->execute([$id]);
 $produto = $stmt->fetch();
 

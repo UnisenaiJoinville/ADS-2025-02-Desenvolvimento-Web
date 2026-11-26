@@ -11,11 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+limitarRequisicoes($pdo, 'contato', 5, 3600);
+
 $dados = pegarCorpoJson();
 
-$nome = trim($dados['nome'] ?? '');
-$email = trim($dados['email'] ?? '');
-$mensagem = trim($dados['mensagem'] ?? '');
+$nome = trim((string) ($dados['nome'] ?? ''));
+$email = trim((string) ($dados['email'] ?? ''));
+$mensagem = trim((string) ($dados['mensagem'] ?? ''));
 
 if ($nome === '' || $email === '' || $mensagem === '') {
     http_response_code(400);
@@ -23,15 +25,21 @@ if ($nome === '' || $email === '' || $mensagem === '') {
     exit;
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (mb_strlen($nome) > 150 || mb_strlen($mensagem) > 2000) {
+    http_response_code(400);
+    echo json_encode(['erro' => 'Nome (máx. 150) ou mensagem (máx. 2000 caracteres) muito longos.']);
+    exit;
+}
+
+if (!emailValido($email)) {
     http_response_code(400);
     echo json_encode(['erro' => 'Informe um e-mail válido.']);
     exit;
 }
 
 try {
-    $stmt = $pdo->prepare('INSERT INTO mensagens_contato (nome, email, mensagem) VALUES (?, ?, ?)');
-    $stmt->execute([$nome, $email, $mensagem]);
+    $stmt = $pdo->prepare('INSERT INTO mensagens_contato (nome, email, mensagem, criado_em) VALUES (?, ?, ?, ?)');
+    $stmt->execute([$nome, $email, $mensagem, agora()]);
 
     http_response_code(201);
     echo json_encode(['mensagem' => 'Mensagem enviada com sucesso! Em breve retornaremos o contato.']);

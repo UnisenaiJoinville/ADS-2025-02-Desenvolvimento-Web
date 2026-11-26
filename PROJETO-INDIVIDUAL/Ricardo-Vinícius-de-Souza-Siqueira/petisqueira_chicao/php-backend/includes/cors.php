@@ -3,15 +3,21 @@
 // Define que toda resposta é JSON e libera o CORS APENAS para as
 // origens permitidas (não usamos mais "*").
 //
-// Por padrão libera o localhost (XAMPP). Ao publicar o site, defina em
-// config.php:  define('CORS_ORIGENS', ['https://seusite.com.br']);
+// Em desenvolvimento (APP_DEBUG=true) libera localhost. Em produção, defina
+// em config.php: define('CORS_ORIGENS', ['https://seusite.com.br']);
 
-$origensPermitidas = ['http://localhost', 'http://127.0.0.1'];
+// Fuso horário único em todo o sistema (reservas e relatórios dependem disso).
+date_default_timezone_set('America/Sao_Paulo');
+
+$origensPermitidas = [];
 
 $configCors = __DIR__ . '/../config/config.php';
 if (file_exists($configCors)) {
     require_once $configCors;
-    if (defined('CORS_ORIGENS')) {
+    if (defined('APP_DEBUG') && APP_DEBUG) {
+        $origensPermitidas = ['http://localhost', 'http://127.0.0.1'];
+    }
+    if (defined('CORS_ORIGENS') && is_array(CORS_ORIGENS)) {
         $origensPermitidas = array_merge($origensPermitidas, CORS_ORIGENS);
     }
 }
@@ -26,6 +32,7 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
+header('Cache-Control: no-store');
 
 // O navegador manda uma requisição "OPTIONS" antes da de verdade,
 // só pra perguntar "posso mandar essa requisição?" — aqui a gente

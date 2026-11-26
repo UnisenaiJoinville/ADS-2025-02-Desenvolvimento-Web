@@ -1,0 +1,8 @@
+{
+  "name": "petisqueira/chicao-backend",
+  "description": "API PHP do site Petisqueira Chicão",
+  "require": {
+    "php": ">=7.4",
+    "phpmailer/phpmailer": "^7.0"
+  }
+}
